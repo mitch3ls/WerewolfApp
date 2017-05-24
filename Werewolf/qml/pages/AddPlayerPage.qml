@@ -2,6 +2,9 @@ import VPlayApps 1.0
 import QtQuick 2.0
 import QtQuick.Layouts 1.1
 
+import "../model"
+
+
 Page {
 
     id: addPlayerDialogue
@@ -10,16 +13,27 @@ Page {
 
     signal playerCreated(var player)
 
+    Rectangle {
+        id: modal
+        anchors.centerIn: parent
+        color: "blue"
+        width: content.width + 20
+        height: content.height + 20
+        radius: 4
+    }
+
     GridLayout {
+        id: content
 
         columns: 1
         rowSpacing: 30
-        anchors.centerIn: parent
+        anchors.centerIn: modal
 
         AppTextField {
             id: nameField
 
             borderWidth: 1
+            Layout.preferredWidth: 250
 
             placeholderText: "Name"
         }
@@ -28,6 +42,7 @@ Page {
             id: roleField
 
             borderWidth: 1
+            Layout.preferredWidth: 250
 
             placeholderText: "Role"
         }
@@ -43,11 +58,11 @@ Page {
                     role: roleField.getText()
                 }
 
-                navigationStack.pop();
-                playerCreated(player)
+                DataModel.addPlayer(player)
             }
 
             Layout.alignment: Qt.AlignHCenter
         }
     }
 }
+
