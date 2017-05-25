@@ -1,5 +1,6 @@
 import VPlayApps 1.0
 import QtQuick 2.0
+import QtGraphicalEffects 1.0
 
 import "pages"
 import "model"
@@ -68,7 +69,7 @@ Page {
         }
 
         z: 1    //player creation hovers above list
-    }
+    } //AddPlayerPage
 
     ListPage {
         id: playersList
@@ -81,5 +82,20 @@ Page {
         delegate: SimpleRow {
             detailTextItem.color: Theme.tintColor
         }
+    }//ListPage
+
+    FastBlur {
+        id: blur
+        source: playersList
+        anchors.fill: playersList
+
+        radius: playerCreationExpanded ? 20 : 0 //blur list when player creation is expanded
+        Behavior on radius {                    //and add a fancy smooth transition
+            NumberAnimation {
+                easing.type: Easing.OutExpo
+                duration: 200
+            }
+        }
     }
+
 }
