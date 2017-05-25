@@ -67,7 +67,7 @@ Page {
             id: nameField
 
             borderWidth: 1
-            Layout.preferredWidth: 250
+            Layout.preferredWidth: 300
 
             onTextChanged: {        //displays error message if nameField is empty
                 if (text === "")
@@ -84,9 +84,11 @@ Page {
 
             borderColor: Theme.colors.tintColor
             backgroundColor: "white"
-            textColor: Theme.colors.tintColor
 
             text: "Choose Role"
+            fontBold: false //would be bold on Android
+            textColor: Theme.colors.tintColor
+            textSize: 20
 
             onClicked: roleChooser.opacity = 1
 
@@ -133,6 +135,9 @@ Page {
             id: createButton //checks and submits new player data
 
             text: "Create"
+            fontBold: false //would be bold on Android
+            textColor: "white"
+            textSize: 25
 
             onClicked: {
                 if (selectedRole === null)  //if the role hasn't been selected do nothing
@@ -146,8 +151,6 @@ Page {
                 if (DataModel.isValidPlayerModel(player))   //additionally check whether the DataModel would accept our player
                     playerCreated(player)                   //hand the newly created player object to the parents signalHandler
             }
-
-            textColor: "white"
 
             horizontalMargin: 0
             verticalMargin: 0

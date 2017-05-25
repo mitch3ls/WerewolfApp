@@ -5,26 +5,61 @@ import QtGraphicalEffects 1.0
 import "pages"
 import "model"
 
+/*!
+    \qmltype WerewolfMainPage.html WerewolfMainPage
+    \inherits Page
+    \brief Contains all visual components of the app.
+
+    The WerewolfMainPage contains ever visual element of the app and acts as the
+    root page of the app. (Even though it technically isn't)
+  */
 Page {
     id: werewolfMainPage
 
+    /*!
+        \qmlproperty bool addPlayerPageExpanded
+        \brief Describes whether \c addPlayerPage is expanded or not.
 
-    property bool playerCreationExpanded: false
+        It gets modified by the \c playerCreationControl and the \c addPlayerPage
+        itself. (it closes itself when a player is successfully created)
+      */
+    property bool addPlayerPageExpanded: false
 
-    //updates list when new data is available
+    /*!
+        \qmltype DataModelConnection
+        \inherits Connections
+        \brief Connects the \c DataModel to the \c playersList's model property.
+
+        Connects to the \c newListData signal of \c DataModel and recieves new players data.
+        This data is then assigned to the \c playersList's model propert.
+      */
     Connections {
         target: DataModel
         onNewListData: playersList.model = data
     }
 
+    /*!
+        \qmltype PlayerCreationControl
+        \inherits FloatingActionButton
+        \brief Controlls \c addPlayerPageExpanded.
+
+        The \c PlayerCreationControl is a \c FloatingActionButton that is used to expand and
+        collapse the \c addPlayerPage.
+
+        When the \c addPlayerPage is closed it also is resetted, so that the old values don't
+        remain in the forms.
+
+        The plus icon rotates by 45 degrees when the \c addPlayerPage is expanded and becomes
+        a closing a icon.
+      */
     FloatingActionButton {
-        id: expandPlayerCreation
+        id: playerCreationControl
 
         icon: IconType.plus
 
         //rotates Icon by 45 degrees when player creation is expanded
         //so it becomes the closing icon
-        iconItem.rotation: playerCreationExpanded ? 45 : 0
+        iconItem.rotation: addPlayerPageExpanded ? 45 : 0
         Behavior on iconItem.rotation {
             NumberAnimation {
                 duration: 200
@@ -32,11 +67,11 @@ Page {
         }
 
         onClicked: {
-            if (playerCreationExpanded) {       //acts as closing button
-                playerCreationExpanded = false  //closes player creation and resets it
+            if (addPlayerPageExpanded) {       //acts as closing button
+                addPlayerPageExpanded = false  //closes player creation and resets it
                 addPlayerPage.reset()
             } else
-                playerCreationExpanded = true   //opens player creation
+                addPlayerPageExpanded = true   //opens player creation
         }
 
         z: 2    //hovers over the entire layout
@@ -48,11 +83,11 @@ Page {
 
         onPlayerCreated: {
             DataModel.addPlayer(player)     //add player to the data model
-            playerCreationExpanded = false  //collapses player creation
+            addPlayerPageExpanded = false  //collapses player creation
             reset()                         //resets player creation
         }
 
-        opacity: playerCreationExpanded ? 1 : 0     //only opaque when expanded
+        opacity: addPlayerPageExpanded ? 1 : 0     //only opaque when expanded
         Behavior on opacity {                       //smooth transition from transparent to opaque
             NumberAnimation {
                 easing.type: Easing.InOutSine
@@ -60,7 +95,7 @@ Page {
             }
         }
 
-        y: playerCreationExpanded ? 0 : 2 * height  //lets player creation fly in and out
+        y: addPlayerPageExpanded ? 0 : 2 * height  //lets player creation fly in and out
         Behavior on y {                             //again, smooth transitions
             NumberAnimation {
                 easing.type: Easing.OutExpo
@@ -80,6 +115,7 @@ Page {
         model: DataModel.getListModel()     //fetches initial data
 
         delegate: SimpleRow {
+            textItem.font.bold: true
             detailTextItem.color: Theme.tintColor
         }
     }//ListPage
@@ -89,7 +125,7 @@ Page {
         source: playersList
         anchors.fill: playersList
 
-        radius: playerCreationExpanded ? 20 : 0 //blur list when player creation is expanded
+        radius: addPlayerPageExpanded ? 10 : 0 //blur list when player creation is expanded
         Behavior on radius {                    //and add a fancy smooth transition
             NumberAnimation {
                 easing.type: Easing.OutExpo

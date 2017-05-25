@@ -16,7 +16,7 @@ Page {
         title.text = "Choose a Role" //resets title text
     }
 
-    Item {
+    Rectangle {
         id: content
 
         anchors.centerIn: parent
@@ -84,6 +84,7 @@ Page {
 
                     text: name //display the role's name, might be replaced by images
                     textSize: 20
+                    fontBold: false //would be bold on Android
                     textColor: isSelected(
                                    ) ? Theme.colors.tintColor : "black" //changes the text's color if role is selected
 
