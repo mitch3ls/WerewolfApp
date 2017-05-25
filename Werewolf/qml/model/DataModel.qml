@@ -4,24 +4,26 @@ import VPlayApps 1.0
 import QtQuick 2.0
 
 import ".."
+import "./"
 
 Item {
     id: dataModel
 
-    property var players: []    //this is where the players' data is stored
+    property var players: [] //this is where the players' data is stored
 
     signal newListData(var data)
 
     function addPlayer(player) {
-        if(!isValidPlayerModel(player)) return
-        //don't do anything if the object isn't a player object
+        if (!isValidPlayerModel(player))
+            return
 
-        players.push(player)        //add player to list
+        //don't do anything if the object isn't a player object
+        players.push(player) //add player to list
         newListData(getListModel()) //notify subscribers
     }
 
     //turns players' list into a list of objects that can be passed into a list
-    function getListModel() {   
+    function getListModel() {
         return players.map(playerToListModel)
     }
 
@@ -35,6 +37,10 @@ Item {
 
     //checks if player is valid player model
     function isValidPlayerModel(player) {
-        return player.name !== "" && RoleList.roleExists(player.role)
+        return player.name !== "" && player.role !== ""
     }
+    //I wanted to check whether the role exists in RoleList
+    //but I kept getting weird reference errors, so I left
+    //it like this, if anything goes wrong, there'd just be
+    //a wrong role name being displayed in the list
 }

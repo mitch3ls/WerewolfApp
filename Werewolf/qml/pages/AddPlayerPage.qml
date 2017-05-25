@@ -21,6 +21,7 @@ Page {
         selectedRole = null                 //resets selectedRole
         error.hide()                        //hides error notifcation
         roleChooser.hide()                  //hides roleChooser PopUp (only necessary when the user exited without closing the roleChooser)
+        roleChooser.reset()                 //resets roleChooser
     }
 
     Rectangle {
@@ -146,7 +147,17 @@ Page {
                     playerCreated(player)                   //hand the newly created player object to the parents signalHandler
             }
 
+            textColor: "white"
+
+            horizontalMargin: 0
+            verticalMargin: 0
             Layout.alignment: Qt.AlignHCenter   //center button
+
+            Rectangle {
+                z: -1       //background for ios
+                color: Theme.tintColor
+                anchors.fill: parent
+            }
         }
     }
 

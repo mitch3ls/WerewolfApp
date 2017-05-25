@@ -76,12 +76,10 @@ Page {
         title: "Players"
 
         emptyText.text: "No Players in Session"     //gets displayed when there are no players in the list
-
-        model: DataModel.players     //fetches initial data
+        model: DataModel.getListModel()     //fetches initial data
 
         delegate: SimpleRow {
-            text: name
-            detailText: role
+            detailTextItem.color: Theme.tintColor
         }
     }
 }

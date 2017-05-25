@@ -14,7 +14,7 @@ App {
     //licenseKey: "<generate one from https://v-play.net/licenseKey>"
 
     onInitTheme: {
-        Theme.colors.tintColor = "purple"
+        Theme.colors.tintColor = "#FFB90D"
     }
 
     WerewolfMainPage { }

@@ -102,6 +102,12 @@ Page {
                     function isSelected() {
                         return roleList.selected === name
                     }
+
+                    Rectangle {
+                        z: -1           //white background for ios
+                        color: "white"
+                        anchors.fill: parent
+                    }
                 }
             }
         }
