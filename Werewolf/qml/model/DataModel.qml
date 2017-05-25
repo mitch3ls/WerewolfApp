@@ -25,14 +25,17 @@ Item {
     function addPlayer(player) {
         players.push(player)
 
+        console.log("player added")
+
         newListData(getListModel())
     }
 
-    function getListModel() {
+    function getListModel() {   
         return players.map(playerToListModel)
     }
 
     function playerToListModel(player) {
+        console.log(player.name, player.role)
         return {
             text: player.name,
             detailText: player.role

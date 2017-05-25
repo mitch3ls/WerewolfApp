@@ -4,19 +4,20 @@ import QtQuick.Layouts 1.1
 
 import "../model"
 
-
 Page {
-
     id: addPlayerDialogue
 
     title: "Add Player"
 
     signal playerCreated(var player)
 
+    backgroundColor: "transparent"
+
     Rectangle {
         id: modal
         anchors.centerIn: parent
-        color: "blue"
+        color: "white"
+        border.color: Theme.colors.tintColor
         width: content.width + 20
         height: content.height + 20
         radius: 4
@@ -54,8 +55,8 @@ Page {
 
             onClicked: {
                 var player = {
-                    name: nameField.getText(),
-                    role: roleField.getText()
+                    name: nameField.text,
+                    role: roleField.text
                 }
 
                 DataModel.addPlayer(player)

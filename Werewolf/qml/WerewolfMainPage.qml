@@ -7,42 +7,53 @@ import "model"
 Page {
     id: werewolfMainPage
 
-    Component {
-        id: addPlayerPageComponent
-        AddPlayerPage {
-            onPlayerCreated: {
-                DataModel.addPlayer(player)
-            }
-        }
+    property bool creationModalExpanded: false
+
+    Connections {
+        target: DataModel
+        onNewListData: playersList.model = data
     }
 
-//    NewAddPlayerPage  {
-//        z: 1
+    FloatingActionButton {
+        icon: IconType.plus
 
-//        visible: true
-//        enabled: visible
+        onClicked: creationModalExpanded = !creationModalExpanded
 
-//        anchors.centerIn: parent
-//    }
+        z: 2
+        visible: true
+    }
 
-    NavigationStack {
+    AddPlayerPage {
+        id: addPlayerPage
 
-        ListPage {
+        onPlayerCreated: DataModel.addPlayer(player)
 
-            id: playersList
-
-            title: "Players"
-
-            emptyText.text: "No Players in Session"
-
-            FloatingActionButton {
-                icon: IconType.plus
-                onClicked: playersList.navigationStack.push(
-                               addPlayerPageComponent)
-                visible: true
+        opacity: creationModalExpanded ? 1 : 0
+        Behavior on opacity {
+            NumberAnimation {
+                easing.type: Easing.InOutSine
+                duration: 200
             }
-
-            model: DataModel.getListModel()
         }
+
+        y: creationModalExpanded ? 0 : 2 * height
+        Behavior on y {
+            NumberAnimation {
+                easing.type: Easing.OutExpo
+                duration: 200
+            }
+        }
+
+        z: 1
+    }
+
+    ListPage {
+        id: playersList
+
+        title: "Players"
+
+        emptyText.text: "No Players in Session"
+
+        model: DataModel.getListModel()
     }
 }
