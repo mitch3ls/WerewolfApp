@@ -8,37 +8,33 @@ import ".."
 Item {
     id: dataModel
 
-    property var players
+    property var players: []    //this is where the players' data is stored
 
     signal newListData(var data)
 
-    Component.onCompleted: {
-        players = [{
-                       name: "Hallo",
-                       role: "Welt"
-                   }, {
-                       name: "foo",
-                       role: "bar"
-                   }]
-    }
-
     function addPlayer(player) {
-        players.push(player)
+        if(!isValidPlayerModel(player)) return
+        //don't do anything if the object isn't a player object
 
-        console.log("player added")
-
-        newListData(getListModel())
+        players.push(player)        //add player to list
+        newListData(getListModel()) //notify subscribers
     }
 
+    //turns players' list into a list of objects that can be passed into a list
     function getListModel() {   
         return players.map(playerToListModel)
     }
 
+    //turns player object into object that can be passed into a list
     function playerToListModel(player) {
-        console.log(player.name, player.role)
         return {
             text: player.name,
             detailText: player.role
         }
+    }
+
+    //checks if player is valid player model
+    function isValidPlayerModel(player) {
+        return player.name !== "" && RoleList.roleExists(player.role)
     }
 }
