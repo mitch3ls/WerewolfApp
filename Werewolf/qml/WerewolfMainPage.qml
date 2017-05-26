@@ -18,28 +18,6 @@ Page {
     id: werewolfMainPage
 
     /*!
-        \qmlproperty bool addPlayerPageExpanded
-        \brief Describes whether \c addPlayerPage is expanded or not.
-
-        It gets modified by the \c playerCreationControl and the \c addPlayerPage
-        itself. (it closes itself when a player is successfully created)
-    */
-    property bool addPlayerPageExpanded: false
-
-    /*!
-        \qmltype DataModelConnection
-        \inherits Connections
-        \brief Connects the \c DataModel to the \c playersList's model property.
-
-        Connects to the \c newListData signal of \c DataModel and recieves new players data.
-        This data is then assigned to the \c playersList's model propert.
-    */
-    Connections {
-        target: DataModel
-        //onNewListData: playersList.model = data
-    }
-
-    /*!
         \qmltype PlayerCreationControl
         \inherits FloatingActionButton
         \brief Controlls \c addPlayerPageExpanded.
@@ -60,7 +38,7 @@ Page {
 
         //rotates Icon by 45 degrees when player creation is expanded
         //so it becomes the closing icon
-        iconItem.rotation: addPlayerPageExpanded ? 45 : 0
+        iconItem.rotation: (addPlayerPage.expanded || modifyPlayerPage.expanded) ? 45 : 0
         Behavior on iconItem.rotation {
             NumberAnimation {
                 duration: 200
@@ -68,28 +46,29 @@ Page {
         }
 
         onClicked: {
-            if (addPlayerPageExpanded) {
+            if (addPlayerPage.expanded || modifyPlayerPage.expanded) {
                 //acts as closing button
-                addPlayerPageExpanded = false //closes player creation and resets it
-                addPlayerPage.reset()
+                addPlayerPage.close() //closes player creation and resets it
+                modifyPlayerPage.close()
             } else
-                addPlayerPageExpanded = true //opens player creation
+                addPlayerPage.open() //opens player creation
         }
 
         z: 2 //hovers over the entire layout
         visible: true //necessary if not running on Android
     }
 
-    AddPlayerPage {
+    PlayerPage {
         id: addPlayerPage
 
-        onPlayerCreated: {
+        title: "Create"
+
+        onSubmit: {
             DataModel.addPlayer(player) //add player to the data model
-            addPlayerPageExpanded = false //collapses player creation
-            reset() //resets player creation
+            close()
         }
 
-        opacity: addPlayerPageExpanded ? 1 : 0 //only opaque when expanded
+        opacity: expanded ? 1 : 0 //only opaque when expanded
         Behavior on opacity {
             //smooth transition from transparent to opaque
             NumberAnimation {
@@ -98,13 +77,64 @@ Page {
             }
         }
 
-        y: addPlayerPageExpanded ? 0 : 2 * height //lets player creation fly in and out
+        y: expanded ? 0 : 2 * height //lets player creation fly in and out
         Behavior on y {
             //again, smooth transitions
             NumberAnimation {
                 easing.type: Easing.OutExpo
                 duration: 200
             }
+        }
+
+        function open() {
+            reset()
+            expanded = true
+        }
+
+        function close() {
+            expanded = false
+        }
+
+        z: 1 //player creation hovers above list
+    } //AddPlayerPage
+
+    PlayerPage {
+        id: modifyPlayerPage
+
+        title: "Modify Player"
+
+        onSubmit: {
+            DataModel.modifyPlayer(player) //add player to the data model
+            close()
+        }
+
+        opacity: expanded ? 1 : 0 //only opaque when expanded
+        Behavior on opacity {
+            //smooth transition from transparent to opaque
+            NumberAnimation {
+                easing.type: Easing.InOutSine
+                duration: 200
+            }
+        }
+
+        y: expanded ? 0 : 2 * height //lets player creation fly in and out
+        Behavior on y {
+            //again, smooth transitions
+            NumberAnimation {
+                easing.type: Easing.OutExpo
+                duration: 200
+            }
+        }
+
+        function open(playerId) {
+            player = DataModel.getPlayerById(playerId)
+            reset()
+            expanded = true
+        }
+
+        function close() {
+            player = null
+            expanded = false
         }
 
         z: 1 //player creation hovers above list
@@ -121,9 +151,9 @@ Page {
         section.property: "role"
         section.delegate: SimpleSection {
             Component.onCompleted: {
-                var role = title                                        //get role from title
-                var roleObject = DataModel.roles.getRoleObject(role)    //get role as object
-                title = roleObject.pluralName || role                   //assign pluralName to title if it exists, fall back to role if not
+//                var role = title                                        //get role from title
+//                var roleObject = DataModel.roles.getRoleObject(role)    //get role as object
+//                title = roleObject.pluralName || role                   //assign pluralName to title if it exists, fall back to role if not
             }
         }
 
@@ -138,6 +168,8 @@ Page {
 
                 textItem.font.bold: true
                 detailTextItem.color: Theme.tintColor
+
+                onSelected: modifyPlayerPage.open(playerId)
             }
 
             rightOption: SwipeButton {  //button that appears when the element is swiped to the left
@@ -153,7 +185,7 @@ Page {
         source: playersList
         anchors.fill: playersList
 
-        radius: addPlayerPageExpanded ? 10 : 0 //blur list when player creation is expanded
+        radius: addPlayerPage.expanded ? 10 : 0 //blur list when player creation is expanded
         Behavior on radius {
             //and add a fancy smooth transition
             NumberAnimation {

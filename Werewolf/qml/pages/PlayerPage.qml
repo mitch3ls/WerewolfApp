@@ -5,21 +5,26 @@ import QtQuick.Layouts 1.1
 import "../model"
 
 Page {
-    id: addPlayerDialogue
+    id: playerPage
 
     title: "Add Player"
 
-    signal playerCreated(var player)
+    signal submit(var player)
 
+    property string title
+
+    property var player
     property var selectedRole: null //initially no role is selected
+
+    property bool expanded
 
     backgroundColor: "transparent"  //makes the backkground transparent
 
     function reset() {
-        nameField.text = ""                 //resets nameField
-        notes.text = ""                     //resets notes
-        roleButton.text = "Choose Role"     //resets roleButton
-        selectedRole = null                 //resets selectedRole
+        nameField.text = player ? player.name : ""                 //resets nameField
+        notes.text = player ? player.notes : ""                     //resets notes
+        roleButton.text = player ? player.role : "Choose Role"     //resets roleButton
+        selectedRole = player ? player.role : null                 //resets selectedRole
         error.hide()                        //hides error notifcation
         roleChooser.hide()                  //hides roleChooser PopUp (only necessary when the user exited without closing the roleChooser)
         roleChooser.reset()                 //resets roleChooser
@@ -158,9 +163,9 @@ Page {
         } //errorWrapper
 
         AppButton {
-            id: createButton //checks and submits new player data
+            id: submitButton //checks and submits new player data
 
-            text: "Create"
+            text: title
             fontBold: false //would be bold on Android
             textColor: "white"
             textSize: 25
@@ -175,8 +180,12 @@ Page {
                     notes: notes.text
                 }
 
+                if (playerPage.player)
+                    player.playerId = playerPage.player.playerId
+
+
                 if (DataModel.isValidPlayerModel(player))   //additionally check whether the DataModel would accept our player
-                    playerCreated(player)                   //hand the newly created player object to the parents signalHandler
+                    submit(player)                   //hand the newly created player object to the parents signalHandler
             }
 
             horizontalMargin: 0
@@ -196,10 +205,12 @@ Page {
 
         z: 1    //gets displayed above the layout
 
+        selectedRole: player ? player.role : ""
+
         onRoleSelected: {
             hide()
             roleButton.text = role  //set the text of roleButton to the selected role
-            selectedRole = role     //set selectedRole role to the selected role
+            playerPage.selectedRole = role     //set selectedRole role to the selected role
         }
 
         function show() {

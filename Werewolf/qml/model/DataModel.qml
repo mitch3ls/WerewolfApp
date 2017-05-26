@@ -10,15 +10,15 @@ import "./"
 Item {
     id: dataModel
 
-    signal newListData(var data)
+    signal availabilityUpdated(var state)
 
     property alias roles: roleList
     property alias playersModel: listModel
 
     Component.onCompleted: {
-        var players = localStorage.getPlayers()
+        var players = getPlayers()
         listModel.setPlayers(players)
-        newListData(listModel)
+        roleList.shareAvailability()
     }
 
     function addPlayer(player) {
@@ -26,15 +26,31 @@ Item {
             return
         //don't do anything if the object isn't a player object
 
-        player.playerId = localStorage.getNextPlayerId() //give new player an id
+        player.playerId = getNextPlayerId() //give new player an id
 
         localStorage.addPlayer(player) //add player to the localStorage
-        newListData(listModel) //notify subscribers
     }
 
     function removePlayer(playerId) {
         localStorage.removePlayer(playerId)
-        newListData(listModel)
+    }
+
+    function modifyPlayer(player) {
+        localStorage.modifyPlayer(player)
+    }
+
+    function getPlayerById(playerId) {
+        var players = getPlayers()
+        return players.filter(function(player) {
+            return player.playerId === playerId
+        })[0]
+    }
+
+    function getPlayersByRole(role) {
+        var players = getPlayers()
+        return players.filter(function(player) {
+            return player.role === role
+        })
     }
 
     //turns player object into object that can be passed into a list
@@ -51,14 +67,32 @@ Item {
         return player.name !== "" && roleList.contains(player.role)
     }
 
+    function getPlayers() {
+        return localStorage.getValue("players")
+    }
+
+    function getHighestId() {
+        var players = getPlayers()                  //get players
+        var ids = players.map(function(player) {    //get their ids
+                    return player.playerId
+                })
+        return Math.max.apply(Math, ids);           //return the highest id
+    }
+
+    function getNextPlayerId() {
+        var players = getPlayers()
+        var highestId = getHighestId()
+        for (var i = 0; i <= highestId + 1; i++) {  //iterate from zero to the highest id + 1 (so that if there's no gap highestId + 1 will be used)
+            var player = getPlayerById(i)           //get corresponding player
+            if (!player) {                          //if the player not defined (the id is unassigned)
+                return i                            //return the id
+            }
+        }
+        return 0
+    }
+
     ListModel {
         id: listModel
-
-        ListElement {
-            name: "Michael"
-            role: "Werewolf"
-            notes: "black tshirt"
-        }
 
         function addPlayer(player) {
             listModel.append(player)    //adds player to the list
@@ -76,7 +110,7 @@ Item {
         property var players: []    //this is where the players' data is stored
 
         Component.onCompleted: {
-            if (!getPlayers()) setValue("players", [])  //if players is not defined, add it to the storage
+            if (!getPlayers() || true) setValue("players", [])  //if players is not defined, add it to the storage
         }
 
         function addPlayer(newPlayer) {
@@ -85,8 +119,7 @@ Item {
 
             players.sort(function(p1, p2) {return roleList.compareRoles(p1.role, p2.role)}) //sorts players by roles
 
-            listModel.setPlayers(players)
-            localStorage.setValue("players", players)   //store the modified list
+            handleNewPlayers(players)
         }
 
         function removePlayer(playerId) {
@@ -94,18 +127,26 @@ Item {
 
             players = players.filter(function(p) {return p.playerId !== playerId})       //keep players if their playerId isn't the one to be removed
 
-            listModel.setPlayers(players)
-            localStorage.setValue("players", players)   //store the modified list
+            handleNewPlayers(players)
         }
 
-        function getPlayers() {
-            return localStorage.getValue("players")
+        function modifyPlayer(player) {
+            var players = getPlayers()                  //get the current list of players
+
+            players = players.map(function(p) {         //replace every player in the list with,
+                if (p.playerId === player.playerId)     //if the id matches the one given with the player,
+                    return player                       //the new player
+                else                                    //else
+                    return p                            //with itself
+            })
+
+            handleNewPlayers(players)
         }
 
-        function getNextPlayerId() {
-            var players = getPlayers()
-            var lastItem = players[players.length - 1]      //take the last element of the players list
-            return lastItem ? (lastItem.playerId + 1) : 0   //return its id + 1 or 0 if there is no element in the list
+        function handleNewPlayers(players) {
+            listModel.setPlayers(players)   //update listmodel
+            setValue("players", players)    //store the modified list
+            roleList.shareAvailability()    //notify RoleChooser
         }
     }
 
@@ -124,20 +165,42 @@ Item {
         }
 
         function getRoleObject(role) {
-            for (var i = 0; i < count; i++) {
+            for (var i = 0; i < count; i++) {           //iterate through roles
                 var entry = get(i)
-                if (role === entry.name) return entry
+                if (role === entry.name) return entry   //if the names match return the role object
             }
             return null
         }
 
-        function compareRoles(role1, role2) {
+        function isAvailable(role) {
+            var playersWithRole = getPlayersByRole(role).length //get the number of players with the given role
+            var maxCount = getRoleObject(role).maxPlayers       //get the highest possible numbers of players for that role
+
+            if (maxCount)                                       //if there is an upper limit
+                return maxCount > playersWithRole               //return whether there is room for more players
+            return true                                         //always return true if there is no limit
+        }
+
+        function shareAvailability() {
+            var state = {}
+
+            for (var i = 0; i < count; i++) {           //iterate through roles
+                var role = get(i)
+                state[role.name] = {                    //create a property for each  role
+                    available: isAvailable(role.name)   //with their availability
+                }
+            }
+
+            availabilityUpdated(state)                         //publish the availability data
+        }
+
+        function compareRoles(role1, role2) {   //provide method for sorting by role
             return getIndexForRole(role1) - getIndexForRole(role2)
         }
 
         ListElement { name: "Werewolf"; pluralName: "Werewolves"; index: 0}
         ListElement { name: "Villager"; pluralName: "Villagers"; index: 3}
-        ListElement { name: "Seer"; index:2}
-        ListElement { name: "Witch"; index: 1}
+        ListElement { name: "Seer"; maxPlayers: 1; index:2}
+        ListElement { name: "Witch"; maxPlayers: 1; index: 1}
     }
 }

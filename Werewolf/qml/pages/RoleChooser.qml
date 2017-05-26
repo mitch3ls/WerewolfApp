@@ -11,8 +11,10 @@ Page {
 
     signal roleSelected(string role)
 
+    property var selectedRole: null
+
     function reset() {
-        roleList.selected = "" //reset selected role
+        selectedRole = "" //reset selected role
         title.text = "Choose a Role" //resets title text
     }
 
@@ -53,8 +55,6 @@ Page {
                 than just 4 roles to choose from
             */
 
-            property string selected: "" //selected role
-
             width: 400
             height: 400
 
@@ -67,7 +67,7 @@ Page {
 
             function select(role) {
                 //selects role and changes the title
-                roleList.selected = role
+                selectedRole = role
                 title.text = role
             }
 
@@ -75,6 +75,13 @@ Page {
                 model: DataModel.roles
 
                 delegate: AppButton {
+                    id: gridItem
+
+                    Connections {
+                        target: DataModel
+                        onAvailabilityUpdated: gridItem.enabled = state[name].available //disable role if it's not available anymore
+                    }
+
                     minimumWidth: 200
                     minimumHeight: 200
 
@@ -84,8 +91,7 @@ Page {
                     text: name //display the role's name, might be replaced by images
                     textSize: 20
                     fontBold: false //would be bold on Android
-                    textColor: isSelected(
-                                   ) ? Theme.colors.tintColor : "black" //changes the text's color if role is selected
+                    textColor: isSelected() ? Theme.colors.tintColor : "black" //changes the text's color if role is selected
 
                     borderColor: Theme.colors.tintColor
                     backgroundColor: "white"
@@ -100,7 +106,7 @@ Page {
                     }
 
                     function isSelected() {
-                        return roleList.selected === name
+                        return selectedRole === name
                     }
 
                     Rectangle {
@@ -118,7 +124,7 @@ Page {
 
             width: roleList.width //adjusts width to the list's width
 
-            height: (roleList.selected === "") ? 0 : 50 //expand box if a role is selected
+            height: (roleList.selectedRole === "") ? 0 : 50 //expand box if a role is selected
             Behavior on height {
                 //smooth transitions <3
                 NumberAnimation {
