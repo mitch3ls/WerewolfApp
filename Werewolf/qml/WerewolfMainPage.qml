@@ -5,6 +5,7 @@ import QtGraphicalEffects 1.0
 import "pages"
 import "model"
 
+
 /*!
     \qmltype WerewolfMainPage.html WerewolfMainPage
     \inherits Page
@@ -12,7 +13,7 @@ import "model"
 
     The WerewolfMainPage contains ever visual element of the app and acts as the
     root page of the app. (Even though it technically isn't)
-  */
+*/
 Page {
     id: werewolfMainPage
 
@@ -22,7 +23,7 @@ Page {
 
         It gets modified by the \c playerCreationControl and the \c addPlayerPage
         itself. (it closes itself when a player is successfully created)
-      */
+    */
     property bool addPlayerPageExpanded: false
 
     /*!
@@ -32,7 +33,7 @@ Page {
 
         Connects to the \c newListData signal of \c DataModel and recieves new players data.
         This data is then assigned to the \c playersList's model propert.
-      */
+    */
     Connections {
         target: DataModel
         onNewListData: playersList.model = data
@@ -51,7 +52,7 @@ Page {
 
         The plus icon rotates by 45 degrees when the \c addPlayerPage is expanded and becomes
         a closing a icon.
-      */
+    */
     FloatingActionButton {
         id: playerCreationControl
 
@@ -67,58 +68,73 @@ Page {
         }
 
         onClicked: {
-            if (addPlayerPageExpanded) {       //acts as closing button
-                addPlayerPageExpanded = false  //closes player creation and resets it
+            if (addPlayerPageExpanded) {
+                //acts as closing button
+                addPlayerPageExpanded = false //closes player creation and resets it
                 addPlayerPage.reset()
             } else
-                addPlayerPageExpanded = true   //opens player creation
+                addPlayerPageExpanded = true //opens player creation
         }
 
-        z: 2    //hovers over the entire layout
-        visible: true   //necessary if not running on Android
+        z: 2 //hovers over the entire layout
+        visible: true //necessary if not running on Android
     }
 
     AddPlayerPage {
         id: addPlayerPage
 
         onPlayerCreated: {
-            DataModel.addPlayer(player)     //add player to the data model
-            addPlayerPageExpanded = false  //collapses player creation
-            reset()                         //resets player creation
+            DataModel.addPlayer(player) //add player to the data model
+            addPlayerPageExpanded = false //collapses player creation
+            reset() //resets player creation
         }
 
-        opacity: addPlayerPageExpanded ? 1 : 0     //only opaque when expanded
-        Behavior on opacity {                       //smooth transition from transparent to opaque
+        opacity: addPlayerPageExpanded ? 1 : 0 //only opaque when expanded
+        Behavior on opacity {
+            //smooth transition from transparent to opaque
             NumberAnimation {
                 easing.type: Easing.InOutSine
                 duration: 200
             }
         }
 
-        y: addPlayerPageExpanded ? 0 : 2 * height  //lets player creation fly in and out
-        Behavior on y {                             //again, smooth transitions
+        y: addPlayerPageExpanded ? 0 : 2 * height //lets player creation fly in and out
+        Behavior on y {
+            //again, smooth transitions
             NumberAnimation {
                 easing.type: Easing.OutExpo
                 duration: 200
             }
         }
 
-        z: 1    //player creation hovers above list
+        z: 1 //player creation hovers above list
     } //AddPlayerPage
 
     ListPage {
         id: playersList
 
-        title: "Players"
+        title: "Player"
 
-        emptyText.text: "No Players in Session"     //gets displayed when there are no players in the list
-        model: DataModel.getListModel()     //fetches initial data
+        emptyText.text: "No Players in Session" //gets displayed when there are no players in the list
+         //fetches initial data
 
-        delegate: SimpleRow {
-            textItem.font.bold: true
-            detailTextItem.color: Theme.tintColor
-        }
-    }//ListPage
+        delegate: SwipeOptionsContainer {
+
+            height: listItem.height //use item's height
+            SimpleRow {
+                id: listItem
+
+                textItem.font.bold: true
+                detailTextItem.color: Theme.tintColor
+            }
+
+            rightOption: SwipeButton {  //button that appears when the element is swiped to the left
+                icon: IconType.trasho   //trashcan icon
+                height: parent.height   //use parent's height
+                onClicked: DataModel.removePlayer(listItem.item.playerId)   //remove player when clicked
+            }
+        } //SwipeOptionsContainer
+    } //ListPage
 
     FastBlur {
         id: blur
@@ -126,12 +142,12 @@ Page {
         anchors.fill: playersList
 
         radius: addPlayerPageExpanded ? 10 : 0 //blur list when player creation is expanded
-        Behavior on radius {                    //and add a fancy smooth transition
+        Behavior on radius {
+            //and add a fancy smooth transition
             NumberAnimation {
                 easing.type: Easing.OutExpo
                 duration: 200
             }
-        }
-    }
-
+        } //Behavior
+    } //FastBlur
 }
