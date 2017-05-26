@@ -151,9 +151,9 @@ Page {
         section.property: "role"
         section.delegate: SimpleSection {
             Component.onCompleted: {
-//                var role = title                                        //get role from title
-//                var roleObject = DataModel.roles.getRoleObject(role)    //get role as object
-//                title = roleObject.pluralName || role                   //assign pluralName to title if it exists, fall back to role if not
+                var role = title                                        //get role from title
+                var roleObject = DataModel.roles.getRoleObject(role)    //get role as object
+                title = roleObject.pluralName || role                   //assign pluralName to title if it exists, fall back to role if not
             }
         }
 

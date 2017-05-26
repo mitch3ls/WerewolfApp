@@ -110,7 +110,7 @@ Item {
         property var players: []    //this is where the players' data is stored
 
         Component.onCompleted: {
-            if (!getPlayers() || true) setValue("players", [])  //if players is not defined, add it to the storage
+            if (!getPlayers()) setValue("players", [])  //if players is not defined, add it to the storage
         }
 
         function addPlayer(newPlayer) {
