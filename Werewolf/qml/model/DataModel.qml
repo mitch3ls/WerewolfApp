@@ -54,6 +54,12 @@ Item {
     ListModel {
         id: listModel
 
+        ListElement {
+            name: "Michael"
+            role: "Werewolf"
+            notes: "black tshirt"
+        }
+
         function addPlayer(player) {
             listModel.append(player)    //adds player to the list
         }

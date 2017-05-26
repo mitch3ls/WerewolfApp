@@ -124,8 +124,6 @@ Page {
                 var role = title                                        //get role from title
                 var roleObject = DataModel.roles.getRoleObject(role)    //get role as object
                 title = roleObject.pluralName || role                   //assign pluralName to title if it exists, fall back to role if not
-
-                console.log(role + " -> " + title)
             }
         }
 
@@ -136,7 +134,7 @@ Page {
                 id: listItem
 
                 text: name
-                detailText: role
+                detailText: notes
 
                 textItem.font.bold: true
                 detailTextItem.color: Theme.tintColor

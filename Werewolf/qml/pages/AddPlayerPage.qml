@@ -17,6 +17,7 @@ Page {
 
     function reset() {
         nameField.text = ""                 //resets nameField
+        notes.text = ""                     //resets notes
         roleButton.text = "Choose Role"     //resets roleButton
         selectedRole = null                 //resets selectedRole
         error.hide()                        //hides error notifcation
@@ -59,7 +60,7 @@ Page {
           */
 
         columns: 1
-        rowSpacing: 15
+        rowSpacing: 10
 
         anchors.centerIn: contentBackground
 
@@ -77,6 +78,31 @@ Page {
             }
 
             placeholderText: "Name"
+        }
+
+        AppTextEdit {
+            id: notes
+
+            Layout.preferredWidth: 250
+            Layout.alignment: Qt.AlignHCenter   //center the button
+            wrapMode: TextEdit.Wrap             //start a new line before the text flows out of the parent container
+
+            placeholderText: "Add Notes"
+
+            font.pixelSize: focus ? 20 : 15     //scale text up when focussed
+            Behavior on font.pixelSize {        //do it smoothly
+                NumberAnimation {
+                    duration: 200
+                }
+            }
+
+            anchors.top: nameField.bottom
+            anchors.topMargin: focus ? 15 : 10  //increase the distance between the text and the nameField when focussed
+            Behavior on anchors.topMargin {     //do that smoothly as well
+                NumberAnimation {
+                    duration: 200
+                }
+            }
         }
 
         AppButton {
@@ -145,7 +171,8 @@ Page {
 
                 var player = {
                     name: nameField.text,       //name is set to the text entered in the nameField
-                    role: selectedRole       //role is set to the selectedRole role (that can't be null, because we checked it)
+                    role: selectedRole,       //role is set to the selectedRole role (that can't be null, because we checked it)
+                    notes: notes.text
                 }
 
                 if (DataModel.isValidPlayerModel(player))   //additionally check whether the DataModel would accept our player
