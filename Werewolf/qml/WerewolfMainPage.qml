@@ -151,9 +151,9 @@ Page {
         section.property: "role"
         section.delegate: SimpleSection {
             Component.onCompleted: {
-                var role = title                                        //get role from title
-                var roleObject = DataModel.roles.getRoleObject(role)    //get role as object
-                title = roleObject.pluralName || role                   //assign pluralName to title if it exists, fall back to role if not
+                var oldTitle = title                                        //get role from title
+                var roleObject = DataModel.roles.getRoleObject(oldTitle)    //get role as object
+                title = roleObject.pluralName || oldTitle                   //assign pluralName to title if it exists, fall back to role if not
             }
         }
 
@@ -178,6 +178,26 @@ Page {
                 onClicked: DataModel.removePlayer(playerId)   //remove player when clicked
             }
         } //SwipeOptionsContainer
+
+        add: Transition {
+          ParallelAnimation {
+            NumberAnimation { property: "opacity"; from: 0; to: 1; duration: 200 }
+            NumberAnimation { properties: "scale"; from: 0; to: 1; duration: 200; easing.type: Easing.OutCubic }
+          }
+        }
+        addDisplaced: Transition {
+          NumberAnimation { properties: "x,y"; duration: 100 }
+        }
+
+        remove: Transition {
+          ParallelAnimation {
+            NumberAnimation { property: "opacity"; to: 0; duration: 400 }
+            NumberAnimation { property: "x"; to: -width ; duration: 200 }
+          }
+        }
+        removeDisplaced: Transition {
+          NumberAnimation { properties: "x,y"; duration: 400 }
+        }
     } //ListPage
 
     FastBlur {

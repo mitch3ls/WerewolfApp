@@ -28,14 +28,17 @@ Item {
 
         player.playerId = getNextPlayerId() //give new player an id
 
+        listModel.addPlayer(player)
         localStorage.addPlayer(player) //add player to the localStorage
     }
 
     function removePlayer(playerId) {
+        listModel.removePlayer(playerId)
         localStorage.removePlayer(playerId)
     }
 
     function modifyPlayer(player) {
+        listModel.modifyPlayer(player)
         localStorage.modifyPlayer(player)
     }
 
@@ -94,12 +97,39 @@ Item {
     ListModel {
         id: listModel
 
-        function addPlayer(player) {
-            listModel.append(player)    //adds player to the list
+        function addPlayer(newPlayer) {
+            var ownRoleIndex = roleList.getIndexForRole(newPlayer.role) //get own role index
+            for (var i = 0; i < count; i++) {                           //iterate through players
+                var player = get(i)                                     //take each player
+                var role = player.role                                  //then their role
+                var roleIndex = roleList.getIndexForRole(role)          //and get their index as well
+
+                if (roleIndex > ownRoleIndex) {                         //now compare the indexes, if the own index is bigger than the one at the current position
+                    insert(i, newPlayer)                                //then the item at this position has to be after the one we want to add so we add the player
+                    return                                              //at that position
+                }
+            }
+            append(newPlayer)               //if no player with a higher role index is found append the player
+            console.log("appended")         //that also happens when the list is empty of course
         }
 
-        function setPlayers(players) {
-            clear()                     //clears list
+        function removePlayer(playerId) {
+            for (var i = 0; i < count; i++) {       //iterate through players
+                var player = get(i)                 //get each player
+                if (player.playerId === playerId)   //if the playerId matches the one we want to remove
+                    remove(i)                       //remove the player at that position
+            }
+        }
+
+        function modifyPlayer(modifiedPlayer) {
+            for (var i = 0; i < count; i++) {                       //iterate through players
+                var player = get(i)                                 //get each player
+                if (player.playerId === modifiedPlayer.playerId)    //if the playerId matches the one we want to remove
+                    set(i, modifiedPlayer)                          //replace the player at that position
+            }
+        }
+
+        function setPlayers(players) {                  //clears list
             players.forEach(addPlayer)
         }
     }
@@ -144,7 +174,6 @@ Item {
         }
 
         function handleNewPlayers(players) {
-            listModel.setPlayers(players)   //update listmodel
             setValue("players", players)    //store the modified list
             roleList.shareAvailability()    //notify RoleChooser
         }
