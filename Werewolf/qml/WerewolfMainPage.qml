@@ -36,7 +36,7 @@ Page {
     */
     Connections {
         target: DataModel
-        onNewListData: playersList.model = data
+        //onNewListData: playersList.model = data
     }
 
     /*!
@@ -110,19 +110,33 @@ Page {
         z: 1 //player creation hovers above list
     } //AddPlayerPage
 
-    ListPage {
+    AppListView {
         id: playersList
-
-        title: "Player"
 
         emptyText.text: "No Players in Session" //gets displayed when there are no players in the list
          //fetches initial data
+
+        model: DataModel.playersModel
+
+        section.property: "role"
+        section.delegate: SimpleSection {
+            Component.onCompleted: {
+                var role = title                                        //get role from title
+                var roleObject = DataModel.roles.getRoleObject(role)    //get role as object
+                title = roleObject.pluralName || role                   //assign pluralName to title if it exists, fall back to role if not
+
+                console.log(role + " -> " + title)
+            }
+        }
 
         delegate: SwipeOptionsContainer {
 
             height: listItem.height //use item's height
             SimpleRow {
                 id: listItem
+
+                text: name
+                detailText: role
 
                 textItem.font.bold: true
                 detailTextItem.color: Theme.tintColor
@@ -131,7 +145,7 @@ Page {
             rightOption: SwipeButton {  //button that appears when the element is swiped to the left
                 icon: IconType.trasho   //trashcan icon
                 height: parent.height   //use parent's height
-                onClicked: DataModel.removePlayer(listItem.item.playerId)   //remove player when clicked
+                onClicked: DataModel.removePlayer(playerId)   //remove player when clicked
             }
         } //SwipeOptionsContainer
     } //ListPage

@@ -72,8 +72,7 @@ Page {
             }
 
             Repeater {
-                model: RoleList {
-                }
+                model: DataModel.roles
 
                 delegate: AppButton {
                     minimumWidth: 200
