@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!-- DataModel.qml -->
+  <title>DataModel QML Type | WerewolfApp</title>
+</head>
+<body>
+<div class="sidebar">
+<div class="toc">
+<h3><a name="toc">Contents</a></h3>
+<ul>
+<li class="level1"><a href="#properties">Properties</a></li>
+<li class="level1"><a href="#signals">Signals</a></li>
+<li class="level1"><a href="#methods">Methods</a></li>
+<li class="level1"><a href="#details">Detailed Description</a></li>
+</ul>
+</div>
+<div class="sidebar-content" id="sidebar-content"></div></div>
+<h1 class="title">DataModel QML Type</h1>
+<span class="subtitle"></span>
+<!-- $$$DataModel-brief -->
+<p>Takes care of app's data. <a href="#details">More...</a></p>
+<!-- @@@DataModel -->
+<div class="table"><table class="alignedsummary">
+<tr><td class="memItemLeft rightAlign topAlign"> Import Statement:</td><td class="memItemRight bottomAlign"> import  </td></tr></table></div><ul>
+<li><a href="qml-datamodel-members.html">List of all members, including inherited members</a></li>
+</ul>
+<a name="properties"></a>
+<h2 id="properties">Properties</h2>
+<ul>
+<li class="fn"><b><b><a href="qml-datamodel.html#playersModel-prop">playersModel</a></b></b> : alias</li>
+<li class="fn"><b><b><a href="qml-datamodel.html#roles-prop">roles</a></b></b> : alias</li>
+</ul>
+<a name="signals"></a>
+<h2 id="signals">Signals</h2>
+<ul>
+<li class="fn"><b><b><a href="qml-datamodel.html#availabilityUpdated-signal">availabilityUpdated</a></b></b>(var <i>availabilityInformation</i>)</li>
+</ul>
+<a name="methods"></a>
+<h2 id="methods">Methods</h2>
+<ul>
+<li class="fn"><b><b><a href="qml-datamodel.html#addPlayer-method">addPlayer</a></b></b>(<i>player</i>)</li>
+<li class="fn"><b><b><a href="qml-datamodel.html#getHighestId-method">getHighestId</a></b></b>()</li>
+<li class="fn"><b><b><a href="qml-datamodel.html#getNextPlayerId-method">getNextPlayerId</a></b></b>()</li>
+<li class="fn"><b><b><a href="qml-datamodel.html#getPlayerById-method">getPlayerById</a></b></b>(<i>playerId</i>)</li>
+<li class="fn"><b><b><a href="qml-datamodel.html#getPlayersByRole-method">getPlayersByRole</a></b></b>(<i>role</i>)</li>
+<li class="fn"><b><b><a href="qml-datamodel.html#isValidPlayerModel-method">isValidPlayerModel</a></b></b>(<i>player</i>)</li>
+<li class="fn"><b><b><a href="qml-datamodel.html#modifyPlayer-method">modifyPlayer</a></b></b>(<i>player</i>)</li>
+<li class="fn"><b><b><a href="qml-datamodel.html#removePlayer-method">removePlayer</a></b></b>(<i>playerId</i>)</li>
+</ul>
+<!-- $$$DataModel-description -->
+<a name="details"></a>
+<h2 id="details">Detailed Description</h2>
+</p>
+<p>The <code>DataModel</code> is a Singleton object, that provides functions for adding, removing, modifying and finding players, as well as the <code>ListModel</code> of the players that is used by the <code>AppListView</code> in <code>WerewolfMainPage</code>.</p>
+<p>On startup it loads the players from the <code>localStorage</code> and populates the <code>ListModel</code>.</p>
+<!-- @@@DataModel -->
+<h2>Property Documentation</h2>
+<!-- $$$playersModel -->
+<div class="qmlitem"><div class="qmlproto">
+<div class="table"><table class="qmlname">
+<tr valign="top" class="odd" id="playersModel-prop">
+<td class="tblQmlPropNode"><p>
+<a name="playersModel-prop"></a><span class="name">playersModel</span> : <span class="type">alias</span></p></td></tr>
+</table></div>
+</div><div class="qmldoc"></div></div><!-- @@@playersModel -->
+<br/>
+<!-- $$$roles -->
+<div class="qmlitem"><div class="qmlproto">
+<div class="table"><table class="qmlname">
+<tr valign="top" class="odd" id="roles-prop">
+<td class="tblQmlPropNode"><p>
+<a name="roles-prop"></a><span class="name">roles</span> : <span class="type">alias</span></p></td></tr>
+</table></div>
+</div><div class="qmldoc"></div></div><!-- @@@roles -->
+<br/>
+<h2>Signal Documentation</h2>
+<!-- $$$availabilityUpdated -->
+<div class="qmlitem"><div class="qmlproto">
+<div class="table"><table class="qmlname">
+<tr valign="top" class="odd" id="availabilityUpdated-signal">
+<td class="tblQmlFuncNode"><p>
+<a name="availabilityUpdated-signal"></a><span class="name">availabilityUpdated</span>(<span class="type">var</span> <i>availabilityInformation</i>)</p></td></tr>
+</table></div>
+</div><div class="qmldoc"><p>Sends out information about roles' availability.</p>
+<p>In Werewolf certain roles should only be assigned to a single player per game. (Like the Witch or the Seer). This signal takes take of that by letting the RoleChooser know which roles are available.</p>
+<p>Every time the player data is modified (when a player is added, removed or modified) it notifies its subscribers about the updated availabilities of the roles. It does that by sending an object like this:</p>
+<pre class="cpp">{
+    <span class="string">&quot;roleName&quot;</span>: isAvailable(<span class="string">&quot;roleName&quot;</span>)<span class="operator">,</span>
+    <span class="operator">.</span><span class="operator">.</span><span class="operator">.</span>
+}</pre>
+</div></div><!-- @@@availabilityUpdated -->
+<br/>
+<h2>Method Documentation</h2>
+<!-- $$$addPlayer -->
+<div class="qmlitem"><div class="qmlproto">
+<div class="table"><table class="qmlname">
+<tr valign="top" class="odd" id="addPlayer-method">
+<td class="tblQmlFuncNode"><p>
+<a name="addPlayer-method"></a><span class="name">addPlayer</span>(<i>player</i>)</p></td></tr>
+</table></div>
+</div><div class="qmldoc"></div></div><!-- @@@addPlayer -->
+<br/>
+<!-- $$$getHighestId -->
+<div class="qmlitem"><div class="qmlproto">
+<div class="table"><table class="qmlname">
+<tr valign="top" class="odd" id="getHighestId-method">
+<td class="tblQmlFuncNode"><p>
+<a name="getHighestId-method"></a><span class="name">getHighestId</span>()</p></td></tr>
+</table></div>
+</div><div class="qmldoc"></div></div><!-- @@@getHighestId -->
+<br/>
+<!-- $$$getNextPlayerId -->
+<div class="qmlitem"><div class="qmlproto">
+<div class="table"><table class="qmlname">
+<tr valign="top" class="odd" id="getNextPlayerId-method">
+<td class="tblQmlFuncNode"><p>
+<a name="getNextPlayerId-method"></a><span class="name">getNextPlayerId</span>()</p></td></tr>
+</table></div>
+</div><div class="qmldoc"></div></div><!-- @@@getNextPlayerId -->
+<br/>
+<!-- $$$getPlayerById -->
+<div class="qmlitem"><div class="qmlproto">
+<div class="table"><table class="qmlname">
+<tr valign="top" class="odd" id="getPlayerById-method">
+<td class="tblQmlFuncNode"><p>
+<a name="getPlayerById-method"></a><span class="name">getPlayerById</span>(<i>playerId</i>)</p></td></tr>
+</table></div>
+</div><div class="qmldoc"></div></div><!-- @@@getPlayerById -->
+<br/>
+<!-- $$$getPlayersByRole -->
+<div class="qmlitem"><div class="qmlproto">
+<div class="table"><table class="qmlname">
+<tr valign="top" class="odd" id="getPlayersByRole-method">
+<td class="tblQmlFuncNode"><p>
+<a name="getPlayersByRole-method"></a><span class="name">getPlayersByRole</span>(<i>role</i>)</p></td></tr>
+</table></div>
+</div><div class="qmldoc"></div></div><!-- @@@getPlayersByRole -->
+<br/>
+<!-- $$$isValidPlayerModel -->
+<div class="qmlitem"><div class="qmlproto">
+<div class="table"><table class="qmlname">
+<tr valign="top" class="odd" id="isValidPlayerModel-method">
+<td class="tblQmlFuncNode"><p>
+<a name="isValidPlayerModel-method"></a><span class="name">isValidPlayerModel</span>(<i>player</i>)</p></td></tr>
+</table></div>
+</div><div class="qmldoc"></div></div><!-- @@@isValidPlayerModel -->
+<br/>
+<!-- $$$modifyPlayer -->
+<div class="qmlitem"><div class="qmlproto">
+<div class="table"><table class="qmlname">
+<tr valign="top" class="odd" id="modifyPlayer-method">
+<td class="tblQmlFuncNode"><p>
+<a name="modifyPlayer-method"></a><span class="name">modifyPlayer</span>(<i>player</i>)</p></td></tr>
+</table></div>
+</div><div class="qmldoc"></div></div><!-- @@@modifyPlayer -->
+<br/>
+<!-- $$$removePlayer -->
+<div class="qmlitem"><div class="qmlproto">
+<div class="table"><table class="qmlname">
+<tr valign="top" class="odd" id="removePlayer-method">
+<td class="tblQmlFuncNode"><p>
+<a name="removePlayer-method"></a><span class="name">removePlayer</span>(<i>playerId</i>)</p></td></tr>
+</table></div>
+</div><div class="qmldoc"></div></div><!-- @@@removePlayer -->
+<br/>
+</body>
+</html>

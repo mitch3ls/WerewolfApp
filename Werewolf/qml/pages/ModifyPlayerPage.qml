@@ -30,6 +30,7 @@ PlayerPage {
     }
 
     onSubmit: {
+        player.playerId = modifyPlayerPage.player.playerId
         DataModel.modifyPlayer(player) //add player to the data model
         close()
     }

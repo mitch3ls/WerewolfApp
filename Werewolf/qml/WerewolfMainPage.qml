@@ -58,15 +58,18 @@ Page {
         emptyText.text: "No Players in Session" //gets displayed when there are no players in the list
          //fetches initial data
 
-        model: DataModel.playersModel
+        model: DataModel.playersListModel
 
-        section.property: "role"
+        section.property: "sectionName"
         section.delegate: SimpleSection {
-            Component.onCompleted: {
-                var oldTitle = title                                        //get role from title
-                var roleObject = DataModel.roles.getRoleObject(oldTitle)    //get role as object
-                title = roleObject.pluralName || oldTitle                   //assign pluralName to title if it exists, fall back to role if not
-            }
+            style.showDividers: true
+            style.dividerHeight: 3
+            style.totalHeight: 42
+            style.textBottomMargin: style.dividerHeight + 8
+
+            style.dividerColor: Theme.tintColor
+
+            textItem.font.pixelSize: 20
         }
 
         delegate: SwipeOptionsContainer {
@@ -97,18 +100,12 @@ Page {
             NumberAnimation { properties: "scale"; from: 0; to: 1; duration: 200; easing.type: Easing.OutCubic }
           }
         }
-        addDisplaced: Transition {
-          NumberAnimation { properties: "x,y"; duration: 100 }
-        }
 
         remove: Transition {
           ParallelAnimation {
             NumberAnimation { property: "opacity"; to: 0; duration: 400 }
             NumberAnimation { property: "x"; to: -width ; duration: 200 }
           }
-        }
-        removeDisplaced: Transition {
-          NumberAnimation { properties: "x,y"; duration: 400 }
         }
     } //ListPage
 

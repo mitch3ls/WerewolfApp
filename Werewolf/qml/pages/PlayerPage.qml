@@ -141,6 +141,7 @@ Page {
             }
 
             Layout.alignment: Qt.AlignHCenter //center the error box
+            height: 20
 
             AppText {
                 id: error   //displays error message
@@ -180,9 +181,8 @@ Page {
                     notes: notes.text
                 }
 
-                if (playerPage.player)
-                    player.playerId = playerPage.player.playerId
-
+                var roleObject = DataModel.roles.getRoleObject(player.role)
+                player.sectionName = (roleObject.pluralName) ? roleObject.pluralName : roleObject.name
 
                 if (DataModel.isValidPlayerModel(player))   //additionally check whether the DataModel would accept our player
                     submit(player)                   //hand the newly created player object to the parents signalHandler

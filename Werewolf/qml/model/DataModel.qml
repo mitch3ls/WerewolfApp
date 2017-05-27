@@ -9,6 +9,7 @@ import "./"
 
 /*!
     \qmltype DataModel
+    \inherits Item
     \brief Takes care of app's data.
 
     The \c DataModel is a Singleton object, that provides functions for adding, removing,
@@ -25,7 +26,7 @@ Item {
         \brief Sends out information about roles' availability.
 
         In Werewolf certain roles should only be assigned to a single player per game.
-        (Like the Witch or the Seer). This signal takes take of that by letting the RoleChooser
+        (Like the Witch or the Seer). This signal takes care of that by letting the \c RoleChooser
         know which roles are available.
 
         Every time the player data is modified (when a player is added, removed or modified)
@@ -40,8 +41,27 @@ Item {
      */
     signal availabilityUpdated(var availabilityInformation)
 
+
+    /*!
+        \qmlproperty alias DataModel::roles
+        \inherits ListModel
+        \brief Contains all possible roles.
+
+        It contains a list of all possible roles including their properties and a set of functions
+        that are all connected to roles.
+     */
     property alias roles: roleList
-    property alias playersModel: listModel
+
+    /*!
+        \qmlproperty alias DataModel::playersListModel
+        \inherits ListModel
+        \brief Contains all players that are in the game.
+
+        The playersListModel is, as the name suggests, a ListModel of the players that is used in the
+        \c AppListView in the \c AppPlayerPage. This \c ListModel is directly referenced by the
+        \c AppListView's model property.
+     */
+    property alias playersListModel: listModel
 
     Component.onCompleted: {
         var players = localStorage.getPlayers()
@@ -49,6 +69,14 @@ Item {
         roleList.shareAvailability()
     }
 
+    /*!
+        \qmlmethod DataModel::addPlayer(jsobject player)
+
+        Assigns \a player and ID and adds it to the \c playersListModel and the \c localStorage.
+
+        Before it does that it checks whether the \a player is valid or not. If it's not a valid
+        player object it simply returns.
+     */
     function addPlayer(player) {
         if (!isValidPlayerModel(player))
             return
@@ -56,25 +84,47 @@ Item {
 
         player.playerId = getNextPlayerId() //give new player an id
 
+        var roleObject = roleList.getRoleObject(player.role)
+
         listModel.addPlayer(player)
         localStorage.addPlayer(player) //add player to the localStorage
     }
 
+    /*!
+        \qmlmethod DataModel::removePlayer(int playerId)
+
+        Removes player with the provided \a playerId from the \c playersListModel and the
+        \c localStorage.
+     */
     function removePlayer(playerId) {
         listModel.removePlayer(playerId)
         localStorage.removePlayer(playerId)
     }
 
+    /*!
+        \qmlmethod DataModel::modifyPlayer(jsobject player)
+
+        Updates \a player in the \c playersListModel and the \c localStorage.
+     */
     function modifyPlayer(player) {
         listModel.modifyPlayer(player)
         localStorage.modifyPlayer(player)
     }
 
+    /*!
+        \qmlmethod DataModel::getPlayerById(int playerId)
+
+        Returns the player object with the corresponding playerId or null if the playerId is not
+        assigned to any player.
+     */
     function getPlayerById(playerId) {
         var players = localStorage.getPlayers()
-        return players.filter(function(player) {
-            return player.playerId === playerId
-        })[0]
+        for (var i = 0; i < players.length; i++) {
+            var player = players[i]
+            if (player.playerId === playerId)
+                return player
+        }
+        return null
     }
 
     function getPlayersByRole(role) {
