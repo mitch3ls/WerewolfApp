@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!-- PlayerPage.qml -->
+  <title>PlayerPage QML Type | WerewolfApp</title>
+</head>
+<body>
+<div class="sidebar">
+<div class="toc">
+<h3><a name="toc">Contents</a></h3>
+<ul>
+<li class="level1"><a href="#properties">Properties</a></li>
+<li class="level1"><a href="#signals">Signals</a></li>
+<li class="level1"><a href="#methods">Methods</a></li>
+<li class="level1"><a href="#details">Detailed Description</a></li>
+</ul>
+</div>
+<div class="sidebar-content" id="sidebar-content"></div></div>
+<h1 class="title">PlayerPage QML Type</h1>
+<span class="subtitle"></span>
+<!-- $$$PlayerPage-brief -->
+<p>Provides layout and basic functionality for the <code>AddPlayerPage</code> and the <code>ModifyPlayerPage</code>. <a href="#details">More...</a></p>
+<!-- @@@PlayerPage -->
+<div class="table"><table class="alignedsummary">
+<tr><td class="memItemLeft rightAlign topAlign"> Import Statement:</td><td class="memItemRight bottomAlign"> import  </td></tr><tr><td class="memItemLeft rightAlign topAlign"> Inherited By:</td><td class="memItemRight bottomAlign"> <p><a href="qml-addplayerpage.html">AddPlayerPage</a> and <a href="qml-modifyplayerpage.html">ModifyPlayerPage</a></p>
+</td></tr></table></div><ul>
+<li><a href="qml-playerpage-members.html">List of all members, including inherited members</a></li>
+</ul>
+<a name="properties"></a>
+<h2 id="properties">Properties</h2>
+<ul>
+<li class="fn"><b><b><a href="qml-playerpage.html#expanded-prop">expanded</a></b></b> : bool</li>
+<li class="fn"><b><b><a href="qml-playerpage.html#name-prop">name</a></b></b> : alias</li>
+<li class="fn"><b><b><a href="qml-playerpage.html#notes-prop">notes</a></b></b> : alias</li>
+<li class="fn"><b><b><a href="qml-playerpage.html#role-prop">role</a></b></b> : alias</li>
+<li class="fn"><b><b><a href="qml-playerpage.html#roleText-prop">roleText</a></b></b> : alias</li>
+<li class="fn"><b><b><a href="qml-playerpage.html#title-prop">title</a></b></b> : string</li>
+</ul>
+<a name="signals"></a>
+<h2 id="signals">Signals</h2>
+<ul>
+<li class="fn"><b><b><a href="qml-playerpage.html#submit-signal">submit</a></b></b>(var <i>player</i>)</li>
+</ul>
+<a name="methods"></a>
+<h2 id="methods">Methods</h2>
+<ul>
+<li class="fn"><b><b><a href="qml-playerpage.html#reset-method">reset</a></b></b>()</li>
+</ul>
+<!-- $$$PlayerPage-description -->
+<a name="details"></a>
+<h2 id="details">Detailed Description</h2>
+</p>
+<p>The <a href="qml-playerpage.html">PlayerPage</a> contains ever element you see when the <code>AddPlayerPage</code> or the <code>ModifyPlayerPage</code> is expanded. It also processes the input and directly calls submit with the player object (without the playerId).</p>
+<!-- @@@PlayerPage -->
+<h2>Property Documentation</h2>
+<!-- $$$expanded -->
+<div class="qmlitem"><div class="qmlproto">
+<div class="table"><table class="qmlname">
+<tr valign="top" class="odd" id="expanded-prop">
+<td class="tblQmlPropNode"><p>
+<a name="expanded-prop"></a><span class="name">expanded</span> : <span class="type">bool</span></p></td></tr>
+</table></div>
+</div><div class="qmldoc"><p>Describes whether the <a href="qml-playerpage.html">PlayerPage</a> is expanded or not.</p>
+</div></div><!-- @@@expanded -->
+<br/>
+<!-- $$$name -->
+<div class="qmlitem"><div class="qmlproto">
+<div class="table"><table class="qmlname">
+<tr valign="top" class="odd" id="name-prop">
+<td class="tblQmlPropNode"><p>
+<a name="name-prop"></a><span class="name">name</span> : <span class="type">alias</span></p></td></tr>
+</table></div>
+</div><div class="qmldoc"><p>The text in the name <code>AppTextField</code>.</p>
+</div></div><!-- @@@name -->
+<br/>
+<!-- $$$notes -->
+<div class="qmlitem"><div class="qmlproto">
+<div class="table"><table class="qmlname">
+<tr valign="top" class="odd" id="notes-prop">
+<td class="tblQmlPropNode"><p>
+<a name="notes-prop"></a><span class="name">notes</span> : <span class="type">alias</span></p></td></tr>
+</table></div>
+</div><div class="qmldoc"><p>The text in the notes <code>AppTextEdit</code>.</p>
+</div></div><!-- @@@notes -->
+<br/>
+<!-- $$$role -->
+<div class="qmlitem"><div class="qmlproto">
+<div class="table"><table class="qmlname">
+<tr valign="top" class="odd" id="role-prop">
+<td class="tblQmlPropNode"><p>
+<a name="role-prop"></a><span class="name">role</span> : <span class="type">alias</span></p></td></tr>
+</table></div>
+</div><div class="qmldoc"><p>The role in the <code>roleChooser</code>.</p>
+</div></div><!-- @@@role -->
+<br/>
+<!-- $$$roleText -->
+<div class="qmlitem"><div class="qmlproto">
+<div class="table"><table class="qmlname">
+<tr valign="top" class="odd" id="roleText-prop">
+<td class="tblQmlPropNode"><p>
+<a name="roleText-prop"></a><span class="name">roleText</span> : <span class="type">alias</span></p></td></tr>
+</table></div>
+</div><div class="qmldoc"><p>The text in the role button. (&quot;Choose role&quot; if not specified)</p>
+</div></div><!-- @@@roleText -->
+<br/>
+<!-- $$$title -->
+<div class="qmlitem"><div class="qmlproto">
+<div class="table"><table class="qmlname">
+<tr valign="top" class="odd" id="title-prop">
+<td class="tblQmlPropNode"><p>
+<a name="title-prop"></a><span class="name">title</span> : <span class="type">string</span></p></td></tr>
+</table></div>
+</div><div class="qmldoc"><p>The text in the submit button. (&quot;Create&quot; or &quot;Modify Player&quot;)</p>
+</div></div><!-- @@@title -->
+<br/>
+<h2>Signal Documentation</h2>
+<!-- $$$submit -->
+<div class="qmlitem"><div class="qmlproto">
+<div class="table"><table class="qmlname">
+<tr valign="top" class="odd" id="submit-signal">
+<td class="tblQmlFuncNode"><p>
+<a name="submit-signal"></a><span class="name">submit</span>(<span class="type">var</span> <i>player</i>)</p></td></tr>
+</table></div>
+</div><div class="qmldoc"><p>Submits created <i>player</i> object to derived component.</p>
+<p>When the user presses the submit button (&quot;Create&quot; or &quot;Modify Player&quot;) a <i>player</i> object is created and passed to the derived component's signalHandler.</p>
+</div></div><!-- @@@submit -->
+<br/>
+<h2>Method Documentation</h2>
+<!-- $$$reset -->
+<div class="qmlitem"><div class="qmlproto">
+<div class="table"><table class="qmlname">
+<tr valign="top" class="odd" id="reset-method">
+<td class="tblQmlFuncNode"><p>
+<a name="reset-method"></a><span class="name">reset</span>()</p></td></tr>
+</table></div>
+</div><div class="qmldoc"><p>Resets the input fields and hides the <code>roleChooser</code>.</p>
+<p>Restores default values in all text inputs and hides the <code>errorField</code> and the <code>roleChooser</code>. Calls the <code>roleChooser</code>'s reset method.</p>
+</div></div><!-- @@@reset -->
+<br/>
+</body>
+</html>

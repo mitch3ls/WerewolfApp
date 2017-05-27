@@ -4,29 +4,88 @@ import QtQuick.Layouts 1.1
 
 import "../model"
 
+/*!
+    \qmltype PlayerPage
+    \inherits Page
+    \brief Provides layout and basic functionality for the \c AddPlayerPage and the \c ModifyPlayerPage.
+
+    The PlayerPage contains ever element you see when the \c AddPlayerPage or the \c ModifyPlayerPage is expanded.
+    It also processes the input and directly calls submit with the player object (without the playerId).
+
+
+ */
+
 Page {
     id: playerPage
 
     title: "Add Player"
 
+    /*!
+        \qmlsignal PlayerPage::submit(var player)
+        \brief Submits created \a player object to derived component.
+
+        When the user presses the submit button ("Create" or "Modify Player") a \a player object is created and passed to
+        the derived component's signalHandler.
+     */
     signal submit(var player)
 
+    /*!
+        \qmlproperty string PlayerPage::title
+
+        The text in the submit button. ("Create" or "Modify Player")
+     */
     property string title
+
+    /*!
+        \qmlproperty bool PlayerPage::expanded
+
+        Describes whether the PlayerPage is expanded or not.
+     */
     property bool expanded
 
+    /*!
+        \qmlproperty alias PlayerPage::name
+
+        The text in the name \c AppTextField.
+     */
     property alias name: nameField.text
+
+    /*!
+        \qmlproperty alias PlayerPage::notes
+
+        The text in the notes \c AppTextEdit.
+     */
     property alias notes: notes.text
+
+    /*!
+        \qmlproperty alias PlayerPage::role
+
+        The role in the \c roleChooser.
+     */
     property alias role: roleChooser.selectedRole
+
+    /*!
+        \qmlproperty alias PlayerPage::roleText
+
+        The text in the role button. ("Choose role" if not specified)
+     */
     property alias roleText: roleButton.text
 
-    backgroundColor: "transparent"  //makes the backkground transparent
+    backgroundColor: "transparent"  //makes the background transparent
 
+    /*!
+        \qmlmethod PlayerPage::reset()
+        \brief Resets the input fields and hides the \c roleChooser.
+
+        Restores default values in all text inputs and hides the \c errorField and the \c roleChooser.
+        Calls the \c{roleChooser}'s reset method.
+     */
     function reset() {
         nameField.text = ""                 //resets nameField
         notes.text = ""                     //resets notes
         roleButton.text = "Choose Role"     //resets roleButton
         roleChooser.selectedRole = ""       //resets selectedRole
-        error.hide()                        //hides error notifcation
+        errorField.hide()                        //hides error notifcation
         roleChooser.hide()                  //hides roleChooser PopUp (only necessary when the user exited without closing the roleChooser)
         roleChooser.reset()                 //resets roleChooser
     }
@@ -78,9 +137,9 @@ Page {
 
             onTextChanged: {        //displays error message if nameField is empty
                 if (text === "")
-                    error.show()
+                    errorField.show()
                 else
-                    error.hide()
+                    errorField.hide()
             }
 
             placeholderText: "Name"
@@ -129,11 +188,11 @@ Page {
         Item {
             id: errorWrapper
 
-            width: error.width  //use the error text's width
+            width: errorField.width  //use the error text's width
 
             visible: opacity > 0    //only visible if opacity is greater than 0
 
-            opacity: error.opacity  //use the error text's opacity
+            opacity: errorField.opacity  //use the error text's opacity
             Behavior on opacity {   //smooth transition
                 NumberAnimation {
                     duration: 200
@@ -144,7 +203,7 @@ Page {
             height: 20
 
             AppText {
-                id: error   //displays error message
+                id: errorField   //displays error message
 
                 function show() {
                     opacity = 1
@@ -172,17 +231,19 @@ Page {
             textSize: 25
 
             onClicked: {
-                if (roleChooser.selectedRole === "")  //if the role hasn't been selected do nothing
+                if (nameField.text === "" || roleChooser.selectedRole === "")  //if the name field is empty or the role hasn't been selected do nothing
                     return
 
                 var player = {
-                    name: nameField.text,       //name is set to the text entered in the nameField
-                    role: roleChooser.selectedRole,       //role is set to the selectedRole role (that can't be null, because we checked it)
-                    notes: notes.text
+                    name: nameField.text,           //name is set to the text entered in the nameField  (can't be empty)
+                    role: roleChooser.selectedRole, //role is set to the selectedRole role              (can't be empty)
+                    notes: notes.text               //notes is set to the text                          (can be empty)
                 }
 
-                var roleObject = DataModel.roles.getRoleObject(player.role)
-                player.sectionName = (roleObject.pluralName) ? roleObject.pluralName : roleObject.name
+                var roleObject = DataModel.roles.getRoleObject(player.role) //get the roles object representation
+                player.sectionName = (roleObject.pluralName) ?              //if  there is a plural name for that role,
+                            roleObject.pluralName :                         //use it as the sectionName
+                            roleObject.name                                 //otherwise use the role name
 
                 if (DataModel.isValidPlayerModel(player))   //additionally check whether the DataModel would accept our player
                     submit(player)                   //hand the newly created player object to the parents signalHandler

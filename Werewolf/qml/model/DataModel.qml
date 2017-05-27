@@ -25,9 +25,9 @@ Item {
         \qmlsignal DataModel::availabilityUpdated(jsobject availabilityInformation)
         \brief Sends out information about roles' availability.
 
-        In Werewolf certain roles should only be assigned to a single player per game.
-        (Like the Witch or the Seer). This signal takes care of that by letting the \c RoleChooser
-        know which roles are available.
+        In Werewolf certain roles should only be assigned to a single player per game
+        (Like the Witch or the Seer). This signal takes care of that by letting the \c roleChooser
+        in \c PlayerPage know which roles are available.
 
         Every time the player data is modified (when a player is added, removed or modified)
         it notifies its subscribers about the updated availabilities of the roles. It does that
@@ -59,7 +59,7 @@ Item {
 
         The playersListModel is, as the name suggests, a ListModel of the players that is used in the
         \c AppListView in the \c AppPlayerPage. This \c ListModel is directly referenced by the
-        \c AppListView's model property.
+        \c{AppListView}'s model property.
      */
     property alias playersListModel: listModel
 
@@ -72,10 +72,10 @@ Item {
     /*!
         \qmlmethod DataModel::addPlayer(jsobject player)
 
-        Assigns \a player and ID and adds it to the \c playersListModel and the \c localStorage.
+        Assigns \a player an ID and adds it to the \c playersListModel and the \c localStorage.
 
         Before it does that it checks whether the \a player is valid or not. If it's not a valid
-        player object it simply returns.
+        player object it simply stops (returns).
      */
     function addPlayer(player) {
         if (!isValidPlayerModel(player))
@@ -114,7 +114,7 @@ Item {
     /*!
         \qmlmethod DataModel::getPlayerById(int playerId)
 
-        Returns the player object with the corresponding playerId or null if the playerId is not
+        Returns the player object with the given \c playerId or null if the \c playerId is not
         assigned to any player.
      */
     function getPlayerById(playerId) {
@@ -127,6 +127,11 @@ Item {
         return null
     }
 
+    /*!
+        \qmlmethod DataModel::getPlayersByRole(string role)
+
+        Returns a list of players with the given \c role.
+     */
     function getPlayersByRole(role) {
         var players = localStorage.getPlayers()
         return players.filter(function(player) {
@@ -134,11 +139,20 @@ Item {
         })
     }
 
-    //checks if player is valid player model
+    /*!
+        \qmlmethod DataModel::isValidPlayerModel(jsobject player)
+
+        Returns \c true if the name attribute isn't empty and the role attribute is a possible role.
+     */
     function isValidPlayerModel(player) {
         return player.name !== "" && roleList.contains(player.role)
     } 
 
+    /*!
+        \qmlmethod DataModel::getHighestId()
+
+        Returns the highest assigned id or \c -Infinity if there are no players in the game.
+     */
     function getHighestId() {
         var players = localStorage.getPlayers()                  //get players
         var ids = players.map(function(player) {    //get their ids
@@ -147,6 +161,11 @@ Item {
         return Math.max.apply(Math, ids);           //return the highest id
     }
 
+    /*!
+        \qmlmethod DataModel::getNextPlayerId()
+
+        Returns the next unassigned playerId.
+     */
     function getNextPlayerId() {
         var players = localStorage.getPlayers()
         var highestId = getHighestId()

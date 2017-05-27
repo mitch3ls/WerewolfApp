@@ -30,7 +30,7 @@
 <a name="properties"></a>
 <h2 id="properties">Properties</h2>
 <ul>
-<li class="fn"><b><b><a href="qml-datamodel.html#playersModel-prop">playersModel</a></b></b> : alias</li>
+<li class="fn"><b><b><a href="qml-datamodel.html#playersListModel-prop">playersListModel</a></b></b> : alias</li>
 <li class="fn"><b><b><a href="qml-datamodel.html#roles-prop">roles</a></b></b> : alias</li>
 </ul>
 <a name="signals"></a>
@@ -41,14 +41,14 @@
 <a name="methods"></a>
 <h2 id="methods">Methods</h2>
 <ul>
-<li class="fn"><b><b><a href="qml-datamodel.html#addPlayer-method">addPlayer</a></b></b>(<i>player</i>)</li>
+<li class="fn"><b><b><a href="qml-datamodel.html#addPlayer-method">addPlayer</a></b></b>(jsobject <i>player</i>)</li>
 <li class="fn"><b><b><a href="qml-datamodel.html#getHighestId-method">getHighestId</a></b></b>()</li>
 <li class="fn"><b><b><a href="qml-datamodel.html#getNextPlayerId-method">getNextPlayerId</a></b></b>()</li>
-<li class="fn"><b><b><a href="qml-datamodel.html#getPlayerById-method">getPlayerById</a></b></b>(<i>playerId</i>)</li>
-<li class="fn"><b><b><a href="qml-datamodel.html#getPlayersByRole-method">getPlayersByRole</a></b></b>(<i>role</i>)</li>
-<li class="fn"><b><b><a href="qml-datamodel.html#isValidPlayerModel-method">isValidPlayerModel</a></b></b>(<i>player</i>)</li>
-<li class="fn"><b><b><a href="qml-datamodel.html#modifyPlayer-method">modifyPlayer</a></b></b>(<i>player</i>)</li>
-<li class="fn"><b><b><a href="qml-datamodel.html#removePlayer-method">removePlayer</a></b></b>(<i>playerId</i>)</li>
+<li class="fn"><b><b><a href="qml-datamodel.html#getPlayerById-method">getPlayerById</a></b></b>(int <i>playerId</i>)</li>
+<li class="fn"><b><b><a href="qml-datamodel.html#getPlayersByRole-method">getPlayersByRole</a></b></b>(string <i>role</i>)</li>
+<li class="fn"><b><b><a href="qml-datamodel.html#isValidPlayerModel-method">isValidPlayerModel</a></b></b>(jsobject <i>player</i>)</li>
+<li class="fn"><b><b><a href="qml-datamodel.html#modifyPlayer-method">modifyPlayer</a></b></b>(jsobject <i>player</i>)</li>
+<li class="fn"><b><b><a href="qml-datamodel.html#removePlayer-method">removePlayer</a></b></b>(int <i>playerId</i>)</li>
 </ul>
 <!-- $$$DataModel-description -->
 <a name="details"></a>
@@ -58,14 +58,16 @@
 <p>On startup it loads the players from the <code>localStorage</code> and populates the <code>ListModel</code>.</p>
 <!-- @@@DataModel -->
 <h2>Property Documentation</h2>
-<!-- $$$playersModel -->
+<!-- $$$playersListModel -->
 <div class="qmlitem"><div class="qmlproto">
 <div class="table"><table class="qmlname">
-<tr valign="top" class="odd" id="playersModel-prop">
+<tr valign="top" class="odd" id="playersListModel-prop">
 <td class="tblQmlPropNode"><p>
-<a name="playersModel-prop"></a><span class="name">playersModel</span> : <span class="type">alias</span></p></td></tr>
+<a name="playersListModel-prop"></a><span class="name">playersListModel</span> : <span class="type">alias</span></p></td></tr>
 </table></div>
-</div><div class="qmldoc"></div></div><!-- @@@playersModel -->
+</div><div class="qmldoc"><p>Contains all players that are in the game.</p>
+<p>The playersListModel is, as the name suggests, a ListModel of the players that is used in the <code>AppListView</code> in the <code>AppPlayerPage</code>. This <code>ListModel</code> is directly referenced by the <code>AppListView</code>'s model property.</p>
+</div></div><!-- @@@playersListModel -->
 <br/>
 <!-- $$$roles -->
 <div class="qmlitem"><div class="qmlproto">
@@ -74,7 +76,9 @@
 <td class="tblQmlPropNode"><p>
 <a name="roles-prop"></a><span class="name">roles</span> : <span class="type">alias</span></p></td></tr>
 </table></div>
-</div><div class="qmldoc"></div></div><!-- @@@roles -->
+</div><div class="qmldoc"><p>Contains all possible roles.</p>
+<p>It contains a list of all possible roles including their properties and a set of functions that are all connected to roles.</p>
+</div></div><!-- @@@roles -->
 <br/>
 <h2>Signal Documentation</h2>
 <!-- $$$availabilityUpdated -->
@@ -85,7 +89,7 @@
 <a name="availabilityUpdated-signal"></a><span class="name">availabilityUpdated</span>(<span class="type">var</span> <i>availabilityInformation</i>)</p></td></tr>
 </table></div>
 </div><div class="qmldoc"><p>Sends out information about roles' availability.</p>
-<p>In Werewolf certain roles should only be assigned to a single player per game. (Like the Witch or the Seer). This signal takes take of that by letting the RoleChooser know which roles are available.</p>
+<p>In Werewolf certain roles should only be assigned to a single player per game (Like the Witch or the Seer). This signal takes care of that by letting the <code>roleChooser</code> in <code>PlayerPage</code> know which roles are available.</p>
 <p>Every time the player data is modified (when a player is added, removed or modified) it notifies its subscribers about the updated availabilities of the roles. It does that by sending an object like this:</p>
 <pre class="cpp">{
     <span class="string">&quot;roleName&quot;</span>: isAvailable(<span class="string">&quot;roleName&quot;</span>)<span class="operator">,</span>
@@ -99,9 +103,11 @@
 <div class="table"><table class="qmlname">
 <tr valign="top" class="odd" id="addPlayer-method">
 <td class="tblQmlFuncNode"><p>
-<a name="addPlayer-method"></a><span class="name">addPlayer</span>(<i>player</i>)</p></td></tr>
+<a name="addPlayer-method"></a><span class="name">addPlayer</span>(<span class="type">jsobject</span> <i>player</i>)</p></td></tr>
 </table></div>
-</div><div class="qmldoc"></div></div><!-- @@@addPlayer -->
+</div><div class="qmldoc"><p>Assigns <i>player</i> an ID and adds it to the <code>playersListModel</code> and the <code>localStorage</code>.</p>
+<p>Before it does that it checks whether the <i>player</i> is valid or not. If it's not a valid player object it simply stops (returns).</p>
+</div></div><!-- @@@addPlayer -->
 <br/>
 <!-- $$$getHighestId -->
 <div class="qmlitem"><div class="qmlproto">
@@ -110,7 +116,8 @@
 <td class="tblQmlFuncNode"><p>
 <a name="getHighestId-method"></a><span class="name">getHighestId</span>()</p></td></tr>
 </table></div>
-</div><div class="qmldoc"></div></div><!-- @@@getHighestId -->
+</div><div class="qmldoc"><p>Returns the highest assigned id or <code>-Infinity</code> if there are no players in the game.</p>
+</div></div><!-- @@@getHighestId -->
 <br/>
 <!-- $$$getNextPlayerId -->
 <div class="qmlitem"><div class="qmlproto">
@@ -119,52 +126,58 @@
 <td class="tblQmlFuncNode"><p>
 <a name="getNextPlayerId-method"></a><span class="name">getNextPlayerId</span>()</p></td></tr>
 </table></div>
-</div><div class="qmldoc"></div></div><!-- @@@getNextPlayerId -->
+</div><div class="qmldoc"><p>Returns the next unassigned playerId.</p>
+</div></div><!-- @@@getNextPlayerId -->
 <br/>
 <!-- $$$getPlayerById -->
 <div class="qmlitem"><div class="qmlproto">
 <div class="table"><table class="qmlname">
 <tr valign="top" class="odd" id="getPlayerById-method">
 <td class="tblQmlFuncNode"><p>
-<a name="getPlayerById-method"></a><span class="name">getPlayerById</span>(<i>playerId</i>)</p></td></tr>
+<a name="getPlayerById-method"></a><span class="name">getPlayerById</span>(<span class="type">int</span> <i>playerId</i>)</p></td></tr>
 </table></div>
-</div><div class="qmldoc"></div></div><!-- @@@getPlayerById -->
+</div><div class="qmldoc"><p>Returns the player object with the given <code>playerId</code> or null if the <code>playerId</code> is not assigned to any player.</p>
+</div></div><!-- @@@getPlayerById -->
 <br/>
 <!-- $$$getPlayersByRole -->
 <div class="qmlitem"><div class="qmlproto">
 <div class="table"><table class="qmlname">
 <tr valign="top" class="odd" id="getPlayersByRole-method">
 <td class="tblQmlFuncNode"><p>
-<a name="getPlayersByRole-method"></a><span class="name">getPlayersByRole</span>(<i>role</i>)</p></td></tr>
+<a name="getPlayersByRole-method"></a><span class="name">getPlayersByRole</span>(<span class="type">string</span> <i>role</i>)</p></td></tr>
 </table></div>
-</div><div class="qmldoc"></div></div><!-- @@@getPlayersByRole -->
+</div><div class="qmldoc"><p>Returns a list of players with the given <code>role</code>.</p>
+</div></div><!-- @@@getPlayersByRole -->
 <br/>
 <!-- $$$isValidPlayerModel -->
 <div class="qmlitem"><div class="qmlproto">
 <div class="table"><table class="qmlname">
 <tr valign="top" class="odd" id="isValidPlayerModel-method">
 <td class="tblQmlFuncNode"><p>
-<a name="isValidPlayerModel-method"></a><span class="name">isValidPlayerModel</span>(<i>player</i>)</p></td></tr>
+<a name="isValidPlayerModel-method"></a><span class="name">isValidPlayerModel</span>(<span class="type">jsobject</span> <i>player</i>)</p></td></tr>
 </table></div>
-</div><div class="qmldoc"></div></div><!-- @@@isValidPlayerModel -->
+</div><div class="qmldoc"><p>Returns <code>true</code> if the name attribute isn't empty and the role attribute is a possible role.</p>
+</div></div><!-- @@@isValidPlayerModel -->
 <br/>
 <!-- $$$modifyPlayer -->
 <div class="qmlitem"><div class="qmlproto">
 <div class="table"><table class="qmlname">
 <tr valign="top" class="odd" id="modifyPlayer-method">
 <td class="tblQmlFuncNode"><p>
-<a name="modifyPlayer-method"></a><span class="name">modifyPlayer</span>(<i>player</i>)</p></td></tr>
+<a name="modifyPlayer-method"></a><span class="name">modifyPlayer</span>(<span class="type">jsobject</span> <i>player</i>)</p></td></tr>
 </table></div>
-</div><div class="qmldoc"></div></div><!-- @@@modifyPlayer -->
+</div><div class="qmldoc"><p>Updates <i>player</i> in the <code>playersListModel</code> and the <code>localStorage</code>.</p>
+</div></div><!-- @@@modifyPlayer -->
 <br/>
 <!-- $$$removePlayer -->
 <div class="qmlitem"><div class="qmlproto">
 <div class="table"><table class="qmlname">
 <tr valign="top" class="odd" id="removePlayer-method">
 <td class="tblQmlFuncNode"><p>
-<a name="removePlayer-method"></a><span class="name">removePlayer</span>(<i>playerId</i>)</p></td></tr>
+<a name="removePlayer-method"></a><span class="name">removePlayer</span>(<span class="type">int</span> <i>playerId</i>)</p></td></tr>
 </table></div>
-</div><div class="qmldoc"></div></div><!-- @@@removePlayer -->
+</div><div class="qmldoc"><p>Removes player with the provided <i>playerId</i> from the <code>playersListModel</code> and the <code>localStorage</code>.</p>
+</div></div><!-- @@@removePlayer -->
 <br/>
 </body>
 </html>
