@@ -49,7 +49,7 @@ PlayerPage {
         }
     }
 
-    y: expanded ? 0 : 2 * height //lets player creation fly in and out
+    y: expanded ? 0 : parent.height //lets player creation fly in and out
     Behavior on y {
         //again, smooth transitions
         NumberAnimation {

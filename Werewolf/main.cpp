@@ -1,6 +1,8 @@
 #include <QApplication>
 #include <VPApplication>
 
+#include <QtQml>
+
 #include <QQmlApplicationEngine>
 
 
@@ -14,6 +16,8 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
     vplay.initialize(&engine);
+
+    //qmlRegisterSingletonType(QUrl("file://qml/model/DataModel.qml"), "DataModel", 1, 0, "DataModel");
 
     // use this during development
     // for PUBLISHING, use the entry point below
