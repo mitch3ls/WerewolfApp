@@ -17,20 +17,6 @@ import "model"
 Page {
     id: werewolfMainPage
 
-    /*!
-        \qmltype PlayerCreationControl
-        \inherits FloatingActionButton
-        \brief Controlls \c addPlayerPageExpanded.
-
-        The \c PlayerCreationControl is a \c FloatingActionButton that is used to expand and
-        collapse the \c addPlayerPage.
-
-        When the \c addPlayerPage is closed it also is resetted, so that the old values don't
-        remain in the forms.
-
-        The plus icon rotates by 45 degrees when the \c addPlayerPage is expanded and becomes
-        a closing a icon.
-    */
     FloatingActionButton {
         id: playerCreationControl
 
@@ -58,87 +44,13 @@ Page {
         visible: true //necessary if not running on Android
     }
 
-    PlayerPage {
+    AddPlayerPage {
         id: addPlayerPage
+    }
 
-        title: "Create"
-
-        onSubmit: {
-            DataModel.addPlayer(player) //add player to the data model
-            close()
-        }
-
-        opacity: expanded ? 1 : 0 //only opaque when expanded
-        Behavior on opacity {
-            //smooth transition from transparent to opaque
-            NumberAnimation {
-                easing.type: Easing.InOutSine
-                duration: 200
-            }
-        }
-
-        y: expanded ? 0 : 2 * height //lets player creation fly in and out
-        Behavior on y {
-            //again, smooth transitions
-            NumberAnimation {
-                easing.type: Easing.OutExpo
-                duration: 200
-            }
-        }
-
-        function open() {
-            reset()
-            expanded = true
-        }
-
-        function close() {
-            expanded = false
-        }
-
-        z: 1 //player creation hovers above list
-    } //AddPlayerPage
-
-    PlayerPage {
+    ModifyPlayerPage {
         id: modifyPlayerPage
-
-        title: "Modify Player"
-
-        onSubmit: {
-            DataModel.modifyPlayer(player) //add player to the data model
-            close()
-        }
-
-        opacity: expanded ? 1 : 0 //only opaque when expanded
-        Behavior on opacity {
-            //smooth transition from transparent to opaque
-            NumberAnimation {
-                easing.type: Easing.InOutSine
-                duration: 200
-            }
-        }
-
-        y: expanded ? 0 : 2 * height //lets player creation fly in and out
-        Behavior on y {
-            //again, smooth transitions
-            NumberAnimation {
-                easing.type: Easing.OutExpo
-                duration: 200
-            }
-        }
-
-        function open(playerId) {
-            player = DataModel.getPlayerById(playerId)
-            reset()
-            expanded = true
-        }
-
-        function close() {
-            player = null
-            expanded = false
-        }
-
-        z: 1 //player creation hovers above list
-    } //AddPlayerPage
+    }
 
     AppListView {
         id: playersList
@@ -169,7 +81,7 @@ Page {
                 textItem.font.bold: true
                 detailTextItem.color: Theme.tintColor
 
-                onSelected: modifyPlayerPage.open(playerId)
+                onSelected: modifyPlayerPage.openWithPlayer(playerId)
             }
 
             rightOption: SwipeButton {  //button that appears when the element is swiped to the left

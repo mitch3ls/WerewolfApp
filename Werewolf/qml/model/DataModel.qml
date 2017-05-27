@@ -7,16 +7,44 @@ import QtQuick 2.0
 import ".."
 import "./"
 
+/*!
+    \qmltype DataModel
+    \brief Takes care of app's data.
+
+    The \c DataModel is a Singleton object, that provides functions for adding, removing,
+    modifying and finding players, as well as the \c ListModel of the players that is used
+    by the \c AppListView in \c WerewolfMainPage.
+
+    On startup it loads the players from the \c localStorage and populates the \c ListModel.
+ */
 Item {
     id: dataModel
 
-    signal availabilityUpdated(var state)
+    /*!
+        \qmlsignal DataModel::availabilityUpdated(jsobject availabilityInformation)
+        \brief Sends out information about roles' availability.
+
+        In Werewolf certain roles should only be assigned to a single player per game.
+        (Like the Witch or the Seer). This signal takes take of that by letting the RoleChooser
+        know which roles are available.
+
+        Every time the player data is modified (when a player is added, removed or modified)
+        it notifies its subscribers about the updated availabilities of the roles. It does that
+        by sending an object like this:
+        \code
+            {
+                "roleName": isAvailable("roleName"),
+                ...
+            }
+        \endcode
+     */
+    signal availabilityUpdated(var availabilityInformation)
 
     property alias roles: roleList
     property alias playersModel: listModel
 
     Component.onCompleted: {
-        var players = getPlayers()
+        var players = localStorage.getPlayers()
         listModel.setPlayers(players)
         roleList.shareAvailability()
     }
@@ -43,39 +71,26 @@ Item {
     }
 
     function getPlayerById(playerId) {
-        var players = getPlayers()
+        var players = localStorage.getPlayers()
         return players.filter(function(player) {
             return player.playerId === playerId
         })[0]
     }
 
     function getPlayersByRole(role) {
-        var players = getPlayers()
+        var players = localStorage.getPlayers()
         return players.filter(function(player) {
             return player.role === role
         })
     }
 
-    //turns player object into object that can be passed into a list
-    function playerToListItem(player) {
-        return {
-            text: player.name,
-            detailText: player.role,
-            playerId: player.playerId
-        }
-    }
-
     //checks if player is valid player model
     function isValidPlayerModel(player) {
         return player.name !== "" && roleList.contains(player.role)
-    }
-
-    function getPlayers() {
-        return localStorage.getValue("players")
-    }
+    } 
 
     function getHighestId() {
-        var players = getPlayers()                  //get players
+        var players = localStorage.getPlayers()                  //get players
         var ids = players.map(function(player) {    //get their ids
                     return player.playerId
                 })
@@ -83,7 +98,7 @@ Item {
     }
 
     function getNextPlayerId() {
-        var players = getPlayers()
+        var players = localStorage.getPlayers()
         var highestId = getHighestId()
         for (var i = 0; i <= highestId + 1; i++) {  //iterate from zero to the highest id + 1 (so that if there's no gap highestId + 1 will be used)
             var player = getPlayerById(i)           //get corresponding player
@@ -110,8 +125,7 @@ Item {
                 }
             }
             append(newPlayer)               //if no player with a higher role index is found append the player
-            console.log("appended")         //that also happens when the list is empty of course
-        }
+        }                                   //that also happens when the list is empty of course
 
         function removePlayer(playerId) {
             for (var i = 0; i < count; i++) {       //iterate through players
@@ -124,13 +138,20 @@ Item {
         function modifyPlayer(modifiedPlayer) {
             for (var i = 0; i < count; i++) {                       //iterate through players
                 var player = get(i)                                 //get each player
-                if (player.playerId === modifiedPlayer.playerId)    //if the playerId matches the one we want to remove
-                    set(i, modifiedPlayer)                          //replace the player at that position
+                if (player.playerId === modifiedPlayer.playerId) {  //if the playerId matches the one we want to remove
+                    if (player.role === modifiedPlayer.role)        //and the role didn't change
+                        set(i, modifiedPlayer)                      //replace the player at that position
+                    else {                                          //if the roles did change
+                        removePlayer(player.playerId)               //first remove the old player
+                        addPlayer(modifiedPlayer)                    //and add the modified player back in
+                    }
+                }
             }
         }
 
-        function setPlayers(players) {                  //clears list
-            players.forEach(addPlayer)
+        function setPlayers(players) {
+            clear()                     //clears list
+            players.forEach(addPlayer)  //adds every player in the players list
         }
     }
 
@@ -147,7 +168,9 @@ Item {
             var players = getPlayers()                  //get the current players
             players.push(newPlayer)                     //add the new player to the list
 
-            players.sort(function(p1, p2) {return roleList.compareRoles(p1.role, p2.role)}) //sorts players by roles
+            players.sort(function(p1, p2) {             //sorts players by roles
+                return roleList.compareRoles(p1.role, p2.role)
+            })
 
             handleNewPlayers(players)
         }
@@ -176,6 +199,10 @@ Item {
         function handleNewPlayers(players) {
             setValue("players", players)    //store the modified list
             roleList.shareAvailability()    //notify RoleChooser
+        }
+
+        function getPlayers() {
+            return getValue("players")
         }
     }
 
@@ -213,11 +240,9 @@ Item {
         function shareAvailability() {
             var state = {}
 
-            for (var i = 0; i < count; i++) {           //iterate through roles
+            for (var i = 0; i < count; i++) {               //iterate through roles
                 var role = get(i)
-                state[role.name] = {                    //create a property for each  role
-                    available: isAvailable(role.name)   //with their availability
-                }
+                state[role.name] = isAvailable(role.name)   //create a property for each role with their availability
             }
 
             availabilityUpdated(state)                         //publish the availability data

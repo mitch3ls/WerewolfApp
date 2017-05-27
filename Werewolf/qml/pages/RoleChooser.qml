@@ -11,7 +11,7 @@ Page {
 
     signal roleSelected(string role)
 
-    property var selectedRole: null
+    property string selectedRole: ""
 
     function reset() {
         selectedRole = "" //reset selected role
@@ -79,7 +79,7 @@ Page {
 
                     Connections {
                         target: DataModel
-                        onAvailabilityUpdated: gridItem.enabled = state[name].available //disable role if it's not available anymore
+                        onAvailabilityUpdated: gridItem.enabled = availabilityInformation[name] //disable role if it's not available anymore
                     }
 
                     minimumWidth: 200
@@ -124,7 +124,7 @@ Page {
 
             width: roleList.width //adjusts width to the list's width
 
-            height: (roleList.selectedRole === "") ? 0 : 50 //expand box if a role is selected
+            height: (selectedRole === "") ? 0 : 50 //expand box if a role is selected
             Behavior on height {
                 //smooth transitions <3
                 NumberAnimation {

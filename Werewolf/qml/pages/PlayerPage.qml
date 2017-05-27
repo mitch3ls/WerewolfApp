@@ -12,19 +12,20 @@ Page {
     signal submit(var player)
 
     property string title
-
-    property var player
-    property var selectedRole: null //initially no role is selected
-
     property bool expanded
+
+    property alias name: nameField.text
+    property alias notes: notes.text
+    property alias role: roleChooser.selectedRole
+    property alias roleText: roleButton.text
 
     backgroundColor: "transparent"  //makes the backkground transparent
 
     function reset() {
-        nameField.text = player ? player.name : ""                 //resets nameField
-        notes.text = player ? player.notes : ""                     //resets notes
-        roleButton.text = player ? player.role : "Choose Role"     //resets roleButton
-        selectedRole = player ? player.role : null                 //resets selectedRole
+        nameField.text = ""                 //resets nameField
+        notes.text = ""                     //resets notes
+        roleButton.text = "Choose Role"     //resets roleButton
+        roleChooser.selectedRole = ""       //resets selectedRole
         error.hide()                        //hides error notifcation
         roleChooser.hide()                  //hides roleChooser PopUp (only necessary when the user exited without closing the roleChooser)
         roleChooser.reset()                 //resets roleChooser
@@ -121,8 +122,7 @@ Page {
             textColor: Theme.colors.tintColor
             textSize: 20
 
-            onClicked: roleChooser.opacity = 1
-
+            onClicked: roleChooser.show()
             Layout.alignment: Qt.AlignHCenter   //center the button
         }
 
@@ -145,13 +145,6 @@ Page {
             AppText {
                 id: error   //displays error message
 
-                opacity: 0  //initially not visible
-                color: Theme.colors.tintColor
-
-                text: "Please enter a name!"
-
-                anchors.centerIn: parent
-
                 function show() {
                     opacity = 1
                 }
@@ -159,6 +152,13 @@ Page {
                 function hide() {
                     opacity = 0
                 }
+
+                opacity: 0  //initially not visible
+                color: Theme.colors.tintColor
+
+                text: "Please enter a name!"
+
+                anchors.centerIn: parent
             }   //error
         } //errorWrapper
 
@@ -171,12 +171,12 @@ Page {
             textSize: 25
 
             onClicked: {
-                if (selectedRole === null)  //if the role hasn't been selected do nothing
+                if (roleChooser.selectedRole === "")  //if the role hasn't been selected do nothing
                     return
 
                 var player = {
                     name: nameField.text,       //name is set to the text entered in the nameField
-                    role: selectedRole,       //role is set to the selectedRole role (that can't be null, because we checked it)
+                    role: roleChooser.selectedRole,       //role is set to the selectedRole role (that can't be null, because we checked it)
                     notes: notes.text
                 }
 
@@ -203,22 +203,19 @@ Page {
     RoleChooser {
         id: roleChooser
 
-        z: 1    //gets displayed above the layout
-
-        selectedRole: player ? player.role : ""
-
-        onRoleSelected: {
-            hide()
-            roleButton.text = role  //set the text of roleButton to the selected role
-            playerPage.selectedRole = role     //set selectedRole role to the selected role
-        }
-
         function show() {
             opacity = 1
         }
 
         function hide() {
             opacity = 0
+        }
+
+        z: 1    //gets displayed above the layout
+
+        onRoleSelected: {
+            hide()
+            roleButton.text = selectedRole
         }
 
         visible: opacity > 0    //only visible when the opacity is greater than 0
