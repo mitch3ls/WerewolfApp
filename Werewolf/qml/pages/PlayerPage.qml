@@ -83,7 +83,7 @@ Page {
         notes.text = ""                     //resets notes
         roleButton.text = "Choose Role"     //resets roleButton
         roleChooser.selectedRole = ""       //resets selectedRole
-        errorField.hide()                        //hides error notifcation
+        errorField.hide()                   //hides error notifcation
         roleChooser.hide()                  //hides roleChooser PopUp (only necessary when the user exited without closing the roleChooser)
         roleChooser.reset()                 //resets roleChooser
     }
@@ -147,7 +147,7 @@ Page {
             id: notes
 
             Layout.preferredWidth: 250
-            Layout.alignment: Qt.AlignHCenter   //center the button
+            Layout.alignment: Qt.AlignHCenter   //center the element
             wrapMode: TextEdit.Wrap             //start a new line before the text flows out of the parent container
 
             placeholderText: "Add Notes"
@@ -180,6 +180,7 @@ Page {
             textSize: 20
 
             onClicked: roleChooser.show()
+
             Layout.alignment: Qt.AlignHCenter   //center the button
         }
 
@@ -187,6 +188,7 @@ Page {
             id: errorWrapper
 
             width: errorField.width  //use the error text's width
+            height: 20
 
             visible: opacity > 0    //only visible if opacity is greater than 0
 
@@ -198,7 +200,6 @@ Page {
             }
 
             Layout.alignment: Qt.AlignHCenter //center the error box
-            height: 20
 
             AppText {
                 id: errorField   //displays error message
@@ -211,7 +212,13 @@ Page {
                     opacity = 0
                 }
 
-                opacity: 0  //initially not visible
+                opacity: 0              //initially not visible
+                Behavior on opacity {   //smooth transition
+                    NumberAnimation {
+                        duration: 200
+                    }
+                }
+
                 color: Theme.colors.tintColor
 
                 text: "Please enter a name!"
@@ -274,11 +281,11 @@ Page {
 
         onRoleSelected: {
             hide()
-            roleButton.text = selectedRole
+            roleButton.text = selectedRole  //property bindings didn't work somehow
         }
 
         visible: opacity > 0    //only visible when the opacity is greater than 0
-        scale: opacity          //makes it grow when it pops  up
+        scale: opacity          //makes it grow when it pops up
 
         opacity: 0              //initially not visible
         Behavior on opacity {   //a smooth transition

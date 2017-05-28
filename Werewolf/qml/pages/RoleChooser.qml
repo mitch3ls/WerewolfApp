@@ -9,7 +9,7 @@ Page {
 
     backgroundColor: "transparent" //makes the background transparent
 
-    signal roleSelected(string role)
+    signal roleSelected()
 
     property string selectedRole: ""
 
@@ -28,16 +28,16 @@ Page {
 
             color: Theme.colors.tintColor
 
-            width: roleList.width //adjusts width to the lists width
+            width: roleList.width //adjusts width to the list's width
             height: 100
 
-            anchors.bottom: roleList.top //sits on top of the list's box
+            anchors.bottom: roleList.top                        //sits on top of the list's box
             anchors.horizontalCenter: roleList.horizontalCenter //horizontally aligned with the list
 
             Text {
                 id: title
 
-                text: "Choose a Role"
+                text: (selectedRole == "") ? "Choose a Role" : selectedRole
                 font.pixelSize: 40
 
                 color: "white"
@@ -56,7 +56,7 @@ Page {
             */
 
             width: 400
-            height: 400
+            height: 400 //200 * Math.ceil(DataModel.roles.count)
 
             rowSpacing: 0 //no spaces between role cards
             columnSpacing: 0
@@ -64,12 +64,6 @@ Page {
             columns: 2 //2 cards in one row
 
             anchors.centerIn: parent
-
-            function select(role) {
-                //selects role and changes the title
-                selectedRole = role
-                title.text = role
-            }
 
             Repeater {
                 model: DataModel.roles
@@ -99,10 +93,10 @@ Page {
                     onClicked: {
                         if (isSelected())
                             //if the role is selected already
-                            roleSelected(name) //submit it
+                            roleSelected() //submit it
                         else
                             //if not
-                            roleList.select(name) //select it
+                            selectedRole = name //select it
                     }
 
                     function isSelected() {

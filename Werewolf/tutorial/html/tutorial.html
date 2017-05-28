@@ -25,7 +25,24 @@
 <li class="level1"><a href="#the-background">The Background</a></li>
 <li class="level1"><a href="#the-content">The Content</a></li>
 <li class="level2"><a href="#the-content-s-background">The Content's Background</a></li>
-<li class="level2"><a href="#the-content">The Content</a></li>
+<li class="level2"><a href="#the-content-itself">The Content Itself</a></li>
+<li class="level3"><a href="#the-namefield">The NameField</a></li>
+<li class="level3"><a href="#the-notes">The Notes</a></li>
+<li class="level3"><a href="#the-role-button">The Role Button</a></li>
+<li class="level3"><a href="#the-error-message">The Error Message</a></li>
+<li class="level3"><a href="#the-submit-button">The Submit Button</a></li>
+<li class="level1"><a href="#role-chooser">Role Chooser</a></li>
+<li class="level1"><a href="#the-layout">The Layout</a></li>
+<li class="level2"><a href="#the-gridlayout">The GridLayout</a></li>
+<li class="level2"><a href="#the-title">The Title</a></li>
+<li class="level1"><a href="#the-functionality">The Functionality</a></li>
+<li class="level1"><a href="#integration">Integration</a></li>
+<li class="level1"><a href="#rolechooser">RoleChooser</a></li>
+<li class="level1"><a href="#addplayerpage">AddPlayerPage</a></li>
+<li class="level1"><a href="#modifyplayerpage">ModifyPlayerPage</a></li>
+<li class="level2"><a href="#preperation">Preperation</a></li>
+<li class="level2"><a href="#changes">Changes</a></li>
+<li class="level2"><a href="#integration-with-werewolfmainpage">Integration with <code>WerewolfMainPage</code></a></li>
 </ul>
 </div>
 <div class="sidebar-content" id="sidebar-content"></div></div>
@@ -43,7 +60,7 @@
 <p>Note: You can skip this chapter if you know the game already.</p>
 <a name="preperation"></a>
 <h2 id="preperation">Preperation</h2>
-<p>Werewolf is a game that is played in a group of at least 5 players (my recommendation) plus the moderator. Every player randomly chooses a card, which then tells him his role. It's important that nobody, but the moderator, no about the other players' roles.</p>
+<p>Werewolf is a game that is played in a group of at least 5 players (my recommendation) plus the moderator. Every player randomly chooses a card, which then tells him his role. It's important that nobody, but the moderator, know about the other players' roles.</p>
 <a name="gameplay"></a>
 <h2 id="gameplay">Gameplay</h2>
 <p>In the most basic form of the game there are two &quot;parties&quot;.</p>
@@ -131,7 +148,7 @@ Page {
 <p>Now we have a really nice looking action button, but it doesn't do a lot. In our app it's supposed to open the page that let's us create players, but we don't have that page yet. I think it's the right time to do that now.</p>
 <a name="player-creation"></a>
 <h2 id="player-creation">Player Creation</h2>
-<p>First of all, let's add a folder called &quot;pages&quot; in the qml directory that will contain our, you guessed it, pages. The first page we'll add is again an empty page, this time called &quot;AddPlayerPage&quot;. Again, add the &quot;Hello Werewolf&quot; text so we can see whether it worked or not.</p>
+<p>First of all, let's add a folder called &quot;pages&quot; in the qml directory that will contain our, you guessed it, pages. The first page we'll add is again an empty page, this time called &quot;<a href="tutorial.html#addplayerpage">AddPlayerPage</a>&quot;. Again, add the &quot;Hello Werewolf&quot; text so we can see whether it worked or not.</p>
 <p>Note: I don't know how to create folders in Qt Creator, so I had to create it externally. For some reason that folder doesn't appear in Qt until you add a file to it. I suggest adding the qml file to your qml directory and then dragging it into your newly created folder with your explorer.</p>
 <p>Now go to your <code>WerewolfMainPage</code> and add the <code>AddPlayerPage</code>. Before you do that you must import the pages folder first by adding <code>import &quot;pages&quot;</code> at the top of the file.</p>
 <p>You file should now look like this:</p>
@@ -200,7 +217,7 @@ Page {
 }</pre>
 <a name="the-content-s-background"></a>
 <h3 >The Content's Background</h3>
-<p>The content's background should be a box with rounded corners and a white background color. We also the border color to be our tint Color and have the whole box centered in our page. The width and height should match the content's width and height plus some additional padding.</p>
+<p>The content's background should be a box with rounded corners and a white background color. We also the border color to be our tint color and have the whole box centered in our page. The width and height should match the content's width and height plus some additional padding.</p>
 <pre class="cpp">Rectangle {
     id: contentBackground
 
@@ -213,16 +230,989 @@ Page {
 
     anchors<span class="operator">.</span>centerIn: parent
 }</pre>
-<a name="the-content"></a>
-<h3 >The Content</h3>
-<p>In our content we need the following elements:</p>
+<a name="the-content-itself"></a>
+<h3 >The Content Itself</h3>
+<p>We don't need change a whole lot about our GridLayout, but there are a few things that need to be specified. For that we only need three extra lines of code:</p>
+<pre class="cpp">columns: <span class="number">1</span>
+rowSpacing: <span class="number">10</span>
+anchors<span class="operator">.</span>centerIn: contentBackground</pre>
+<p>For our content we need the following elements:</p>
 <ul>
 <li>An <code>AppTextField</code> for the name</li>
 <li>An <code>AppTextEdit</code> for the notes</li>
-<li>An <code>AppButton</code> for opening the RoleChooser (we'll get to that later)</li>
+<li>An <code>AppButton</code> for opening the <a href="tutorial.html#rolechooser">RoleChooser</a> (we'll get to that later)</li>
 <li>An <code>AppText</code> wrapped into an <code>Item</code> for the error message</li>
 <li>An <code>AppButton</code> for submitting players.</li>
 </ul>
+<a name="the-namefield"></a>
+<h4 >The NameField</h4>
+<p>The text field should look like this:</p>
+<pre class="cpp">AppTextField {
+    id: nameField
+
+    borderWidth: <span class="number">1</span>
+    Layout<span class="operator">.</span>preferredWidth: <span class="number">300</span>
+
+    onTextChanged: {        <span class="comment">//displays error message if nameField is empty</span>
+        <span class="keyword">if</span> (text <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> <span class="string">&quot;&quot;</span>)
+            errorField<span class="operator">.</span>show()
+        <span class="keyword">else</span>
+            errorField<span class="operator">.</span>hide()
+    }
+
+    placeholderText: <span class="string">&quot;Name&quot;</span>
+}</pre>
+<p>If you try to run this now it will give you an error when you enter text. That's because there is no component with the id &quot;errorField&quot;. We'll add the error field in the course of this chapter.</p>
+<p>The reason why we don't use property bindings with the error field is that it would also show an error message when the use hasn't done anything wrong yet and simply hasn't entered a name. We don't want error labels to be visible when nothing actually is wrong so we manually show and hide it only when the text was changed.</p>
+<p>The <code>placeholderText</code> specifies what should be displayed when the text field is empty. In our case that's &quot;Name&quot;.</p>
+<a name="the-notes"></a>
+<h4 >The Notes</h4>
+<p>Initially we want a simple <code>AppTextEdit</code> with no logic at all for our notes.</p>
+<pre class="cpp">AppTextEdit {
+    id: notes
+
+    Layout<span class="operator">.</span>preferredWidth: <span class="number">250</span>
+    Layout<span class="operator">.</span>alignment: <span class="type">Qt</span><span class="operator">.</span>AlignHCenter
+
+    placeholderText: <span class="string">&quot;Add Notes&quot;</span>
+
+    font<span class="operator">.</span>pixelSize: <span class="number">20</span>
+
+    anchors<span class="operator">.</span>top: nameField<span class="operator">.</span>bottom
+    anchors<span class="operator">.</span>topMargin: <span class="number">15</span>
+}</pre>
+<p>That looks ok, but I have a two things to criticize:</p>
+<ul>
+<li>It's way too big</li>
+<li>There is no word wrapping, we can keep writing forever and it would just flow out of the borders</li>
+</ul>
+<p>Let's take care of the first problem first. We want our text to become smaller and closer to the name field when we aren't editing it right now. Here we can use property binding and the handy focus property of <code>AppTextEdit</code>.</p>
+<pre class="cpp">font<span class="operator">.</span>pixelSize: focus <span class="operator">?</span> <span class="number">20</span> : <span class="number">15</span>     <span class="comment">//scale text up when focussed</span>
+Behavior on font<span class="operator">.</span>pixelSize {        <span class="comment">//do it smoothly</span>
+    NumberAnimation {
+        duration: <span class="number">200</span>
+    }
+}
+
+anchors<span class="operator">.</span>top: nameField<span class="operator">.</span>bottom
+anchors<span class="operator">.</span>topMargin: focus <span class="operator">?</span> <span class="number">15</span> : <span class="number">10</span>  <span class="comment">//increase the distance between the text and the nameField when focussed</span>
+Behavior on anchors<span class="operator">.</span>topMargin {     <span class="comment">//do that smoothly as well</span>
+    NumberAnimation {
+        duration: <span class="number">200</span>
+    }
+}</pre>
+<p>Way better! Now we just have to fix the other problem and we're done with this component. That fairly easy, we just need to add <code>wrapMode: TextEdit.Wrap</code> and we're done.</p>
+<p>Our completed note <code>AppTextEdit</code> should now look like this:</p>
+<pre class="cpp">AppTextEdit {
+    id: notes
+
+    Layout<span class="operator">.</span>preferredWidth: <span class="number">250</span>
+    Layout<span class="operator">.</span>alignment: <span class="type">Qt</span><span class="operator">.</span>AlignHCenter
+    wrapMode: TextEdit<span class="operator">.</span>Wrap
+
+    placeholderText: <span class="string">&quot;Add Notes&quot;</span>
+
+    font<span class="operator">.</span>pixelSize: focus <span class="operator">?</span> <span class="number">20</span> : <span class="number">15</span>
+    Behavior on font<span class="operator">.</span>pixelSize {
+        NumberAnimation {
+            duration: <span class="number">200</span>
+        }
+    }
+
+    anchors<span class="operator">.</span>top: nameField<span class="operator">.</span>bottom
+    anchors<span class="operator">.</span>topMargin: focus <span class="operator">?</span> <span class="number">15</span> : <span class="number">10</span>
+    Behavior on anchors<span class="operator">.</span>topMargin {
+        NumberAnimation {
+            duration: <span class="number">200</span>
+        }
+    }
+}</pre>
+<a name="the-role-button"></a>
+<h4 >The Role Button</h4>
+<p>This button's job is to display the <code>RoleChooser</code>. Since we don't have that yet, we'll have to make it a dummy for now.</p>
+<pre class="cpp">AppButton {
+    id: roleButton  <span class="comment">//displays roleChooser</span>
+
+    borderColor: Theme<span class="operator">.</span>colors<span class="operator">.</span>tintColor
+    backgroundColor: <span class="string">&quot;white&quot;</span>
+
+    text: <span class="string">&quot;Choose Role&quot;</span>
+    fontBold: <span class="keyword">false</span> <span class="comment">//would be bold on Android</span>
+    textColor: Theme<span class="operator">.</span>colors<span class="operator">.</span>tintColor
+    textSize: <span class="number">20</span>
+
+    onClicked: roleChooser<span class="operator">.</span>show()   <span class="comment">//this won't work for now</span>
+
+    Layout<span class="operator">.</span>alignment: <span class="type">Qt</span><span class="operator">.</span>AlignHCenter   <span class="comment">//center the button</span>
+}</pre>
+<a name="the-error-message"></a>
+<h4 >The Error Message</h4>
+<p>The error message is just an <code>AppText</code> wrapped into an <code>Item</code> so it's easier to align it.</p>
+<pre class="cpp">Item {
+    id: errorWrapper
+
+    width: errorField<span class="operator">.</span>width  <span class="comment">//use the error text's width</span>
+    height: <span class="number">20</span>
+
+    Layout<span class="operator">.</span>alignment: <span class="type">Qt</span><span class="operator">.</span>AlignHCenter <span class="comment">//center the error box</span>
+    AppText {
+        id: errorField   <span class="comment">//displays error message</span>
+
+        color: Theme<span class="operator">.</span>colors<span class="operator">.</span>tintColor
+
+        text: <span class="string">&quot;Please enter a name!&quot;</span>
+
+        anchors<span class="operator">.</span>centerIn: parent
+    }
+}</pre>
+<p>That's a really nice looking error field. But it doesn't always need to be visible, in fact it shouldn't be.</p>
+<p>Remember the name field when we wrote errorField.show()? It's now finally time to implement that function and we'll do it like this:</p>
+<pre class="cpp">Item {
+    visible: opacity <span class="operator">&gt;</span> <span class="number">0</span>    <span class="comment">//only visible if opacity is greater than 0</span>
+
+    opacity: errorField<span class="operator">.</span>opacity  <span class="comment">//use the error text's opacity</span>
+    Behavior on opacity {   <span class="comment">//smooth transition</span>
+        NumberAnimation {
+            duration: <span class="number">200</span>
+        }
+    }
+
+    AppText {
+        id: errorField
+
+        function show() {
+            opacity <span class="operator">=</span> <span class="number">1</span>
+        }
+
+        function hide() {
+            opacity <span class="operator">=</span> <span class="number">0</span>
+        }
+
+        opacity: <span class="number">0</span>              <span class="comment">//initially not visible</span>
+        Behavior on opacity {   <span class="comment">//smooth transition</span>
+            NumberAnimation {
+                duration: <span class="number">200</span>
+            }
+        }
+    }
+}</pre>
+<p>Note: I only kept the properties that have been added.</p>
+<p>All we do is just changing the opacity and in doing that we change the wrapper's visibility, that is bound to it's opacity, that is bound to the <code>errorField</code>'s opacity. Property binding!</p>
+<p>We should now have a nice looking error message with smooth transitions and can go on to the next component.</p>
+<p>The code for the error message should look like this:</p>
+<pre class="cpp">Item {
+    id: errorWrapper
+
+    width: errorField<span class="operator">.</span>width  <span class="comment">//use the error text's width</span>
+    height: <span class="number">20</span>
+
+    visible: opacity <span class="operator">&gt;</span> <span class="number">0</span>    <span class="comment">//only visible if opacity is greater than 0</span>
+
+    opacity: errorField<span class="operator">.</span>opacity  <span class="comment">//use the error text's opacity</span>
+    Behavior on opacity {   <span class="comment">//smooth transition</span>
+        NumberAnimation {
+            duration: <span class="number">200</span>
+        }
+    }
+
+    Layout<span class="operator">.</span>alignment: <span class="type">Qt</span><span class="operator">.</span>AlignHCenter <span class="comment">//center the error box</span>
+
+    AppText {
+        id: errorField   <span class="comment">//displays error message</span>
+
+        function show() {
+            opacity <span class="operator">=</span> <span class="number">1</span>
+        }
+
+        function hide() {
+            opacity <span class="operator">=</span> <span class="number">0</span>
+        }
+
+        opacity: <span class="number">0</span>              <span class="comment">//initially not visible</span>
+        Behavior on opacity {   <span class="comment">//smooth transition</span>
+            NumberAnimation {
+                duration: <span class="number">200</span>
+            }
+        }
+
+        color: Theme<span class="operator">.</span>colors<span class="operator">.</span>tintColor
+
+        text: <span class="string">&quot;Please enter a name!&quot;</span>
+
+        anchors<span class="operator">.</span>centerIn: parent
+    }   <span class="comment">//error</span>
+} <span class="comment">//errorWrapper</span></pre>
+<a name="the-submit-button"></a>
+<h4 >The Submit Button</h4>
+<p>This is the button that will actually create the player. I called it &quot;submit button&quot; and not &quot;add button&quot;, because we will reuse this layout for the <code>ModifyPlayerPage</code> later on.</p>
+<p>The button itself is a pretty simple <code>AppButton</code>.</p>
+<pre class="cpp">AppButton {
+    id: submitButton
+
+    text: <span class="string">&quot;Create&quot;</span>
+    fontBold: <span class="keyword">false</span>     <span class="comment">//would be bold on Android</span>
+    textColor: <span class="string">&quot;white&quot;</span>
+    textSize: <span class="number">25</span>
+
+    horizontalMargin: <span class="number">0</span>
+    verticalMargin: <span class="number">0</span>
+    Layout<span class="operator">.</span>alignment: <span class="type">Qt</span><span class="operator">.</span>AlignHCenter   <span class="comment">//center button</span>
+}</pre>
+<p>On iOS buttons don't have a background. We want our button to have a background, though. Let's add a <code>Rectangle</code> to fix that.</p>
+<pre class="cpp">Rectangle {
+    z: <span class="operator">-</span><span class="number">1</span>
+    color: Theme<span class="operator">.</span>tintColor
+    anchors<span class="operator">.</span>fill: parent
+}</pre>
+<p>There's nothing special about that code. Let's take care of the functionality instead, it gets more exciting there.</p>
+<p>Before we do anything with the data, let's check whether it's there. To do that we simply write an if with a return statement.</p>
+<pre class="cpp"><span class="keyword">if</span> (nameField<span class="operator">.</span>text <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> <span class="string">&quot;&quot;</span> <span class="operator">|</span><span class="operator">|</span> roleChooser<span class="operator">.</span>selectedRole <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> <span class="string">&quot;&quot;</span>)
+    <span class="keyword">return</span></pre>
+<p>Note: this will output an error for now, because we haven't take care of the <a href="tutorial.html#rolechooser">roleChooser</a> yet.</p>
+<p>Then let's create a player object from the data in the input fields.</p>
+<pre class="cpp">var player <span class="operator">=</span> {
+    name: nameField<span class="operator">.</span>text<span class="operator">,</span>
+    role: roleChooser<span class="operator">.</span>selectedRole<span class="operator">,</span>
+    notes: notes<span class="operator">.</span>text
+}</pre>
+<p>Mhmm, we now have a player, but what do we do with it? We need to create a signal that we can use to pass the player to the signal handler.</p>
+<pre class="qml"></pre>
+<p>signal submit(var player)</p>
+<p>Now we can call this signal from our onClicked method.</p>
+<pre class="qml"></pre>
+<p>submit(player)</p>
+<p>The onClicked method should now look like this:</p>
+<pre class="cpp">onClicked: {
+    <span class="keyword">if</span> (nameField<span class="operator">.</span>text <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> <span class="string">&quot;&quot;</span> <span class="operator">|</span><span class="operator">|</span> roleChooser<span class="operator">.</span>selectedRole <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> <span class="string">&quot;&quot;</span>)
+        <span class="keyword">return</span>
+
+    var player <span class="operator">=</span> {
+        name: nameField<span class="operator">.</span>text<span class="operator">,</span>
+        role: roleChooser<span class="operator">.</span>selectedRole<span class="operator">,</span>
+        notes: notes<span class="operator">.</span>text
+    }
+
+    submit(player)
+}</pre>
+<p>The completed button should now look like this:</p>
+<pre class="cpp">AppButton {
+    id: submitButton
+
+    text: <span class="string">&quot;Create&quot;</span>
+    fontBold: <span class="keyword">false</span>
+    textColor: <span class="string">&quot;white&quot;</span>
+    textSize: <span class="number">25</span>
+
+    onClicked: {
+        <span class="keyword">if</span> (nameField<span class="operator">.</span>text <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> <span class="string">&quot;&quot;</span> <span class="operator">|</span><span class="operator">|</span> roleChooser<span class="operator">.</span>selectedRole <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> <span class="string">&quot;&quot;</span>)
+            <span class="keyword">return</span>
+
+        var player <span class="operator">=</span> {
+            name: nameField<span class="operator">.</span>text<span class="operator">,</span>
+            role: roleChooser<span class="operator">.</span>selectedRole<span class="operator">,</span>
+            notes: notes<span class="operator">.</span>text
+        }
+
+        submit(player)
+    }
+
+    horizontalMargin: <span class="number">0</span>
+    verticalMargin: <span class="number">0</span>
+    Layout<span class="operator">.</span>alignment: <span class="type">Qt</span><span class="operator">.</span>AlignHCenter
+
+    Rectangle {
+        z: <span class="operator">-</span><span class="number">1</span>
+        color: Theme<span class="operator">.</span>tintColor
+        anchors<span class="operator">.</span>fill: parent
+    }
+}</pre>
+<p>We have finished our <code>AddPlayerPage</code> for now, we'll come back later, though, and change a few things.</p>
+<p>This is what the app should look like when you start it:</p>
+<p class="centerAlign"><img src="images/finishedAddPlayerPage.png" alt="" /></p><p>And here is the source code:</p>
+<pre class="cpp">import VPlayApps <span class="number">1.0</span>
+import <span class="type">QtQuick</span> <span class="number">2.0</span>
+import <span class="type">QtQuick</span><span class="operator">.</span>Layouts <span class="number">1.1</span>
+
+
+Page {
+
+    signal submit(var player)
+
+    backgroundColor: <span class="string">&quot;transparent&quot;</span>
+
+    Rectangle {
+        color: Theme<span class="operator">.</span>tintColor
+        opacity: <span class="number">0.5</span>
+        anchors<span class="operator">.</span>fill: parent
+    }
+
+    Rectangle {
+        id: contentBackground   <span class="comment">//actual background of the dialogue</span>
+
+        color: <span class="string">&quot;white&quot;</span>
+        border<span class="operator">.</span>color: Theme<span class="operator">.</span>colors<span class="operator">.</span>tintColor
+
+        width: content<span class="operator">.</span>width <span class="operator">+</span> <span class="number">20</span>       <span class="comment">//add some padding on all sides</span>
+        height: content<span class="operator">.</span>height <span class="operator">+</span> <span class="number">20</span>
+        radius: <span class="number">4</span>                       <span class="comment">//round off the corners</span>
+
+        anchors<span class="operator">.</span>centerIn: parent
+    }
+
+    GridLayout {
+        id: content
+
+        columns: <span class="number">1</span>
+        rowSpacing: <span class="number">10</span>
+
+        anchors<span class="operator">.</span>centerIn: contentBackground
+
+        AppTextField {
+            id: nameField
+
+            borderWidth: <span class="number">1</span>
+            Layout<span class="operator">.</span>preferredWidth: <span class="number">300</span>
+
+            onTextChanged: {        <span class="comment">//displays error message if nameField is empty</span>
+                <span class="keyword">if</span> (text <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> <span class="string">&quot;&quot;</span>)
+                    errorField<span class="operator">.</span>show()
+                <span class="keyword">else</span>
+                    errorField<span class="operator">.</span>hide()
+            }
+
+            placeholderText: <span class="string">&quot;Name&quot;</span>
+        }
+
+        AppTextEdit {
+            id: notes
+
+            Layout<span class="operator">.</span>preferredWidth: <span class="number">250</span>
+            Layout<span class="operator">.</span>alignment: <span class="type">Qt</span><span class="operator">.</span>AlignHCenter   <span class="comment">//center the element</span>
+            wrapMode: TextEdit<span class="operator">.</span>Wrap             <span class="comment">//start a new line before the text flows out of the parent container</span>
+
+
+            placeholderText: <span class="string">&quot;Add Notes&quot;</span>
+
+            font<span class="operator">.</span>pixelSize: focus <span class="operator">?</span> <span class="number">20</span> : <span class="number">15</span>     <span class="comment">//scale text up when focussed</span>
+            Behavior on font<span class="operator">.</span>pixelSize {        <span class="comment">//do it smoothly</span>
+                NumberAnimation {
+                    duration: <span class="number">200</span>
+                }
+            }
+
+            anchors<span class="operator">.</span>top: nameField<span class="operator">.</span>bottom
+            anchors<span class="operator">.</span>topMargin: focus <span class="operator">?</span> <span class="number">15</span> : <span class="number">10</span>  <span class="comment">//increase the distance between the text and the nameField when focussed</span>
+            Behavior on anchors<span class="operator">.</span>topMargin {     <span class="comment">//do that smoothly as well</span>
+                NumberAnimation {
+                    duration: <span class="number">200</span>
+                }
+            }
+        }
+        AppButton {
+            id: roleButton  <span class="comment">//displays roleChooser</span>
+
+            borderColor: Theme<span class="operator">.</span>colors<span class="operator">.</span>tintColor
+            backgroundColor: <span class="string">&quot;white&quot;</span>
+
+            text: <span class="string">&quot;Choose Role&quot;</span>
+            fontBold: <span class="keyword">false</span> <span class="comment">//would be bold on Android</span>
+            textColor: Theme<span class="operator">.</span>colors<span class="operator">.</span>tintColor
+            textSize: <span class="number">20</span>
+
+            onClicked: roleChooser<span class="operator">.</span>show()
+
+            Layout<span class="operator">.</span>alignment: <span class="type">Qt</span><span class="operator">.</span>AlignHCenter   <span class="comment">//center the button</span>
+        }
+        Item {
+            id: errorWrapper
+
+            width: errorField<span class="operator">.</span>width  <span class="comment">//use the error text's width</span>
+            height: <span class="number">20</span>
+
+            visible: opacity <span class="operator">&gt;</span> <span class="number">0</span>    <span class="comment">//only visible if opacity is greater than 0</span>
+
+            opacity: errorField<span class="operator">.</span>opacity  <span class="comment">//use the error text's opacity</span>
+            Behavior on opacity {   <span class="comment">//smooth transition</span>
+                NumberAnimation {
+                    duration: <span class="number">200</span>
+                }
+            }
+
+            Layout<span class="operator">.</span>alignment: <span class="type">Qt</span><span class="operator">.</span>AlignHCenter <span class="comment">//center the error box</span>
+
+            AppText {
+                id: errorField   <span class="comment">//displays error message</span>
+
+                function show() {
+                    opacity <span class="operator">=</span> <span class="number">1</span>
+                }
+
+                function hide() {
+                    opacity <span class="operator">=</span> <span class="number">0</span>
+                }
+
+                opacity: <span class="number">0</span>              <span class="comment">//initially not visible</span>
+                Behavior on opacity {   <span class="comment">//smooth transition</span>
+                    NumberAnimation {
+                        duration: <span class="number">200</span>
+                    }
+                }
+
+                color: Theme<span class="operator">.</span>colors<span class="operator">.</span>tintColor
+
+                text: <span class="string">&quot;Please enter a name!&quot;</span>
+
+                anchors<span class="operator">.</span>centerIn: parent
+            }   <span class="comment">//error</span>
+        } <span class="comment">//errorWrapper</span>
+
+        AppButton {
+            id: submitButton
+
+            text: <span class="string">&quot;Create&quot;</span>
+            fontBold: <span class="keyword">false</span>
+            textColor: <span class="string">&quot;white&quot;</span>
+            textSize: <span class="number">25</span>
+
+            onClicked: {
+                <span class="keyword">if</span> (nameField<span class="operator">.</span>text <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> <span class="string">&quot;&quot;</span> <span class="operator">|</span><span class="operator">|</span> roleChooser<span class="operator">.</span>selectedRole <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> <span class="string">&quot;&quot;</span>)
+                    <span class="keyword">return</span>
+
+                var player <span class="operator">=</span> {
+                    name: nameField<span class="operator">.</span>text<span class="operator">,</span>
+                    role: roleChooser<span class="operator">.</span>selectedRole<span class="operator">,</span>
+                    notes: notes<span class="operator">.</span>text
+                }
+
+                submit(player)
+            }
+
+            horizontalMargin: <span class="number">0</span>
+            verticalMargin: <span class="number">0</span>
+            Layout<span class="operator">.</span>alignment: <span class="type">Qt</span><span class="operator">.</span>AlignHCenter
+
+            Rectangle {
+                z: <span class="operator">-</span><span class="number">1</span>
+                color: Theme<span class="operator">.</span>tintColor
+                anchors<span class="operator">.</span>fill: parent
+            }
+        }
+    }
+}</pre>
+<a name="role-chooser"></a>
+<h2 id="role-chooser">Role Chooser</h2>
+<p>Our <code>AddPlayerPage</code> still isn't complete because the <code>RoleChooser</code> is missing. This component deserves an own file because of its complexity. So let's create that file!</p>
+<p>Add <code>RoleChooser.qml</code> to your pages folder. As with the other two pages we've added, add a centered <code>Text</code> component with the text &quot;Hello Werewolf&quot;. Don't forget to make the background transparent! Then add the <code>RoleChooser</code> to the bottom of the <code>AddPlayerPage</code> (beneath the GridView).</p>
+<p>If it says &quot;Hello Werewolf&quot; above &quot;Choose Role&quot; when you start the app we're ready to start building the menu where the use can shoose a player's role.</p>
+<a name="the-layout"></a>
+<h2 id="the-layout">The Layout</h2>
+<p>Again we start with the layout. I want it to be a GridView for the roles with a title above and a hint box beneath.</p>
+<a name="the-gridlayout"></a>
+<h3 >The GridLayout</h3>
+<p>We start by adding a simple GridLayout that looks like this:</p>
+<pre class="cpp">GridLayout {
+    id: roleList
+
+    width: <span class="number">400</span>
+    height: <span class="number">400</span>
+
+    rowSpacing: <span class="number">0</span>   <span class="comment">//no spaces between role cards</span>
+    columnSpacing: <span class="number">0</span>
+
+    columns: <span class="number">2</span>  <span class="comment">//2 cards in one row</span>
+
+    anchors<span class="operator">.</span>centerIn: parent
+}</pre>
+<p>Now we have to find a way to add the roles to the GridView. Qt offers a really handy component for that, called the <code>Repeater</code>. you just give it a ListModel and it repeats the provided delegate for every item in that ListModel. As a model we again use a dummy ListModel.</p>
+<pre class="cpp">Repeater {
+    model: ListModel {
+        ListElement { name: <span class="string">&quot;Werewolf&quot;</span>}
+        ListElement { name: <span class="string">&quot;Villager&quot;</span>}
+        ListElement { name: <span class="string">&quot;Seer&quot;</span>}
+        ListElement { name: <span class="string">&quot;Witch&quot;</span>}
+    }
+
+    delegate: AppButton {
+        id: gridItem
+
+        minimumWidth: <span class="number">200</span>
+        minimumHeight: <span class="number">200</span>
+
+        verticalMargin: <span class="number">0</span>       <span class="comment">//no spaces between role cards</span>
+        horizontalMargin: <span class="number">0</span>
+
+        text: name          <span class="comment">//display the role's name</span>
+        textSize: <span class="number">20</span>
+        fontBold: <span class="keyword">false</span>     <span class="comment">//would be bold on Android</span>
+        textColor: <span class="string">&quot;black&quot;</span>
+
+        borderColor: Theme<span class="operator">.</span>colors<span class="operator">.</span>tintColor
+        backgroundColor: <span class="string">&quot;white&quot;</span>
+
+        Rectangle {
+            z: <span class="operator">-</span><span class="number">1</span>           <span class="comment">//white background for ios</span>
+            color: <span class="string">&quot;white&quot;</span>
+            anchors<span class="operator">.</span>fill: parent
+        }
+    }
+}</pre>
+<p>Add that code as a child of your GridView.</p>
+<a name="the-title"></a>
+<h3 >The Title</h3>
+<p>We need a way to let our users know what they're supposed to do. The easiest way to do this is to simply add a title with an easy instruction like &quot;Choose Role&quot;.</p>
+<p>For the basic shape of the title bar we'll simply use a <code>Rectangle</code>.</p>
+<pre class="cpp">Rectangle {
+    id: titleWrapper
+
+    color: Theme<span class="operator">.</span>colors<span class="operator">.</span>tintColor
+
+    width: roleList<span class="operator">.</span>width   <span class="comment">//adjusts width to the list's width</span>
+    height: <span class="number">100</span>
+
+    anchors<span class="operator">.</span>bottom: roleList<span class="operator">.</span>top                        <span class="comment">//sits on top of the list's box</span>
+    anchors<span class="operator">.</span>horizontalCenter: roleList<span class="operator">.</span>horizontalCenter <span class="comment">//horizontally aligned with the list</span>
+}</pre>
+<p>When you start the app you should now see the title bar already, it's just the title that's missing. To fix that we simply add a <code>Text</code> component to our Rectangle.</p>
+<pre class="cpp">Text {
+    id: title
+
+    text: <span class="string">&quot;Choose a Role&quot;</span>
+    font<span class="operator">.</span>pixelSize: <span class="number">40</span>
+
+    color: <span class="string">&quot;white&quot;</span>
+
+    anchors<span class="operator">.</span>centerIn: parent
+}</pre>
+<p>When we now start our app it should look like this:</p>
+<p class="centerAlign"><img src="images/RoleChooserBasicLayout.png" alt="" /></p><a name="the-functionality"></a>
+<h2 id="the-functionality">The Functionality</h2>
+<p>Our app <a href="tutorial.html#rolechooser">RoleChooser</a> is really pretty now. That doesn't help us a lot, though, if it doesn't let the use choose a role. Let's take care of that.</p>
+<p>First we need to define a property <code>selectedRole</code> at the top.</p>
+<pre class="qml"></pre>
+<p>property string selectedRole: &quot;&quot;</p>
+<p>When now the user clicks on a button we want the button's role to become the selected Role. The easiest way to do it is this.</p>
+<pre class="qml"></pre>
+<p>onClicked: selectedRole = name</p>
+<p>And we're done. Or are we? Because we still want the user to confirm his selection right? We need some extra logic.</p>
+<p>First of all let's change the title. Let's show the user which role he has selected.</p>
+<pre class="qml"></pre>
+<p>text: (selectedRole == &quot;&quot;) ? &quot;Choose a Role&quot; : selectedRole</p>
+<p>We could also change the color of that button's text.</p>
+<pre class="qml"></pre>
+<p>textColor: (selectedRole === name) ? Theme.tintColor : &quot;black&quot;</p>
+<p>If the user now presses the button again, we want the signal handler to be notified, so we need a signel.</p>
+<pre class="qml"></pre>
+<p>signal roleSelected()</p>
+<p>I also added a <code>is</code> selected method to the <code>AppButton</code> for convenience.</p>
+<pre class="cpp">function isSelected() {
+    <span class="keyword">return</span> selectedRole <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> name
+}</pre>
+<p>Note: we can now also replace the condition in our text property.</p>
+<p>Let's now add some logic to make that confirmation happen.</p>
+<pre class="cpp">onClicked: {
+    <span class="keyword">if</span> (isSelected())
+                            <span class="comment">//if the role is selected already</span>
+        roleSelected()  <span class="comment">//submit it</span>
+    <span class="keyword">else</span>
+                            <span class="comment">//if not</span>
+        selectedRole <span class="operator">=</span> name <span class="comment">//select it</span>
+}</pre>
+<p>Now our component technically works. It just isn't really user friendly because they probably don't know that they need to tab a role twice. We need something to tell them what they're supposed to do. Something similar to the title component will do a good job for that purpose.</p>
+<pre class="cpp">Rectangle {
+    id: hintWrapper
+
+    color: Theme<span class="operator">.</span>colors<span class="operator">.</span>tintColor
+
+    width: roleList<span class="operator">.</span>width   <span class="comment">//adjusts width to the list's width</span>
+
+    height: (selectedRole <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> <span class="string">&quot;&quot;</span>) <span class="operator">?</span> <span class="number">0</span> : <span class="number">50</span> <span class="comment">//expand box if a role is selected</span>
+    Behavior on height {
+        NumberAnimation {
+            duration: <span class="number">200</span>
+        }
+    }
+
+    opacity: (height <span class="operator">&gt;</span> <span class="number">0</span>) <span class="operator">?</span> <span class="number">1</span> : <span class="number">0</span> <span class="comment">//visible as soon as the height is greater than zero</span>
+
+    anchors<span class="operator">.</span>top: roleList<span class="operator">.</span>bottom        <span class="comment">//attaches it to the bottom of the list</span>
+    anchors<span class="operator">.</span>horizontalCenter: roleList<span class="operator">.</span>horizontalCenter <span class="comment">//centers it</span>
+
+    Text {
+        id: hint
+
+        text: <span class="string">&quot;tab again to confirm selection&quot;</span>
+        font<span class="operator">.</span>pixelSize: <span class="number">20</span>
+
+        color: <span class="string">&quot;white&quot;</span>
+
+        anchors<span class="operator">.</span>centerIn: parent
+    }
+}</pre>
+<p>Nothing about that code should be new. Hurray, we just finished our <a href="tutorial.html#rolechooser">RoleChooser</a>!</p>
+<p>Our app should now look like this:</p>
+<p class="centerAlign"><img src="images/finishedRoleChooser.png" alt="" /></p><p>And the source code looks like this:</p>
+<pre class="cpp">import VPlayApps <span class="number">1.0</span>
+import <span class="type">QtQuick</span> <span class="number">2.0</span>
+import <span class="type">QtQuick</span><span class="operator">.</span>Layouts <span class="number">1.1</span>
+
+Page {
+
+    backgroundColor: <span class="string">&quot;transparent&quot;</span>
+
+    signal roleSelected()
+
+    property string selectedRole: <span class="string">&quot;&quot;</span>
+
+    GridLayout {
+        id: roleList
+
+        width: <span class="number">400</span>
+        height: <span class="number">400</span>
+
+        rowSpacing: <span class="number">0</span>   <span class="comment">//no spaces between role cards</span>
+        columnSpacing: <span class="number">0</span>
+
+        columns: <span class="number">2</span>  <span class="comment">//2 cards in one row</span>
+
+        anchors<span class="operator">.</span>centerIn: parent
+
+        Repeater {
+            model: ListModel {
+                ListElement { name: <span class="string">&quot;Werewolf&quot;</span>}
+                ListElement { name: <span class="string">&quot;Villager&quot;</span>}
+                ListElement { name: <span class="string">&quot;Seer&quot;</span>}
+                ListElement { name: <span class="string">&quot;Witch&quot;</span>}
+            }
+
+            delegate: AppButton {
+                id: gridItem
+
+                minimumWidth: <span class="number">200</span>
+                minimumHeight: <span class="number">200</span>
+
+                verticalMargin: <span class="number">0</span>       <span class="comment">//no spaces between role cards</span>
+                horizontalMargin: <span class="number">0</span>
+
+                text: name          <span class="comment">//display the role's name</span>
+                textSize: <span class="number">20</span>
+                fontBold: <span class="keyword">false</span>     <span class="comment">//would be bold on Android</span>
+                textColor: isSelected() <span class="operator">?</span> Theme<span class="operator">.</span>tintColor : <span class="string">&quot;black&quot;</span>
+
+                borderColor: Theme<span class="operator">.</span>colors<span class="operator">.</span>tintColor
+                backgroundColor: <span class="string">&quot;white&quot;</span>
+
+                onClicked: {
+                    <span class="keyword">if</span> (isSelected())
+                                            <span class="comment">//if the role is selected already</span>
+                        roleSelected()  <span class="comment">//submit it</span>
+                    <span class="keyword">else</span>
+                                            <span class="comment">//if not</span>
+                        selectedRole <span class="operator">=</span> name <span class="comment">//select it</span>
+                }
+
+                function isSelected() {
+                    <span class="keyword">return</span> selectedRole <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> name
+                }
+
+                Rectangle {
+                    z: <span class="operator">-</span><span class="number">1</span>           <span class="comment">//white background for ios</span>
+                    color: <span class="string">&quot;white&quot;</span>
+                    anchors<span class="operator">.</span>fill: parent
+                }
+            }
+        }
+    }
+
+    Rectangle {
+        id: titleWrapper
+
+        color: Theme<span class="operator">.</span>colors<span class="operator">.</span>tintColor
+
+        width: roleList<span class="operator">.</span>width   <span class="comment">//adjusts width to the list's width</span>
+        height: <span class="number">100</span>
+
+        anchors<span class="operator">.</span>bottom: roleList<span class="operator">.</span>top                        <span class="comment">//sits on top of the list's box</span>
+        anchors<span class="operator">.</span>horizontalCenter: roleList<span class="operator">.</span>horizontalCenter <span class="comment">//horizontally aligned with the list</span>
+
+        Text {
+            id: title
+
+            text: (selectedRole <span class="operator">=</span><span class="operator">=</span> <span class="string">&quot;&quot;</span>) <span class="operator">?</span> <span class="string">&quot;Choose a Role&quot;</span> : selectedRole
+            font<span class="operator">.</span>pixelSize: <span class="number">40</span>
+
+            color: <span class="string">&quot;white&quot;</span>
+
+            anchors<span class="operator">.</span>centerIn: parent
+        }
+    }
+
+    Rectangle {
+        id: hintWrapper
+
+        color: Theme<span class="operator">.</span>colors<span class="operator">.</span>tintColor
+
+        width: roleList<span class="operator">.</span>width   <span class="comment">//adjusts width to the list's width</span>
+
+        height: (selectedRole <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> <span class="string">&quot;&quot;</span>) <span class="operator">?</span> <span class="number">0</span> : <span class="number">50</span> <span class="comment">//expand box if a role is selected</span>
+        Behavior on height {
+            NumberAnimation {
+                duration: <span class="number">200</span>
+            }
+        }
+
+        opacity: (height <span class="operator">&gt;</span> <span class="number">0</span>) <span class="operator">?</span> <span class="number">1</span> : <span class="number">0</span> <span class="comment">//visible as soon as the height is greater than zero</span>
+
+        anchors<span class="operator">.</span>top: roleList<span class="operator">.</span>bottom        <span class="comment">//attaches it to the bottom of the list</span>
+        anchors<span class="operator">.</span>horizontalCenter: roleList<span class="operator">.</span>horizontalCenter <span class="comment">//centers it</span>
+
+        Text {
+            id: hint
+
+            text: <span class="string">&quot;tab again to confirm selection&quot;</span>
+            font<span class="operator">.</span>pixelSize: <span class="number">20</span>
+
+            color: <span class="string">&quot;white&quot;</span>
+
+            anchors<span class="operator">.</span>centerIn: parent
+        }
+    }
+}</pre>
+<a name="integration"></a>
+<h2 id="integration">Integration</h2>
+<p>Having all those pages ready is nice, but they need to work together well. So let's start bringing them together.</p>
+<a name="rolechooser"></a>
+<h2 id="rolechooser">RoleChooser</h2>
+<p>Let's start by actually binding our <a href="tutorial.html#rolechooser">RoleChooser</a> to the &quot;Chooser Role&quot; button in the <code>AddPlayerPage</code>.</p>
+<p>Add the following code to your <code>RoleChooser</code> in <code>AddPlayerPage</code>:</p>
+<pre class="cpp">id: roleChooser
+
+function show() {
+    opacity <span class="operator">=</span> <span class="number">1</span>
+}
+
+function hide() {
+    opacity <span class="operator">=</span> <span class="number">0</span>
+}
+
+onRoleSelected: {
+    hide()
+    roleButton<span class="operator">.</span>text <span class="operator">=</span> selectedRole
+}
+
+visible: opacity <span class="operator">&gt;</span> <span class="number">0</span>    <span class="comment">//only visible when the opacity is greater than 0</span>
+scale: opacity          <span class="comment">//makes it grow when it pops up</span>
+
+opacity: <span class="number">0</span>              <span class="comment">//initially not visible</span>
+Behavior on opacity {   <span class="comment">//a smooth transition</span>
+    NumberAnimation {
+        easing<span class="operator">.</span>type: Easing<span class="operator">.</span>OutQuart
+        duration: <span class="number">200</span>
+    }
+}</pre>
+<p>The code should be pretty straight forward. When the <code>roleButton</code> is clicked it calls the <code>show</code> function of the <code>roleChooser</code>. When the user now has selected a role the <code>roleChooser</code> hides itself again and sets the <code>roleButton</code>'s text to the selected role.</p>
+<a name="addplayerpage"></a>
+<h2 id="addplayerpage">AddPlayerPage</h2>
+<p>Now it's time to properly integrate our <code>AddPlayerPage</code> into our <code>WerewolfMainPage</code> in a similar manner.</p>
+<p>Before we do that add the property <code>expanded</code> (<code>bool</code>) to <code>AddPlayerPage</code>.</p>
+<pre class="qml"></pre>
+<p>property bool expanded</p>
+<p>Now add the function open and close to the <code>addPlayerPage</code> in <code>WerewolfMainPage</code>.</p>
+<pre class="cpp">function open() {
+    expanded <span class="operator">=</span> <span class="keyword">true</span>
+}
+
+function close() {
+    expanded <span class="operator">=</span> <span class="keyword">false</span>
+    reset()
+}</pre>
+<p>As you might have noticed already, there is no method <code>reset</code> in our <code>AddPlayerPage</code>. We'll add it now in <code>AddPlayerPage.qml</code>.</p>
+<pre class="cpp">function reset() {
+    nameField<span class="operator">.</span>text <span class="operator">=</span> <span class="string">&quot;&quot;</span>                 <span class="comment">//resets nameField</span>
+    notes<span class="operator">.</span>text <span class="operator">=</span> <span class="string">&quot;&quot;</span>                     <span class="comment">//resets notes</span>
+    roleButton<span class="operator">.</span>text <span class="operator">=</span> <span class="string">&quot;Choose Role&quot;</span>     <span class="comment">//resets roleButton</span>
+    roleChooser<span class="operator">.</span>selectedRole <span class="operator">=</span> <span class="string">&quot;&quot;</span>       <span class="comment">//resets selectedRole</span>
+    errorField<span class="operator">.</span>hide()                   <span class="comment">//hides error notifcation</span>
+    roleChooser<span class="operator">.</span>hide()                  <span class="comment">//hides roleChooser PopUp (only necessary when the user exited without closing the roleChooser)</span>
+    roleChooser<span class="operator">.</span>reset()                 <span class="comment">//resets roleChooser</span>
+}</pre>
+<p>Again we have the problem, that there is no <code>reset</code> method in <code>RoleChooser</code> either. Let's add that as well.</p>
+<pre class="cpp">function reset() {
+    selectedRole <span class="operator">=</span> <span class="string">&quot;&quot;</span>               <span class="comment">//reset selected role</span>
+    title<span class="operator">.</span>text <span class="operator">=</span> <span class="string">&quot;Choose a Role&quot;</span>    <span class="comment">//resets title text</span>
+}</pre>
+<p>Let's now get back to the <code>addPlayerPage</code> in <code>WerewolfMainPage</code>.</p>
+<p>We want it to look cool when it appears on the screen and not just pop up. We'll do it by adding animations and property bindings.</p>
+<pre class="cpp">opacity: expanded <span class="operator">?</span> <span class="number">1</span> : <span class="number">0</span> <span class="comment">//only opaque when expanded</span>
+Behavior on opacity {
+    <span class="comment">//smooth transition from transparent to opaque</span>
+    NumberAnimation {
+        easing<span class="operator">.</span>type: Easing<span class="operator">.</span>InOutSine
+        duration: <span class="number">200</span>
+    }
+}
+
+y: expanded <span class="operator">?</span> <span class="number">0</span> : parent<span class="operator">.</span>height <span class="comment">//lets player creation fly in and out</span>
+Behavior on y {
+    <span class="comment">//again, smooth transitions</span>
+    NumberAnimation {
+        easing<span class="operator">.</span>type: Easing<span class="operator">.</span>OutExpo
+        duration: <span class="number">200</span>
+    }
+}</pre>
+<p>Now we just have to add a signalHandler for <code>submit</code>.</p>
+<pre class="cpp">onSubmit: {
+    close()
+}</pre>
+<p>For now we just close the window, we'll take care of the DataModel later on.</p>
+<p>When you now start the app you'll notice that our <code>AddPlayerPage</code> isn't visible anymore. We still haven't implemented a way to open it. Let's do that now.</p>
+<p>Add that to the <code>FloatingActionButton</code> in <code>WerewolfMainPage</code>.</p>
+<pre class="cpp">onClicked: {
+    <span class="keyword">if</span> (addPlayerPage<span class="operator">.</span>expanded) {
+        addPlayerPage<span class="operator">.</span>close() <span class="comment">//closes player creation and resets it</span>
+    } <span class="keyword">else</span>
+        addPlayerPage<span class="operator">.</span>open() <span class="comment">//opens player creation</span>
+}</pre>
+<p>For that code to work we need to assign our <code>AddPlayerPage</code> an id.</p>
+<pre class="qml"></pre>
+<p>id: <a href="tutorial.html#addplayerpage">addPlayerPage</a></p>
+<p>As a nice little detail, let's turn our open button by 45Â° when it the <code>addPlayerPage</code> is expanded and turn it into a closing button. Add this to the <code>FloatingActionButton</code></p>
+<pre class="cpp">iconItem<span class="operator">.</span>rotation: (addPlayerPage<span class="operator">.</span>expanded) <span class="operator">?</span> <span class="number">45</span> : <span class="number">0</span>
+Behavior on iconItem<span class="operator">.</span>rotation {
+    NumberAnimation {
+        duration: <span class="number">200</span>
+    }
+}</pre>
+<a name="modifyplayerpage"></a>
+<h2 id="modifyplayerpage">ModifyPlayerPage</h2>
+<p>We of course also want to be able to modify our players. For that we need another page, the <code>ModifyPlayerPage</code>. Luckily we have the layout already in our <code>AddPlayerPage</code>, we just need to remove the &quot;add&quot; from it and make it a more general <code>PlayerPage</code>.</p>
+<a name="preperation"></a>
+<h3 >Preperation</h3>
+<p>First of all, rename your <code>AddPlayerPage</code> to <code>PlayerPage</code>.</p>
+<p>Then add a property <code>title</code>.</p>
+<pre class="qml"></pre>
+<p>property string title</p>
+<p>Find the submit button and bind its <code>text</code> attribute to the title.</p>
+<pre class="qml"></pre>
+<p>text: title</p>
+<p>Now add the following properties so we can access them from the outside.</p>
+<pre class="cpp">property alias name: nameField<span class="operator">.</span>text
+property alias notes: notes<span class="operator">.</span>text
+property alias role: roleChooser<span class="operator">.</span>selectedRole
+property alias roleText: roleButton<span class="operator">.</span>text</pre>
+<p>Now add the file <code>AddPlayerPage.qml</code> to the pages folder. Cut and paste the contents from <code>addPlayerPage</code> in <code>WerewolfMainPage</code> into <code>AddPlayerPage.qml</code>.</p>
+<p>Now add the id for the <code>AddPlayerPage</code> back in in <code>WerewolfMainPage</code> and add the title to <code>AddPlayerPage.qml</code>.</p>
+<p><code>AddPlayerPage.qml</code> should now look like this:</p>
+<pre class="cpp">import VPlayApps <span class="number">1.0</span>
+import <span class="type">QtQuick</span> <span class="number">2.0</span>
+
+PlayerPage {
+    id: addPlayerPage
+
+    function open() {
+        expanded <span class="operator">=</span> <span class="keyword">true</span>
+    }
+
+    function close() {
+        expanded <span class="operator">=</span> <span class="keyword">false</span>
+        reset()
+    }
+
+    onSubmit: {
+        close()
+    }
+
+    title: <span class="string">&quot;Create&quot;</span>
+
+    opacity: expanded <span class="operator">?</span> <span class="number">1</span> : <span class="number">0</span> <span class="comment">//only opaque when expanded</span>
+    Behavior on opacity {
+        <span class="comment">//smooth transition from transparent to opaque</span>
+        NumberAnimation {
+            easing<span class="operator">.</span>type: Easing<span class="operator">.</span>InOutSine
+            duration: <span class="number">200</span>
+        }
+    }
+
+    y: expanded <span class="operator">?</span> <span class="number">0</span> : parent<span class="operator">.</span>height <span class="comment">//lets player creation fly in and out</span>
+    Behavior on y {
+        <span class="comment">//again, smooth transitions</span>
+        NumberAnimation {
+            easing<span class="operator">.</span>type: Easing<span class="operator">.</span>OutExpo
+            duration: <span class="number">200</span>
+        }
+    }
+}</pre>
+<p>And <code>WerewolfMainPage</code> like this:</p>
+<pre class="cpp">import VPlayApps <span class="number">1.0</span>
+import <span class="type">QtQuick</span> <span class="number">2.0</span>
+
+import <span class="string">&quot;pages&quot;</span>
+
+Page {
+    AppListView {
+
+        emptyText<span class="operator">.</span>text: <span class="string">&quot;No Players in Session&quot;</span>
+
+        delegate: SimpleRow { }
+
+        model: <span class="operator">[</span>
+            { text: <span class="string">&quot;Player1&quot;</span><span class="operator">,</span> detailText: <span class="string">&quot;Werewolf&quot;</span> }<span class="operator">,</span>
+            { text: <span class="string">&quot;Player2&quot;</span><span class="operator">,</span> detailText: <span class="string">&quot;Villager&quot;</span> }
+        <span class="operator">]</span>
+    }
+
+    AddPlayerPage {
+        id: addPlayerPage
+    }
+
+    FloatingActionButton {
+        icon: IconType<span class="operator">.</span>plus
+
+        visible: <span class="keyword">true</span>
+
+        iconItem<span class="operator">.</span>rotation: (addPlayerPage<span class="operator">.</span>expanded) <span class="operator">?</span> <span class="number">45</span> : <span class="number">0</span>
+        Behavior on iconItem<span class="operator">.</span>rotation {
+            NumberAnimation {
+                duration: <span class="number">200</span>
+            }
+        }
+
+        onClicked: {
+            <span class="keyword">if</span> (addPlayerPage<span class="operator">.</span>expanded) {
+                addPlayerPage<span class="operator">.</span>close() <span class="comment">//closes player creation and resets it</span>
+            } <span class="keyword">else</span>
+                addPlayerPage<span class="operator">.</span>open() <span class="comment">//opens player creation</span>
+        }
+    }
+}</pre>
+<p>Now add a new file to the pages folder called <code>ModifyPlayerPage.qml</code> and copy the content of <code>AddPlayerPage.qml</code> into it as a base to start working from.</p>
+<a name="changes"></a>
+<h3 >Changes</h3>
+<p>First of all add a property player to the <code>ModifyPlayerPage</code> and set it to <code>null</code> as its default value.</p>
+<pre class="qml"></pre>
+<p>property var player: null</p>
+<p>Then rename the <code>open</code> method to <code>openWithPlayerId(playerId)</code>. Our players don't have any ids yet, but that will change as soon as we start working on our <code>DataModel</code>. For now just implement it like this.</p>
+<pre class="cpp">function openWithPlayer(playerId) {
+    <span class="comment">//later we'll set the player property to the player with the given playerId here</span>
+    prepare()
+    expanded <span class="operator">=</span> <span class="keyword">true</span>
+}</pre>
+<p>We call a function <code>prepare</code> there that doesn't exist yet. Let's add it to our component.</p>
+<pre class="cpp">function prepare() {
+    name <span class="operator">=</span> player<span class="operator">.</span>name
+    notes <span class="operator">=</span> player<span class="operator">.</span>notes
+    role <span class="operator">=</span> player<span class="operator">.</span>role
+    roleText <span class="operator">=</span> player<span class="operator">.</span>role
+}</pre>
+<p>Here we fill our <code>PlayerPage</code> with the player's details before it gets visible.</p>
+<p>For now that's all the changes we need, we will get back to it later, though.</p>
+<a name="integration-with-werewolfmainpage"></a>
+<h3 >Integration with <code>WerewolfMainPage</code></h3>
+<p>When we press the <code>FloatingActionButton</code> our <code>AddPlayerPage</code> gets expanded. We need a similar behaviour for our <code>ModifyPlayerPage</code> when an item in the players' list is clicked.</p>
+<p>Let's add that functionality to our <code>SimpleRow</code> delegate in <code>WerewolfMainPage</code> and let's change the style a bit too since we're already there.</p>
+<pre class="cpp">textItem<span class="operator">.</span>font<span class="operator">.</span>bold: <span class="keyword">true</span>
+detailTextItem<span class="operator">.</span>color: Theme<span class="operator">.</span>tintColor
+
+onSelected: modifyPlayerPage<span class="operator">.</span>openWithPlayer() <span class="comment">//later we'll call it with an argument</span></pre>
 </div>
 <!-- @@@tutorial.html -->
 </body>

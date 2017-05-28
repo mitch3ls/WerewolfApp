@@ -16,7 +16,24 @@
             <contents name="the-background" title="The Background" level="1"/>
             <contents name="the-content" title="The Content" level="1"/>
             <contents name="the-content-s-background" title="The Content's Background" level="2"/>
-            <contents name="the-content" title="The Content" level="2"/>
+            <contents name="the-content-itself" title="The Content Itself" level="2"/>
+            <contents name="the-namefield" title="The NameField" level="3"/>
+            <contents name="the-notes" title="The Notes" level="3"/>
+            <contents name="the-role-button" title="The Role Button" level="3"/>
+            <contents name="the-error-message" title="The Error Message" level="3"/>
+            <contents name="the-submit-button" title="The Submit Button" level="3"/>
+            <contents name="role-chooser" title="Role Chooser" level="1"/>
+            <contents name="the-layout" title="The Layout" level="1"/>
+            <contents name="the-gridlayout" title="The GridLayout" level="2"/>
+            <contents name="the-title" title="The Title" level="2"/>
+            <contents name="the-functionality" title="The Functionality" level="1"/>
+            <contents name="integration" title="Integration" level="1"/>
+            <contents name="rolechooser" title="RoleChooser" level="1"/>
+            <contents name="addplayerpage" title="AddPlayerPage" level="1"/>
+            <contents name="modifyplayerpage" title="ModifyPlayerPage" level="1"/>
+            <contents name="preperation" title="Preperation" level="2"/>
+            <contents name="changes" title="Changes" level="2"/>
+            <contents name="integration-with-werewolfmainpage" title="Integration with WerewolfMainPage" level="2"/>
         </page>
     </namespace>
 </INDEX>
