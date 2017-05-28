@@ -18,8 +18,6 @@ import "../model"
 Page {
     id: playerPage
 
-    title: "Add Player"
-
     /*!
         \qmlsignal PlayerPage::submit(var player)
         \brief Submits created \a player object to derived component.

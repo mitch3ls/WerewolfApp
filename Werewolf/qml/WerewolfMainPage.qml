@@ -56,7 +56,6 @@ Page {
         id: playersList
 
         emptyText.text: "No Players in Session" //gets displayed when there are no players in the list
-         //fetches initial data
 
         model: DataModel.playersListModel
 

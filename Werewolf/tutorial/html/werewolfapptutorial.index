@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE QDOCINDEX>
+<INDEX url="" title="The tutorial for my Werewolf app" version="" project="WerewolfAppTutorial">
+    <namespace threadsafety="unspecified" name="" status="active" access="public" module="werewolfapptutorial">
+        <page name="tutorial.html" href="tutorial.html" status="active" location="tutorial.qdoc" filepath="C:/Users/micha/OneDrive/Werewolf/Werewolf/tutorial/tutorial.qdoc" lineno="1" subtype="page" title="Tutorial" fulltitle="Tutorial" subtitle="" module="WerewolfAppTutorial">
+            <contents name="introduction" title="Introduction" level="-1"/>
+            <contents name="foreword" title="Foreword" level="1"/>
+            <contents name="what-is-werewolf" title="What is Werewolf?" level="1"/>
+            <contents name="preperation" title="Preperation" level="1"/>
+            <contents name="gameplay" title="Gameplay" level="1"/>
+            <contents name="the-basic-layout" title="The Basic Layout" level="-1"/>
+            <contents name="setup" title="Setup" level="1"/>
+            <contents name="the-list" title="The List" level="1"/>
+            <contents name="the-add-button" title="The Add-Button" level="1"/>
+            <contents name="player-creation" title="Player Creation" level="1"/>
+            <contents name="the-background" title="The Background" level="1"/>
+            <contents name="the-content" title="The Content" level="1"/>
+            <contents name="the-content-s-background" title="The Content's Background" level="2"/>
+            <contents name="the-content" title="The Content" level="2"/>
+        </page>
+    </namespace>
+</INDEX>

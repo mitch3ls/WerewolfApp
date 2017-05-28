@@ -9,7 +9,7 @@ import QtQuick 2.0
     The WerewolfMainPage doesn't directly contain any visual elements. Its whole purpose is to prepare
     the app and load the \c WerewolfMainPage.
 
-    In the \c onInitTheme method the tintColor is set to a brownish colour.
+    In the \c onInitTheme method the tintColor is set to a yellowish colour.
   */
 App {
     id: app
@@ -22,7 +22,7 @@ App {
     //licenseKey: "<generate one from https://v-play.net/licenseKey>"
 
     onInitTheme: {
-        Theme.colors.tintColor = "#FFB90D" //brown
+        Theme.colors.tintColor = "#FFB90D" //yellow
     }
 
     WerewolfMainPage { }

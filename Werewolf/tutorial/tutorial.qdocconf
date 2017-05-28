@@ -1,0 +1,11 @@
+project = WerewolfAppTutorial
+description = The tutorial for my Werewolf app
+
+sourcedirs  = .
+exampledirs = .
+imagedirs   = ./images
+
+sources.fileextensions = "*.cpp *.qdoc *.mm *.qml"
+
+outputdir = ./html
+outputformats = HTML

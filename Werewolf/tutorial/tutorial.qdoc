@@ -1,0 +1,306 @@
+/*!
+        \page tutorial.html tutorial
+        \title Tutorial
+
+        \part Introduction
+
+            \chapter  Foreword
+
+                In this tutorial I will guide you through the process of writing the Werewolf app yourself, step by step.
+                I will assume that you already have V-Play installed and know how to work with Qt Creator, at least a
+                little bit.
+
+            \chapter What is Werewolf?
+
+                Note: You can skip this chapter if you know the game already.
+
+                \section1 Preperation
+
+                    Werewolf is a game that is played in a group of at least 5 players (my recommendation) plus the moderator. Every player
+                    randomly chooses a card, which then tells him his role. It's important that nobody, but the moderator, no about the other
+                    players' roles.
+
+                \section1 Gameplay
+
+                    In the most basic form of the game there are two "parties".
+
+                    \list
+
+                        \li The werewolves
+                            Their goal is to get an equal number of werewolves and villagers. They don't have to kill every villager, because as
+                            soon as their number is equal there's no chance for the villagers to win anymore.
+                            Every werewolf knows every other werewolf in the game.
+
+                        \li The villagers
+                            Their goal is to get rid of all the werewolves. The name might be a bit misleading because everyone, who is not
+                            a werewolf, hence is working against the werewolves, can be counted as a villager.
+
+                    \endlist
+
+                    Every night the werewolves awake and choose a victim (a player that's supposed to get killed). When they've agreed on a
+                    player they fall asleep again and the witch wakes up. The moderator shows her the victim and asks her what she
+                    wants to do. There are two potions she can use, both of them can only be used once in a game, though. One of those potions
+                    has the ability to heal the werewolves' victim, the other one kills another player. She can use both potions in one night.
+                    After that the seer awakes and points to a player, who's role he wants to know. The moderator shows him a thumbs up if that
+                    player is a werewolf of a thumbs down if not. The entire village awakes.
+
+                    At the  beginning of each day the moderator announces the player(s) who died in that night. After that a wild discussion starts
+                    on who should be killed on that day. Everyone can nominate everyone else, at the end of the day, though, there have to be two
+                    players to choose from. Now everyone in the round has to either put their thumbs up or down, depending on who they want to die.
+                    Before that the moderator has to make clear who thumbs up and down stands for of course. Finally the player with the most votes
+                    is lynched and has to leave the round.
+
+    \part The Basic Layout
+
+        \chapter Setup
+
+            Start off with an \c{Empty Application} and find the \c Main.qml file in the \c qml folder. Now add a new page and call it \c WerewolfMainPage.
+            It doesn't actually matter too much what you call it but I'll refer to it by that name for the rest of this tutorial. Now delete the \c NavigationStack
+            in \c Main.qml and replace it by your newly created \c WerewolfMainPage. Add a \c Text component with the Text "Hello Werewolf" to your \c WerewolfMainPage
+            and center it to verify that everything is working properly.
+
+            You can also change the tint color in that step, I chose a yellowish color.
+
+            This is what your project should look like now:
+
+            \c Main.qml
+
+            \code
+                import VPlayApps 1.0
+                import QtQuick 2.0
+
+                App {
+                    // You get free licenseKeys from https://v-play.net/licenseKey
+                    // With a licenseKey you can:
+                    //  * Publish your games & apps for the app stores
+                    //  * Remove the V-Play Splash Screen or set a custom one (available with the Pro Licenses)
+                    //  * Add plugins to monetize, analyze & improve your apps (available with the Pro Licenses)
+                    //licenseKey: "<generate one from https://v-play.net/licenseKey>"
+
+                    onInitTheme: {
+                        Theme.colors.tintColor = "#FFB90D" //~yellow
+                    }
+
+                    WerewolfMainPage { }
+                }
+            \endcode
+
+            \c WerewolfMainPage.qml
+
+            \code
+                import VPlayApps 1.0
+                import QtQuick 2.0
+
+                Page {
+
+                    title: "New Page"
+
+                    Text {
+                        text: "Hello Werewolf"
+
+                        anchors.centerIn: parent
+                    }
+
+                }
+            \endcode
+
+            Your app should look like this:
+
+            \image HelloWerewolf.png
+
+        \chapter The List
+
+            You can now delete the title and that \c Text component and add an \c AppListView. As the delegate we will use
+            a \c SimpleRow.
+
+            \code delegate: SimpleRow { } \endcode
+
+            When you now start the App you'll see a blank page. That's because the \c AppListView has nothing to display.
+            To avoid confusion amongst our users we will add a message that gets displayed in case the list is empty. We
+            do that by assigning a message to the \c emptyText.text property of the \c AppListView.
+
+            \code emptyText.text: "No Players in Session" \endcode
+
+            Finally we add a dummy model with some dummy players that we'll later replace with our data model.
+
+            \code
+                model: [
+                    { text: "Player1", detailText: "Werewolf" },
+                    { text: "Player2", detailText: "Villager" }
+                ]
+            \endcode
+
+            Our AppListView should now look like this:
+
+            \code
+                AppListView {
+
+                    emptyText.text: "No Players in Session"
+
+                    delegate: SimpleRow { }
+
+                    model: [
+                        { text: "Player1", detailText: "Werewolf" },
+                        { text: "Player2", detailText: "Villager" }
+                    ]
+                }
+            \endcode
+
+            For now we'll leave the list like that, we will change a few things later on, though.
+
+        \chapter The Add-Button
+
+            Our list looks really nice already, there just isn't a lot of functionality yet. We should at least make it look
+            like it could do something by adding a button for adding users.
+
+            Since I'm an Android user and I love Google's \c FloatingActionButtons we will go for exactly that. A round button floating
+            in the bottom right corner of the screen with a big fat plus icon on it. Luckily for us V-Play has a component for that
+            already, yay! Now let's add this \c FloatingActionButton component to our \c WerewolfMainPage.
+
+            \code
+                FloatingActionButton {
+                    icon: IconType.plus
+
+                    visible: true
+                }
+            \endcode
+
+            Note: \c{visible: true} is important because by default it is only visible on Android.
+
+            Now we have a really nice looking action button, but it doesn't do a lot. In our app it's supposed to open the page that let's
+            us create players, but we don't have that page yet. I think it's the right time to do that now.
+
+        \chapter Player Creation
+
+            First of all, let's add a folder called "pages" in the qml directory that will contain our, you guessed it, pages. The first page we'll add is again
+            an empty page, this time called "AddPlayerPage". Again, add the "Hello Werewolf" text so we can see whether it worked or not.
+
+            Note:   I don't know how to create folders in Qt Creator, so I had to create it externally. For some reason that folder doesn't appear in Qt until you
+                    add a file to it. I suggest adding the qml file to your qml directory and then dragging it into your newly created folder with your explorer.
+
+            Now go to your \c WerewolfMainPage and add the \c AddPlayerPage. Before you do that you must import the pages folder first by adding \c{import "pages"}
+            at the top of the file.
+
+            You file should now look like this:
+
+            \code
+                import VPlayApps 1.0
+                import QtQuick 2.0
+
+                import "pages"
+
+                Page {
+
+                    //other components...
+
+                    AddPlayerPage {
+
+                    }
+
+                }
+            \endcode
+
+            When you now start the app you'll see that it looks exactly like \c WerewolfMainPage at the beginning. That is because the \c AddPlayerPage now covers
+            our list. To make the background of the page transparent add \c{backgroundColor: "transparent"} to the root page of \c AddPlayerPage.
+
+            Your app should now look like this:
+
+            \image PlayerCreationHelloWerewolf.png
+
+            \section1 The Background
+
+                Let's get to the design work now. I want the background to have the tint color and be slightly transparent. To achieve this we'll add a \c Rectangle with
+                that color and fill the page with that. (You can now delete that \c Text component again btw)
+
+                \code
+                    Rectangle {
+                        color: Theme.tintColor
+                        opacity: 0.5
+                        anchors.fill: parent
+                    }
+                \endcode
+
+                When you restart the app now you can see that the \c FloatingActionButton is behind the background of the \c AddPlayerPage. We want it to stay on top of it though.
+                The solution is to move the button to the very bottom of our \c WerewolfMainPage.
+
+                Your WerewolfMainPage should now be structured like this:
+
+                \code
+                    Page {
+                        AppListView {
+                            ...
+                        }
+
+                        AddPlayerPage { }
+
+                        FloatingActionButton {
+                            ...
+                        }
+                    }
+                \endcode
+
+            \section1 The Content
+
+                Let's add the content of the page now. We'll have a simple Box with a \c Rectangle as the background and a \c GridLayout as the container for our input fields. Let's
+                now add those components and give them ids.
+
+                \code
+                    import VPlayApps 1.0
+                    import QtQuick 2.0
+                    import QtQuick.Layouts 1.1
+
+
+                    Page {
+
+                        backgroundColor: "transparent"
+
+                        Rectangle {
+                            color: Theme.tintColor
+                            opacity: 0.5
+                            anchors.fill: parent
+                        }
+
+                        Rectangle {
+                            id: contentBackground
+                        }
+
+                        GridLayout {
+                            id: content
+                        }
+                    }
+                \endcode
+
+                \section2 The Content's Background
+
+                    The content's background should be a box with rounded corners and a white background color. We also the border color to be our tint Color and have the whole box centered
+                    in our page. The width and height should match the content's width and height plus some additional padding.
+
+                    \code
+                        Rectangle {
+                            id: contentBackground
+
+                            color: "white"
+                            border.color: Theme.colors.tintColor
+
+                            width: content.width + 20
+                            height: content.height + 20
+                            radius: 4
+
+                            anchors.centerIn: parent
+                        }
+                    \endcode
+
+                    \section2 The Content
+
+                        In our content we need the following elements:
+
+
+                        \list
+                            \li An \c AppTextField for the name
+                            \li An \c AppTextEdit for the notes
+                            \li An \c AppButton for opening the RoleChooser (we'll get to that later)
+                            \li An \c AppText wrapped into an \c Item for the error message
+                            \li An \c AppButton for submitting players.
+                        \endlist
+
+*/

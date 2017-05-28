@@ -41,3 +41,7 @@ win32 {
 macx {
     ICON = macx/app_icon.icns
 }
+
+DISTFILES += \
+    tutorial/tutorial.qdocconf \
+    tutorial/tutorial.qdoc
