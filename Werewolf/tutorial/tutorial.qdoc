@@ -22,7 +22,7 @@
                 Werewolf is a game that is played in a group of at least 5 players
                 (my recommendation) plus the moderator. Every player randomly chooses
                 a card, which then tells him his role. It's important that nobody,
-                but the moderator, know about the other players' roles.
+                but the moderator, knows about the other players' roles.
 
             \endsection1
 
@@ -33,6 +33,7 @@
                 \list
 
                     \li The werewolves
+                    
                         Their goal is to get an equal number of werewolves and
                         villagers. They don't have to kill every villager, because
                         as soon as their number is equal there's no chance for the
@@ -40,6 +41,7 @@
                         werewolf in the game.
 
                     \li The villagers
+                    
                         Their goal is to get rid of all the werewolves. The name
                         might be a bit misleading because everyone, who is not
                         a werewolf, hence is working against the werewolves, can be
