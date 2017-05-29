@@ -113,7 +113,7 @@ Page {
         source: playersList
         anchors.fill: playersList
 
-        radius: addPlayerPage.expanded ? 10 : 0 //blur list when player creation is expanded
+        radius: (addPlayerPage.expanded || modifyPlayerPage.expanded) ? 10 : 0 //blur list when player creation is expanded
         Behavior on radius {
             //and add a fancy smooth transition
             NumberAnimation {
