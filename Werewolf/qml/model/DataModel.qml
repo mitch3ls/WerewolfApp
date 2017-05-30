@@ -196,8 +196,10 @@ Item {
         function removePlayer(playerId) {
             for (var i = 0; i < count; i++) {       //iterate through players
                 var player = get(i)                 //get each player
-                if (player.playerId === playerId)   //if the playerId matches the one we want to remove
+                if (player.playerId === playerId) { //if the playerId matches the one we want to remove
                     remove(i)                       //remove the player at that position
+                    break;                          //stop looking for other players
+                }
             }
         }
 
@@ -209,7 +211,7 @@ Item {
                         set(i, modifiedPlayer)                      //replace the player at that position
                     else {                                          //if the roles did change
                         removePlayer(player.playerId)               //first remove the old player
-                        addPlayer(modifiedPlayer)                    //and add the modified player back in
+                        addPlayer(modifiedPlayer)                   //and add the modified player back in
                     }
                 }
             }
@@ -238,15 +240,17 @@ Item {
                 return roleList.compareRoles(p1.role, p2.role)
             })
 
-            handleNewPlayers(players)
+            handleChanges(players)
         }
 
         function removePlayer(playerId) {
-            var players = getPlayers()                  //get the current players
+            var players = getPlayers()              //get the current players
 
-            players = players.filter(function(p) {return p.playerId !== playerId})       //keep players if their playerId isn't the one to be removed
+            players = players.filter(function(p) {  //keep players if their playerId isn't the one to be removed
+                return p.playerId !== playerId
+            })
 
-            handleNewPlayers(players)
+            handleChanges(players)
         }
 
         function modifyPlayer(player) {
@@ -259,10 +263,10 @@ Item {
                     return p                            //with itself
             })
 
-            handleNewPlayers(players)
+            handleChanges(players)
         }
 
-        function handleNewPlayers(players) {
+        function handleChanges(players) {
             setValue("players", players)    //store the modified list
             roleList.shareAvailability()    //notify RoleChooser
         }
