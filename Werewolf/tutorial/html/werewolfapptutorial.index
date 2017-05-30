@@ -34,6 +34,35 @@
             <contents name="preperation" title="Preperation" level="2"/>
             <contents name="changes" title="Changes" level="2"/>
             <contents name="integration-with-werewolfmainpage" title="Integration with WerewolfMainPage" level="2"/>
+            <contents name="data-management" title="Data Management" level="1"/>
+            <contents name="datamodel" title="DataModel" level="1"/>
+            <contents name="add-players" title="Add Players" level="2"/>
+            <contents name="local-storage" title="Local Storage" level="2"/>
+            <contents name="remove-players" title="Remove Players" level="2"/>
+            <contents name="the-controls" title="The Controls" level="3"/>
+            <contents name="playerid" title="PlayerID" level="3"/>
+            <contents name="the-logic" title="The Logic" level="3"/>
+            <contents name="modify-players" title="Modify Players" level="2"/>
+            <contents name="changes-in-modifyplayerpage" title="Changes in ModifyPlayerPage" level="3"/>
+            <contents name="the-datamodel" title="The DataModel" level="3"/>
+            <contents name="extras" title="Extras" level="1"/>
+            <contents name="list-sections" title="List Sections" level="1"/>
+            <contents name="werewolfmainpage" title="WerewolfMainPage" level="2"/>
+            <contents name="datamodel" title="DataModel" level="2"/>
+            <contents name="playerpage" title="PlayerPage" level="2"/>
+            <contents name="maximal-count-of-players-for-roles" title="Maximal Count of Players for Roles" level="1"/>
+            <contents name="datamodel" title="DataModel" level="2"/>
+            <contents name="rolechooser" title="RoleChooser" level="2"/>
+            <contents name="animations" title="Animations" level="1"/>
+            <contents name="source-code" title="Source Code" level="1"/>
+            <contents name="main-qml" title="Main.qml" level="1"/>
+            <contents name="werewolfmainpage-qml" title="WerewolfMainPage.qml" level="1"/>
+            <contents name="model-datamodel-qml" title="model/DataModel.qml" level="1"/>
+            <contents name="pages" title="pages" level="1"/>
+            <contents name="addplayerpage-qml" title="AddPlayerPage.qml" level="2"/>
+            <contents name="modifyplayerpage-qml" title="ModifyPlayerPage.qml" level="2"/>
+            <contents name="playerpage-qml" title="PlayerPage.qml" level="2"/>
+            <contents name="rolechooser-qml" title="RoleChooser.qml" level="2"/>
         </page>
     </namespace>
 </INDEX>

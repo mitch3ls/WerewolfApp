@@ -43,6 +43,35 @@
 <li class="level2"><a href="#preperation">Preperation</a></li>
 <li class="level2"><a href="#changes">Changes</a></li>
 <li class="level2"><a href="#integration-with-werewolfmainpage">Integration with <code>WerewolfMainPage</code></a></li>
+<li class="level1"><a href="#data-management">Data Management</a></li>
+<li class="level1"><a href="#datamodel">DataModel</a></li>
+<li class="level2"><a href="#add-players">Add Players</a></li>
+<li class="level2"><a href="#local-storage">Local Storage</a></li>
+<li class="level2"><a href="#remove-players">Remove Players</a></li>
+<li class="level3"><a href="#the-controls">The Controls</a></li>
+<li class="level3"><a href="#playerid">PlayerID</a></li>
+<li class="level3"><a href="#the-logic">The Logic</a></li>
+<li class="level2"><a href="#modify-players">Modify Players</a></li>
+<li class="level3"><a href="#changes-in-modifyplayerpage">Changes in ModifyPlayerPage</a></li>
+<li class="level3"><a href="#the-datamodel">The DataModel</a></li>
+<li class="level1"><a href="#extras">Extras</a></li>
+<li class="level1"><a href="#list-sections">List Sections</a></li>
+<li class="level2"><a href="#werewolfmainpage">WerewolfMainPage</a></li>
+<li class="level2"><a href="#datamodel">DataModel</a></li>
+<li class="level2"><a href="#playerpage">PlayerPage</a></li>
+<li class="level1"><a href="#maximal-count-of-players-for-roles">Maximal Count of Players for Roles</a></li>
+<li class="level2"><a href="#datamodel">DataModel</a></li>
+<li class="level2"><a href="#rolechooser">RoleChooser</a></li>
+<li class="level1"><a href="#animations">Animations</a></li>
+<li class="level1"><a href="#source-code">Source Code</a></li>
+<li class="level1"><a href="#main-qml">Main.qml</a></li>
+<li class="level1"><a href="#werewolfmainpage-qml">WerewolfMainPage.qml</a></li>
+<li class="level1"><a href="#model-datamodel-qml">model/DataModel.qml</a></li>
+<li class="level1"><a href="#pages">pages</a></li>
+<li class="level2"><a href="#addplayerpage-qml">AddPlayerPage.qml</a></li>
+<li class="level2"><a href="#modifyplayerpage-qml">ModifyPlayerPage.qml</a></li>
+<li class="level2"><a href="#playerpage-qml">PlayerPage.qml</a></li>
+<li class="level2"><a href="#rolechooser-qml">RoleChooser.qml</a></li>
 </ul>
 </div>
 <div class="sidebar-content" id="sidebar-content"></div></div>
@@ -149,7 +178,6 @@ Page {
 <a name="player-creation"></a>
 <h2 id="player-creation">Player Creation</h2>
 <p>First of all, let's add a folder called &quot;pages&quot; in the qml directory that will contain our, you guessed it, pages. The first page we'll add is again an empty page, this time called &quot;<a href="tutorial.html#addplayerpage">AddPlayerPage</a>&quot;. Again, add the &quot;Hello Werewolf&quot; text so we can see whether it worked or not.</p>
-<p>Note: I don't know how to create folders in Qt Creator, so I had to create it externally. For some reason that folder doesn't appear in Qt until you add a file to it. I suggest adding the qml file to your qml directory and then dragging it into your newly created folder with your explorer.</p>
 <p>Now go to your <code>WerewolfMainPage</code> and add the <code>AddPlayerPage</code>. Before you do that you must import the pages folder first by adding <code>import &quot;pages&quot;</code> at the top of the file.</p>
 <p>You file should now look like this:</p>
 <pre class="cpp">import VPlayApps <span class="number">1.0</span>
@@ -177,7 +205,7 @@ Page {
     anchors<span class="operator">.</span>fill: parent
 }</pre>
 <p>When you restart the app now you can see that the <code>FloatingActionButton</code> is behind the background of the <code>AddPlayerPage</code>. We want it to stay on top of it though. The solution is to move the button to the very bottom of our <code>WerewolfMainPage</code>.</p>
-<p>Your WerewolfMainPage should now be structured like this:</p>
+<p>Your <a href="tutorial.html#werewolfmainpage">WerewolfMainPage</a> should now be structured like this:</p>
 <pre class="cpp">Page {
     AppListView {
         <span class="operator">.</span><span class="operator">.</span><span class="operator">.</span>
@@ -1063,7 +1091,7 @@ Behavior on y {
 <pre class="cpp">onSubmit: {
     close()
 }</pre>
-<p>For now we just close the window, we'll take care of the DataModel later on.</p>
+<p>For now we just close the window, we'll take care of the <a href="tutorial.html#datamodel">DataModel</a> later on.</p>
 <p>When you now start the app you'll notice that our <code>AddPlayerPage</code> isn't visible anymore. We still haven't implemented a way to open it. Let's do that now.</p>
 <p>Add that to the <code>FloatingActionButton</code> in <code>WerewolfMainPage</code>.</p>
 <pre class="cpp">onClicked: {
@@ -1204,15 +1232,1840 @@ Page {
     roleText <span class="operator">=</span> player<span class="operator">.</span>role
 }</pre>
 <p>Here we fill our <code>PlayerPage</code> with the player's details before it gets visible.</p>
+<p>Finally set the title to &quot;Modify Player&quot;!</p>
+<pre class="qml"></pre>
+<p>title: &quot;Modify Player&quot;</p>
 <p>For now that's all the changes we need, we will get back to it later, though.</p>
 <a name="integration-with-werewolfmainpage"></a>
 <h3 >Integration with <code>WerewolfMainPage</code></h3>
 <p>When we press the <code>FloatingActionButton</code> our <code>AddPlayerPage</code> gets expanded. We need a similar behaviour for our <code>ModifyPlayerPage</code> when an item in the players' list is clicked.</p>
+<p>First of all, let's add the <code>ModifyPlayerPage</code> to the <code>WerewolfMainPage</code>.</p>
+<pre class="cpp">ModifyPlayerPage {
+    id: modifyPlayerPage
+}</pre>
 <p>Let's add that functionality to our <code>SimpleRow</code> delegate in <code>WerewolfMainPage</code> and let's change the style a bit too since we're already there.</p>
-<pre class="cpp">textItem<span class="operator">.</span>font<span class="operator">.</span>bold: <span class="keyword">true</span>
+<pre class="cpp">id: listItem
+
+text: name
+detailText: notes
+textItem<span class="operator">.</span>font<span class="operator">.</span>bold: <span class="keyword">true</span>
 detailTextItem<span class="operator">.</span>color: Theme<span class="operator">.</span>tintColor
 
 onSelected: modifyPlayerPage<span class="operator">.</span>openWithPlayer() <span class="comment">//later we'll call it with an argument</span></pre>
+<p>Let's also change our model a bit.</p>
+<pre class="cpp">model: ListModel {
+    ListElement { name: <span class="string">&quot;Player1&quot;</span>; role: <span class="string">&quot;Werewolf&quot;</span>; notes: <span class="string">&quot;&quot;</span> }
+    ListElement { name: <span class="string">&quot;Player2&quot;</span>; role: <span class="string">&quot;Villager&quot;</span>; notes: <span class="string">&quot;&quot;</span> }
+}</pre>
+<p>Now we just need a way to close the <code>ModifyPlayerPage</code> again. I'd suggest just using the <code>FloatingActionButton</code> again. In order to be able to do that we need to change it a bit.</p>
+<p>First of all, we need to change the onClick method so that it also closes the <code>ModifyPlayerPage</code>.</p>
+<pre class="cpp">onClicked: {
+    <span class="keyword">if</span> (addPlayerPage<span class="operator">.</span>expanded <span class="operator">|</span><span class="operator">|</span> modifyPlayerPage<span class="operator">.</span>expanded) {
+        addPlayerPage<span class="operator">.</span>close()       <span class="comment">//closes player creation and resets it</span>
+        modifyPlayerPage<span class="operator">.</span>close()    <span class="comment">//closes player modification and resets it</span>
+    } <span class="keyword">else</span>
+        addPlayerPage<span class="operator">.</span>open() <span class="comment">//opens player creation</span>
+}</pre>
+<p>Of course we also want the icon to spin again so we implement that as well.</p>
+<pre class="qml"></pre>
+<p>iconItem.rotation: (<a href="tutorial.html#addplayerpage">addPlayerPage</a>.expanded || <a href="tutorial.html#modifyplayerpage">modifyPlayerPage</a>.expanded) ? 45 : 0</p>
+<p>Now our <code>ModifyPlayerPage</code> is nicely inegrated into the <code>WerewolfMainPage</code>.</p>
+<a name="data-management"></a>
+<h2 id="data-management">Data Management</h2>
+<p>Now that were pretty much done with the visual part of the app let's take care of the data management.</p>
+<a name="datamodel"></a>
+<h2 id="datamodel">DataModel</h2>
+<p>Create a folder &quot;model&quot; and add the empty singleton <code>Item</code> <a href="tutorial.html#datamodel">DataModel</a>.qml to it. If you forgot to tick that tiny check box &quot;add as singleton&quot;, just add a <code>pragma singleton</code> to the first line in <code>DataModel.qml</code>.</p>
+<p>Make sure your <code>DataModel.qml</code> looks like this:</p>
+<pre class="cpp">pragma Singleton
+import VPlayApps <span class="number">1.0</span>
+import <span class="type">QtQuick</span> <span class="number">2.0</span>
+
+Item {
+    id: dataModel
+}</pre>
+<p>Now we need to add a <code>ListModel</code> for our players to our ListModel.</p>
+<pre class="cpp">ListModel {
+    id: players
+}</pre>
+<p>Let's now add an alias property to our <a href="tutorial.html#datamodel">DataModel</a> so that we can access <code>ListModel</code> from the outside too.</p>
+<pre class="qml"></pre>
+<p>property alias playersListModel: players</p>
+<p>Now let's replace our dummy ListModel in the <code>WerewolfMainPage</code> with a reference to this one. Don't forget to import &quot;model&quot; first!</p>
+<pre class="qml"></pre>
+<p>model: <a href="tutorial.html#datamodel">DataModel</a>.playersListModel</p>
+<a name="add-players"></a>
+<h3 >Add Players</h3>
+<p>Let's add a method in the <code>DataModel</code>, that lets us add players, now!</p>
+<pre class="cpp">function addPlayer(player) {
+    players<span class="operator">.</span>append(player)
+}</pre>
+<p>We can now go to <code>AddPlayersPage.qml</code> and add the following line before the <code>close</code> statement in <code>onSubmit</code>. Again, don't forget to import &quot;../model&quot; first!</p>
+<pre class="cpp">onSubmit: {
+    DataModel<span class="operator">.</span>addPlayer(player)
+    close()
+}</pre>
+<p>If you now try to start the app chances are that you get the following error message:</p>
+<pre class="qml"></pre>
+<p>ReferenceError: <a href="tutorial.html#datamodel">DataModel</a> is not defined</p>
+<p>If that happens add a file called &quot;qmldir&quot; with the following content to the &quot;model&quot; folder.</p>
+<pre class="qml"></pre>
+<p>singleton <a href="tutorial.html#datamodel">DataModel</a> 1.0 <a href="tutorial.html#datamodel">DataModel</a>.qml</p>
+<p>Now your players should simply be appended to list. We don't want that behaviour though. We want them to appear ordered by their role. In order to do that we first need to add a model for our roles to our <code>DataModel</code> where we will also store their order attributes (<code>index</code>).</p>
+<pre class="cpp">ListModel {
+    id: roles
+
+    ListElement { name: <span class="string">&quot;Werewolf&quot;</span>; index: <span class="number">0</span>}
+    ListElement { name: <span class="string">&quot;Villager&quot;</span>; index: <span class="number">3</span>}
+    ListElement { name: <span class="string">&quot;Seer&quot;</span>; index:<span class="number">2</span>}
+    ListElement { name: <span class="string">&quot;Witch&quot;</span>; index: <span class="number">1</span>}
+}</pre>
+<p>Now we need to get the object representation of the role by its name. For that we write a new method <code>getRoleObject(role)</code>.</p>
+<pre class="cpp">function getRoleObject(role) {
+    <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> count; i<span class="operator">+</span><span class="operator">+</span>) {           <span class="comment">//iterate through roles</span>
+        var entry <span class="operator">=</span> get(i)
+        <span class="keyword">if</span> (role <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> entry<span class="operator">.</span>name) <span class="keyword">return</span> entry   <span class="comment">//if the names match return the role object</span>
+    }
+    <span class="keyword">return</span> null
+}</pre>
+<p>Then we can acces the index property and return it in the <code>getIndexForRole(role)</code> method.</p>
+<pre class="cpp">function getIndexForRole(role) {
+    <span class="keyword">return</span> getRoleObject(role)<span class="operator">.</span>index
+}</pre>
+<p>Now we can add a method <code>addPlayer(newPlayer)</code> to our player <code>ListModel</code> that inserts the <i>newPlayer</i> according to his role.</p>
+<pre class="cpp">function addPlayer(newPlayer) {
+    var ownRoleIndex <span class="operator">=</span> roles<span class="operator">.</span>getIndexForRole(newPlayer<span class="operator">.</span>role) <span class="comment">//get own role index</span>
+    <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> count; i<span class="operator">+</span><span class="operator">+</span>) {                           <span class="comment">//iterate through players</span>
+        var player <span class="operator">=</span> get(i)                                     <span class="comment">//take each player</span>
+        var role <span class="operator">=</span> player<span class="operator">.</span>role                                  <span class="comment">//then their role</span>
+        var roleIndex <span class="operator">=</span> roles<span class="operator">.</span>getIndexForRole(role)          <span class="comment">//and get their index as well</span>
+
+        <span class="keyword">if</span> (roleIndex <span class="operator">&gt;</span> ownRoleIndex) {                         <span class="comment">//now compare the indexes, if the own index is bigger than the one at the current position</span>
+            insert(i<span class="operator">,</span> newPlayer)                                <span class="comment">//then the item at this position has to be after the one we want to add so we add the player</span>
+            <span class="keyword">return</span>                                              <span class="comment">//at that position</span>
+        }
+    }
+    append(newPlayer)               <span class="comment">//if no player with a higher role index is found append the player</span>
+}                                   <span class="comment">//that also happens when the list is empty of course</span></pre>
+<p>Here's the tl;dr version of the comments:</p>
+<p class="centerAlign"><img src="images/sortingAlgorithm.png" alt="" /></p><p>The red line represents the own role index. If it finds an index that's greater than that (green line) it inserts it before that element, if not it get's appended at the end (blue line).</p>
+<p>Now we just need to change our <code>DataModel</code>'s <code>addPlayer</code> methode so that it calls this <code>addPlayer</code> method.</p>
+<pre class="cpp">function addPlayer(player) {
+    players<span class="operator">.</span>addPlayer(player)
+}</pre>
+<p>If you now restart the app you should see that the players are added nicely ordered by role.</p>
+<a name="local-storage"></a>
+<h3 >Local Storage</h3>
+<p>Let's now make our data persistent. For that we need to add a <code>Storage</code> element.</p>
+<pre class="cpp">Storage {
+    id: localStorage
+}</pre>
+<p>We also need a property for our players.</p>
+<pre class="qml"></pre>
+<p>property var players: []</p>
+<p>When the app gets started for the first time and the lists isn't in the actual local storage we would get error messages because players wouldn't be recognised as an array. Let's fix that by the following lines of code:</p>
+<pre class="cpp">Component<span class="operator">.</span>onCompleted: {
+    <span class="keyword">if</span> (<span class="operator">!</span>getPlayers()) setValue(<span class="string">&quot;players&quot;</span><span class="operator">,</span> <span class="operator">[</span><span class="operator">]</span>)  <span class="comment">//if players is not defined, add it to the storage</span>
+}</pre>
+<p>Before we add the <code>addPlayer</code> method let's add <code>getPlayers</code> method first, because we'll need them often and it we can avoid making mistakes by writing it only once.</p>
+<pre class="cpp">function getPlayers() {
+    <span class="keyword">return</span> getValue(<span class="string">&quot;players&quot;</span>)
+}</pre>
+<p>Let's now get to the <code>addPlayer</code> method.</p>
+<pre class="cpp">function addPlayer(newPlayer) {
+    var players <span class="operator">=</span> getPlayers()
+    players<span class="operator">.</span>push(newPlayer)
+    setValue(<span class="string">&quot;players&quot;</span><span class="operator">,</span> players)
+}</pre>
+<p>We again have the problem with the unsorted list, though. Luckily for us, JavaScript offers the <code>sort</code> method for arrays that let's us sort it. For the sake of readability, let's add a <code>compareRoles</code> method to our <code>roles</code> <code>ListModel</code> first.</p>
+<pre class="cpp">function compareRoles(role1<span class="operator">,</span> role2) {
+    <span class="keyword">return</span> getIndexForRole(role1) <span class="operator">-</span> getIndexForRole(role2)
+}</pre>
+<p>Now we can insert the following statement in <code>addPlayer</code> before we update the <code>players</code> value.</p>
+<pre class="cpp">players<span class="operator">.</span>sort(function(p1<span class="operator">,</span> p2) {
+    <span class="keyword">return</span> roles<span class="operator">.</span>compareRoles(p1<span class="operator">.</span>role<span class="operator">,</span> p2<span class="operator">.</span>role)
+})</pre>
+<p>That now sorts the players by their roles before it adds them back to the local storage. Now we just need to call that method in our global <code>addPlayer</code> method.</p>
+<pre class="cpp">function addPlayer(player) {
+    players<span class="operator">.</span>addPlayer(player)
+    localStorage<span class="operator">.</span>addPlayer(player)
+}</pre>
+<p>When you now add players to the app they'll be gone after a restart. That's because we never add the data from our local storage to our <code>ListModel</code>. Let's do that on startup.</p>
+<p>Add the following lines of code to your <code>DataModel</code>:</p>
+<pre class="cpp">Component<span class="operator">.</span>onCompleted: {
+    var initialPlayers <span class="operator">=</span> localStorage<span class="operator">.</span>getPlayers()
+    players<span class="operator">.</span>setPlayers(initialPlayers)
+}</pre>
+<p>Try to start the app now and you'll get an error. That's because our players' model doesn't have a <code>setPlayers</code> method yet. Let's add it quickly.</p>
+<pre class="cpp">function setPlayers(players) {
+    clear()                     <span class="comment">//clears list</span>
+    players<span class="operator">.</span>forEach(addPlayer)  <span class="comment">//adds every player in the players list</span>
+}</pre>
+<p>If you now close your app and restart it, the players that were there when you closed the app should still be in the list.</p>
+<p><code>DataModel.qml</code> should now look like this:</p>
+<pre class="cpp">pragma Singleton
+
+import VPlayApps <span class="number">1.0</span>
+import VPlay <span class="number">2.0</span>
+import <span class="type">QtQuick</span> <span class="number">2.0</span>
+
+Item {
+    id: dataModel
+
+    property alias playersListModel: players
+
+    Component<span class="operator">.</span>onCompleted: {
+        var initialPlayers <span class="operator">=</span> localStorage<span class="operator">.</span>getPlayers()
+        players<span class="operator">.</span>setPlayers(initialPlayers)
+    }
+
+    function addPlayer(player) {
+        players<span class="operator">.</span>addPlayer(player)
+        localStorage<span class="operator">.</span>addPlayer(player)
+    }
+
+    ListModel {
+        id: players
+
+        function addPlayer(newPlayer) {
+            var ownRoleIndex <span class="operator">=</span> roles<span class="operator">.</span>getIndexForRole(newPlayer<span class="operator">.</span>role) <span class="comment">//get own role index</span>
+            <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> count; i<span class="operator">+</span><span class="operator">+</span>) {                           <span class="comment">//iterate through players</span>
+                var player <span class="operator">=</span> get(i)                                     <span class="comment">//take each player</span>
+                var role <span class="operator">=</span> player<span class="operator">.</span>role                                  <span class="comment">//then their role</span>
+                var roleIndex <span class="operator">=</span> roles<span class="operator">.</span>getIndexForRole(role)          <span class="comment">//and get their index as well</span>
+
+                <span class="keyword">if</span> (roleIndex <span class="operator">&gt;</span> ownRoleIndex) {                         <span class="comment">//now compare the indexes, if the own index is bigger than the one at the current position</span>
+                    insert(i<span class="operator">,</span> newPlayer)                                <span class="comment">//then the item at this position has to be after the one we want to add so we add the player</span>
+                    <span class="keyword">return</span>                                              <span class="comment">//at that position</span>
+                }
+            }
+            append(newPlayer)               <span class="comment">//if no player with a higher role index is found append the player</span>
+        }
+
+        function setPlayers(players) {
+            clear()                     <span class="comment">//clears list</span>
+            players<span class="operator">.</span>forEach(addPlayer)  <span class="comment">//adds every player in the players list</span>
+        }
+    }
+
+    Storage {
+        id: localStorage
+
+        property var players: <span class="operator">[</span><span class="operator">]</span>
+
+        Component<span class="operator">.</span>onCompleted: {
+            <span class="keyword">if</span> (<span class="operator">!</span>getPlayers()) setValue(<span class="string">&quot;players&quot;</span><span class="operator">,</span> <span class="operator">[</span><span class="operator">]</span>)  <span class="comment">//if players is not defined, add it to the storage</span>
+        }
+
+        function addPlayer(newPlayer) {
+            var players <span class="operator">=</span> getPlayers()
+            players<span class="operator">.</span>push(newPlayer)
+
+            players<span class="operator">.</span>sort(function(p1<span class="operator">,</span> p2) {             <span class="comment">//sorts players by roles</span>
+                <span class="keyword">return</span> roles<span class="operator">.</span>compareRoles(p1<span class="operator">.</span>role<span class="operator">,</span> p2<span class="operator">.</span>role)
+            })
+
+            setValue(<span class="string">&quot;players&quot;</span><span class="operator">,</span> players)
+        }
+
+        function getPlayers() {
+            <span class="keyword">return</span> getValue(<span class="string">&quot;players&quot;</span>)
+        }
+    }
+
+    ListModel {
+        id: roles
+
+        function getIndexForRole(role) {
+            <span class="keyword">return</span> getRoleObject(role)<span class="operator">.</span>index
+        }
+
+        function getRoleObject(role) {
+            <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> count; i<span class="operator">+</span><span class="operator">+</span>) {           <span class="comment">//iterate through roles</span>
+                var entry <span class="operator">=</span> get(i)
+                <span class="keyword">if</span> (role <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> entry<span class="operator">.</span>name) <span class="keyword">return</span> entry   <span class="comment">//if the names match return the role object</span>
+            }
+            <span class="keyword">return</span> null
+        }
+
+        function compareRoles(role1<span class="operator">,</span> role2) {
+            <span class="keyword">return</span> getIndexForRole(role1) <span class="operator">-</span> getIndexForRole(role2)
+        }
+
+        ListElement { name: <span class="string">&quot;Werewolf&quot;</span>; index: <span class="number">0</span>}
+        ListElement { name: <span class="string">&quot;Villager&quot;</span>; index: <span class="number">3</span>}
+        ListElement { name: <span class="string">&quot;Seer&quot;</span>; index:<span class="number">2</span>}
+        ListElement { name: <span class="string">&quot;Witch&quot;</span>; index: <span class="number">1</span>}
+    }
+}</pre>
+<a name="remove-players"></a>
+<h3 >Remove Players</h3>
+<a name="the-controls"></a>
+<h4 >The Controls</h4>
+<p>Before we implement the logic for removing players, let's add the controls for that first. This brings us back to our players' list, where our <code>SimpleRow</code> delegate is a bit too simple now. Wrap a <code>SwipeOptionsContainer</code> around it!</p>
+<p>Our delegate should now look like this:</p>
+<pre class="cpp">SwipeOptionsContainer {
+
+    height: listItem<span class="operator">.</span>height <span class="comment">//use item's height</span>
+
+    SimpleRow {
+        id: listItem
+
+        text: name
+        detailText: notes
+
+        textItem<span class="operator">.</span>font<span class="operator">.</span>bold: <span class="keyword">true</span>
+        detailTextItem<span class="operator">.</span>color: Theme<span class="operator">.</span>tintColor
+
+        onSelected: modifyPlayerPage<span class="operator">.</span>openWithPlayer(playerId)
+    }
+}</pre>
+<p>If you'd now restart the app you wouldn't see any difference to what it looked like before. That's because we haven't added the interesting part.</p>
+<pre class="cpp">rightOption: SwipeButton {
+    icon: IconType<span class="operator">.</span>trasho   <span class="comment">//trashcan icon</span>
+    height: parent<span class="operator">.</span>height   <span class="comment">//use parent's height</span>
+    onClicked: DataModel<span class="operator">.</span>removePlayer(playerId)
+}</pre>
+<p>Add this to the <code>SwipeOptionsContainer</code>! Also, notice that we now call <code>removePlayer</code> with the argument <i>playerId</i>. Don't let that distract you, we'll get to it right away.</p>
+<p>When you now restart the app and swipe a player to the left it should look like this:</p>
+<p class="centerAlign"><img src="images/swipeLeftForDeleteIcon.png" alt="" /></p><a name="playerid"></a>
+<h4 >PlayerID</h4>
+<p>Let's now take care of the players' ids. We could now simply implement a counter variable in the local storage and increment it every time we add a player. The ids would become really big, though, really fast. A cleverer way to assign ids is to take the highest id and look for gaps in the room from 0 to that id. If we don't find any we can still assign highestId + 1.</p>
+<p>First things first, let's write a method that gets us the highest ids. (in <code>DataModel.qml</code>)</p>
+<pre class="cpp">function getHighestId() {
+    var players <span class="operator">=</span> localStorage<span class="operator">.</span>getPlayers()                  <span class="comment">//get players</span>
+    var ids <span class="operator">=</span> players<span class="operator">.</span>map(function(player) {    <span class="comment">//get their ids</span>
+                <span class="keyword">return</span> player<span class="operator">.</span>playerId
+            })
+    <span class="keyword">return</span> Math<span class="operator">.</span>max<span class="operator">.</span>apply(Math<span class="operator">,</span> ids);           <span class="comment">//return the highest id</span>
+}</pre>
+<p>First of all, we get the players and turn them into a list of ids. Then we use Math.max to find the highest one of them.</p>
+<p>Note: We have to call it in such a weird way, because it would return <code>NaN</code> otherwise. That's probably because of some <code>this</code> issues, but let's not worry about what happens inside of that function.</p>
+<p>Now that we have found the highest id we need to find out whether there's a player with that id. We could of course go for a boolean method, but we'll need a method for finding players by their id anyway, so why not just write that once and check whether the returned object is <code>null</code>.</p>
+<pre class="cpp">function getPlayerById(playerId) {
+    var players <span class="operator">=</span> localStorage<span class="operator">.</span>getPlayers()
+    <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> players<span class="operator">.</span>length; i<span class="operator">+</span><span class="operator">+</span>) {  <span class="comment">//iterate through all the players</span>
+        var player <span class="operator">=</span> players<span class="operator">[</span>i<span class="operator">]</span>                 <span class="comment">//load each player into a variable &quot;player&quot;</span>
+        <span class="keyword">if</span> (player<span class="operator">.</span>playerId <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> playerId)       <span class="comment">//compare their id</span>
+            <span class="keyword">return</span> player                       <span class="comment">//if it matches return the player</span>
+    }
+    <span class="keyword">return</span> null                                 <span class="comment">//if no id matches return null</span>
+}</pre>
+<p>We can now finally write our method for getting the next player id to assign!</p>
+<pre class="cpp">function getNextPlayerId() {
+    var players <span class="operator">=</span> localStorage<span class="operator">.</span>getPlayers()
+    var highestId <span class="operator">=</span> getHighestId()
+    <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span><span class="operator">=</span> highestId <span class="operator">+</span> <span class="number">1</span>; i<span class="operator">+</span><span class="operator">+</span>) {  <span class="comment">//iterate from zero to the highest id + 1 (so that if there's no gap highestId + 1 will be used)</span>
+        var player <span class="operator">=</span> getPlayerById(i)           <span class="comment">//get corresponding player</span>
+        <span class="keyword">if</span> (<span class="operator">!</span>player) {                          <span class="comment">//if the player not defined (the id is unassigned)</span>
+            <span class="keyword">return</span> i                            <span class="comment">//return the id</span>
+        }
+    }
+    <span class="keyword">return</span> <span class="number">0</span>
+}</pre>
+<p>Everything we have to do now is assign every player that gets added a new id in our <code>addPlayer</code> method.</p>
+<pre class="cpp">function addPlayer(player) {
+    player<span class="operator">.</span>playerId <span class="operator">=</span> getNextPlayerId()
+
+    players<span class="operator">.</span>addPlayer(player)
+    localStorage<span class="operator">.</span>addPlayer(player)
+}</pre>
+<p>Let's debug it by writing the newly created <a href="tutorial.html#playerid">playerId</a> to the console.</p>
+<p>Note: Don't forget to delete your old player data with some temporary code in the local storage's <code>onCompleted</code> handler. You can remove the <code>|| true</code> after starting your app once.</p>
+<pre class="qml"></pre>
+<p>if (!getPlayers() || true) setValue(&quot;players&quot;, [])</p>
+<pre class="qml"></pre>
+<p>console.log(&quot;new player's id:&quot;, player.<a href="tutorial.html#playerid">playerId</a>)</p>
+<p class="centerAlign"><img src="images/playersIds.png" alt="" /></p><p>Great! Now that that works we can finally get to the real stuff, actually removing players.</p>
+<a name="the-logic"></a>
+<h4 >The Logic</h4>
+<p>When you now try to remove a player you'll get an error message similar to that:</p>
+<pre class="qml"></pre>
+<p>TypeError: Property 'removePlayer' of object DataModel_QMLTYPE_27(0x3531e978) is not a function</p>
+<p>The message is clear, we need to add the <code>removePlayer</code> method to our <code>DataModel</code>. The method couldn't be easier, we just forward the call to our <code>ListModel</code> and the local storage.</p>
+<pre class="cpp">function removePlayer(playerId) {
+    players<span class="operator">.</span>removePlayer(playerId)
+    localStorage<span class="operator">.</span>removePlayer(playerId)
+}</pre>
+<p>The implementation in our <code>ListModel</code> looks like this:</p>
+<pre class="cpp">function removePlayer(playerId) {
+    <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> count; i<span class="operator">+</span><span class="operator">+</span>) {       <span class="comment">//iterate through players</span>
+        var player <span class="operator">=</span> get(i)                 <span class="comment">//get each player</span>
+        <span class="keyword">if</span> (player<span class="operator">.</span>playerId <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> playerId) { <span class="comment">//if the playerId matches the one we want to remove</span>
+            remove(i)                       <span class="comment">//remove the player at that position</span>
+            <span class="keyword">break</span>;                          <span class="comment">//stop looking for other players</span>
+        }
+    }
+}</pre>
+<p>In the local storage we do it like this:</p>
+<pre class="cpp">function removePlayer(playerId) {
+    var players <span class="operator">=</span> getPlayers()              <span class="comment">//get the current players</span>
+
+    players <span class="operator">=</span> players<span class="operator">.</span>filter(function(p) {  <span class="comment">//keep players if their playerId isn't the one to be removed</span>
+
+        <span class="keyword">return</span> p<span class="operator">.</span>playerId <span class="operator">!</span><span class="operator">=</span><span class="operator">=</span> playerId
+    })
+
+    setValue(<span class="string">&quot;players&quot;</span><span class="operator">,</span> players)
+}</pre>
+<p>Now you should be able to delete all the players you've created so far! If you can't delete a few players, they might haven't got an id, because they were created before we started assigning them. Just clear the list by modifying the local storage's onCompleted handler and then starting the app once. Don't forget to revert your chances afterwards!</p>
+<pre class="qml"></pre>
+<p>if (!getPlayers() || true) setValue(&quot;players&quot;, [])</p>
+<p><code>WerewolfMainPage.qml</code> and <code>DataModel.qml</code> should now look like this.</p>
+<p><code>WerewolfMainPage.qml</code></p>
+<pre class="cpp">import VPlayApps <span class="number">1.0</span>
+import <span class="type">QtQuick</span> <span class="number">2.0</span>
+
+import <span class="string">&quot;model&quot;</span>
+import <span class="string">&quot;pages&quot;</span>
+
+Page {
+    AppListView {
+
+        emptyText<span class="operator">.</span>text: <span class="string">&quot;No Players in Session&quot;</span>
+
+        model: DataModel<span class="operator">.</span>playersListModel
+
+        delegate: SwipeOptionsContainer {
+
+            height: listItem<span class="operator">.</span>height <span class="comment">//use item's height</span>
+
+            SimpleRow {
+                id: listItem
+
+                text: name
+                detailText: notes
+
+                textItem<span class="operator">.</span>font<span class="operator">.</span>bold: <span class="keyword">true</span>
+                detailTextItem<span class="operator">.</span>color: Theme<span class="operator">.</span>tintColor
+
+                onSelected: modifyPlayerPage<span class="operator">.</span>openWithPlayer(playerId)
+            }
+
+            rightOption: SwipeButton {
+                icon: IconType<span class="operator">.</span>trasho   <span class="comment">//trashcan icon</span>
+                height: parent<span class="operator">.</span>height   <span class="comment">//use parent's height</span>
+                onClicked: DataModel<span class="operator">.</span>removePlayer(playerId)
+            }
+        } <span class="comment">//SwipeOptionsContainer</span>
+    }
+
+    ModifyPlayerPage {
+        id: modifyPlayerPage
+    }
+
+    AddPlayerPage {
+        id: addPlayerPage
+    }
+
+    FloatingActionButton {
+        icon: IconType<span class="operator">.</span>plus
+
+        visible: <span class="keyword">true</span>
+
+        iconItem<span class="operator">.</span>rotation: (addPlayerPage<span class="operator">.</span>expanded <span class="operator">|</span><span class="operator">|</span> modifyPlayerPage<span class="operator">.</span>expanded) <span class="operator">?</span> <span class="number">45</span> : <span class="number">0</span>
+        Behavior on iconItem<span class="operator">.</span>rotation {
+            NumberAnimation {
+                duration: <span class="number">200</span>
+            }
+        }
+
+        onClicked: {
+            <span class="keyword">if</span> (addPlayerPage<span class="operator">.</span>expanded <span class="operator">|</span><span class="operator">|</span> modifyPlayerPage<span class="operator">.</span>expanded) {
+                addPlayerPage<span class="operator">.</span>close()       <span class="comment">//closes player creation and resets it</span>
+                modifyPlayerPage<span class="operator">.</span>close()    <span class="comment">//closes player modification and resets it</span>
+            } <span class="keyword">else</span>
+                addPlayerPage<span class="operator">.</span>open() <span class="comment">//opens player creation</span>
+        }
+    } <span class="comment">//FloatingActionButton</span>
+}</pre>
+<p><code>DataModel.qml</code></p>
+<pre class="cpp">pragma Singleton
+
+import VPlayApps <span class="number">1.0</span>
+import VPlay <span class="number">2.0</span>
+import <span class="type">QtQuick</span> <span class="number">2.0</span>
+
+Item {
+    id: dataModel
+
+    property alias playersListModel: players
+
+    Component<span class="operator">.</span>onCompleted: {
+        var initialPlayers <span class="operator">=</span> localStorage<span class="operator">.</span>getPlayers()
+        players<span class="operator">.</span>setPlayers(initialPlayers)
+    }
+
+    function addPlayer(player) {
+        player<span class="operator">.</span>playerId <span class="operator">=</span> getNextPlayerId()
+
+        console<span class="operator">.</span>log(<span class="string">&quot;new player's id:&quot;</span><span class="operator">,</span> player<span class="operator">.</span>playerId)
+
+        players<span class="operator">.</span>addPlayer(player)
+        localStorage<span class="operator">.</span>addPlayer(player)
+    }
+
+    function removePlayer(playerId) {
+        players<span class="operator">.</span>removePlayer(playerId)
+        localStorage<span class="operator">.</span>removePlayer(playerId)
+    }
+
+    function getPlayerById(playerId) {
+        var players <span class="operator">=</span> localStorage<span class="operator">.</span>getPlayers()
+        <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> players<span class="operator">.</span>length; i<span class="operator">+</span><span class="operator">+</span>) {  <span class="comment">//iterate through all the players</span>
+            var player <span class="operator">=</span> players<span class="operator">[</span>i<span class="operator">]</span>                 <span class="comment">//load each player into a variable &quot;player&quot;</span>
+            <span class="keyword">if</span> (player<span class="operator">.</span>playerId <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> playerId)       <span class="comment">//compare their id</span>
+                <span class="keyword">return</span> player                       <span class="comment">//if it matches return the player</span>
+        }
+        <span class="keyword">return</span> null                                 <span class="comment">//if no id matches return null</span>
+    }
+
+    function getHighestId() {
+        var players <span class="operator">=</span> localStorage<span class="operator">.</span>getPlayers()                  <span class="comment">//get players</span>
+        var ids <span class="operator">=</span> players<span class="operator">.</span>map(function(player) {    <span class="comment">//get their ids</span>
+                    <span class="keyword">return</span> player<span class="operator">.</span>playerId
+                })
+        <span class="keyword">return</span> Math<span class="operator">.</span>max<span class="operator">.</span>apply(Math<span class="operator">,</span> ids);           <span class="comment">//return the highest id</span>
+    }
+
+    function getNextPlayerId() {
+        var players <span class="operator">=</span> localStorage<span class="operator">.</span>getPlayers()
+        var highestId <span class="operator">=</span> getHighestId()
+        <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span><span class="operator">=</span> highestId <span class="operator">+</span> <span class="number">1</span>; i<span class="operator">+</span><span class="operator">+</span>) {  <span class="comment">//iterate from zero to the highest id + 1 (so that if there's no gap highestId + 1 will be used)</span>
+            var player <span class="operator">=</span> getPlayerById(i)           <span class="comment">//get corresponding player</span>
+            <span class="keyword">if</span> (<span class="operator">!</span>player) {                          <span class="comment">//if the player not defined (the id is unassigned)</span>
+                <span class="keyword">return</span> i                            <span class="comment">//return the id</span>
+            }
+        }
+        <span class="keyword">return</span> <span class="number">0</span>
+    }
+
+    ListModel {
+        id: players
+
+        function addPlayer(newPlayer) {
+            var ownRoleIndex <span class="operator">=</span> roles<span class="operator">.</span>getIndexForRole(newPlayer<span class="operator">.</span>role) <span class="comment">//get own role index</span>
+            <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> count; i<span class="operator">+</span><span class="operator">+</span>) {                           <span class="comment">//iterate through players</span>
+                var player <span class="operator">=</span> get(i)                                     <span class="comment">//take each player</span>
+                var role <span class="operator">=</span> player<span class="operator">.</span>role                                  <span class="comment">//then their role</span>
+                var roleIndex <span class="operator">=</span> roles<span class="operator">.</span>getIndexForRole(role)          <span class="comment">//and get their index as well</span>
+
+                <span class="keyword">if</span> (roleIndex <span class="operator">&gt;</span> ownRoleIndex) {                         <span class="comment">//now compare the indexes, if the own index is bigger than the one at the current position</span>
+                    insert(i<span class="operator">,</span> newPlayer)                                <span class="comment">//then the item at this position has to be after the one we want to add so we add the player</span>
+                    <span class="keyword">return</span>                                              <span class="comment">//at that position</span>
+                }
+            }
+            append(newPlayer)               <span class="comment">//if no player with a higher role index is found append the player</span>
+        }
+
+        function removePlayer(playerId) {
+            <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> count; i<span class="operator">+</span><span class="operator">+</span>) {       <span class="comment">//iterate through players</span>
+                var player <span class="operator">=</span> get(i)                 <span class="comment">//get each player</span>
+                <span class="keyword">if</span> (player<span class="operator">.</span>playerId <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> playerId) { <span class="comment">//if the playerId matches the one we want to remove</span>
+                    remove(i)                       <span class="comment">//remove the player at that position</span>
+                    <span class="keyword">break</span>;                          <span class="comment">//stop looking for other players</span>
+                }
+            }
+        }
+
+        function setPlayers(players) {
+            clear()                     <span class="comment">//clears list</span>
+            players<span class="operator">.</span>forEach(addPlayer)  <span class="comment">//adds every player in the players list</span>
+        }
+    }
+
+    Storage {
+        id: localStorage
+
+        property var players: <span class="operator">[</span><span class="operator">]</span>
+
+        Component<span class="operator">.</span>onCompleted: {
+            <span class="keyword">if</span> (<span class="operator">!</span>getPlayers()) setValue(<span class="string">&quot;players&quot;</span><span class="operator">,</span> <span class="operator">[</span><span class="operator">]</span>)  <span class="comment">//if players is not defined, add it to the storage</span>
+        }
+
+        function addPlayer(newPlayer) {
+            var players <span class="operator">=</span> getPlayers()
+            players<span class="operator">.</span>push(newPlayer)
+
+            players<span class="operator">.</span>sort(function(p1<span class="operator">,</span> p2) {             <span class="comment">//sorts players by roles</span>
+                <span class="keyword">return</span> roles<span class="operator">.</span>compareRoles(p1<span class="operator">.</span>role<span class="operator">,</span> p2<span class="operator">.</span>role)
+            })
+
+            setValue(<span class="string">&quot;players&quot;</span><span class="operator">,</span> players)
+        }
+
+        function removePlayer(playerId) {
+            var players <span class="operator">=</span> getPlayers()              <span class="comment">//get the current players</span>
+
+            players <span class="operator">=</span> players<span class="operator">.</span>filter(function(p) {  <span class="comment">//keep players if their playerId isn't the one to be removed</span>
+                <span class="keyword">return</span> p<span class="operator">.</span>playerId <span class="operator">!</span><span class="operator">=</span><span class="operator">=</span> playerId
+            })
+
+            setValue(<span class="string">&quot;players&quot;</span><span class="operator">,</span> players)
+        }
+
+        function getPlayers() {
+            <span class="keyword">return</span> getValue(<span class="string">&quot;players&quot;</span>)
+        }
+    }
+
+    ListModel {
+        id: roles
+
+        function getIndexForRole(role) {
+            <span class="keyword">return</span> getRoleObject(role)<span class="operator">.</span>index
+        }
+
+        function getRoleObject(role) {
+            <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> count; i<span class="operator">+</span><span class="operator">+</span>) {           <span class="comment">//iterate through roles</span>
+                var entry <span class="operator">=</span> get(i)
+                <span class="keyword">if</span> (role <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> entry<span class="operator">.</span>name) <span class="keyword">return</span> entry   <span class="comment">//if the names match return the role object</span>
+            }
+            <span class="keyword">return</span> null
+        }
+
+        function compareRoles(role1<span class="operator">,</span> role2) {
+            <span class="keyword">return</span> getIndexForRole(role1) <span class="operator">-</span> getIndexForRole(role2)
+        }
+
+        ListElement { name: <span class="string">&quot;Werewolf&quot;</span>; index: <span class="number">0</span>}
+        ListElement { name: <span class="string">&quot;Villager&quot;</span>; index: <span class="number">3</span>}
+        ListElement { name: <span class="string">&quot;Seer&quot;</span>; index:<span class="number">2</span>}
+        ListElement { name: <span class="string">&quot;Witch&quot;</span>; index: <span class="number">1</span>}
+    }
+}</pre>
+<a name="modify-players"></a>
+<h3 >Modify Players</h3>
+<a name="changes-in-modifyplayerpage"></a>
+<h4 >Changes in ModifyPlayerPage</h4>
+<p>Let's now give the users the ability to modify the players they've created. Open the <code>ModifyPlayerPage</code> for that!</p>
+<p>First of all, don't forget to import &quot;..\model&quot;! Then add a property <code>player</code>, we'll need it in the next step.</p>
+<pre class="qml"></pre>
+<p>property var player: null</p>
+<p>Let's now have a look at our <code>openWithPlayer</code> method. Since we now have our data management up and running, we'll change it a bit.</p>
+<pre class="cpp">function openWithPlayer(playerId) {
+    player <span class="operator">=</span> DataModel<span class="operator">.</span>getPlayerById(playerId)
+    prepare()
+    expanded <span class="operator">=</span> <span class="keyword">true</span>
+}</pre>
+<p>When we now open the app we load the player with the given id into our player variable. Don't get confused about the <code>prepare</code> method, we'll add it right away.</p>
+<pre class="cpp">function prepare() {
+    name <span class="operator">=</span> player<span class="operator">.</span>name
+    notes <span class="operator">=</span> player<span class="operator">.</span>notes
+    role <span class="operator">=</span> player<span class="operator">.</span>role
+    roleText <span class="operator">=</span> player<span class="operator">.</span>role
+}</pre>
+<p>Remember when we declared a ton of alias properties in <code>PlayerPage</code> and I said we'd need them later? Later is now. We use them to load our players details into the <code>ModifyPlayerPage</code> before it gets displayed.</p>
+<p class="centerAlign"><img src="images/modifyPlayerPageDetailsLoaded.png" alt="" /></p><p>Let's take care of the onSubmit handler now. We need to make a few changes there too.</p>
+<pre class="cpp">onSubmit: {
+    player<span class="operator">.</span>playerId <span class="operator">=</span> modifyPlayerPage<span class="operator">.</span>player<span class="operator">.</span>playerId  <span class="comment">//assign oldPlayer's id to new player object</span>
+    DataModel<span class="operator">.</span>modifyPlayer(player)
+    close()
+}</pre>
+<p>Your <code>ModifyPlayerPage</code> should now look like this:</p>
+<pre class="cpp">import VPlayApps <span class="number">1.0</span>
+import <span class="type">QtQuick</span> <span class="number">2.0</span>
+
+import <span class="string">&quot;../model&quot;</span>
+
+PlayerPage {
+    id: addPlayerPage
+
+    property var player: null
+
+    function openWithPlayer(playerId) {
+        player <span class="operator">=</span> DataModel<span class="operator">.</span>getPlayerById(playerId)
+        prepare()
+        expanded <span class="operator">=</span> <span class="keyword">true</span>
+    }
+
+    function close() {
+        expanded <span class="operator">=</span> <span class="keyword">false</span>
+        reset()
+    }
+
+    function prepare() {
+        name <span class="operator">=</span> player<span class="operator">.</span>name
+        notes <span class="operator">=</span> player<span class="operator">.</span>notes
+        role <span class="operator">=</span> player<span class="operator">.</span>role
+        roleText <span class="operator">=</span> player<span class="operator">.</span>role
+    }
+
+    onSubmit: {
+        player<span class="operator">.</span>playerId <span class="operator">=</span> modifyPlayerPage<span class="operator">.</span>player<span class="operator">.</span>playerId  <span class="comment">//assign oldPlayer's id to new player object</span>
+        DataModel<span class="operator">.</span>modifyPlayer(player)
+        close()
+    }
+
+    title: <span class="string">&quot;Modify Player&quot;</span>
+
+    opacity: expanded <span class="operator">?</span> <span class="number">1</span> : <span class="number">0</span> <span class="comment">//only opaque when expanded</span>
+    Behavior on opacity {
+        <span class="comment">//smooth transition from transparent to opaque</span>
+        NumberAnimation {
+            easing<span class="operator">.</span>type: Easing<span class="operator">.</span>InOutSine
+            duration: <span class="number">200</span>
+        }
+    }
+
+    y: expanded <span class="operator">?</span> <span class="number">0</span> : parent<span class="operator">.</span>height <span class="comment">//lets player creation fly in and out</span>
+    Behavior on y {
+        <span class="comment">//again, smooth transitions</span>
+        NumberAnimation {
+            easing<span class="operator">.</span>type: Easing<span class="operator">.</span>OutExpo
+            duration: <span class="number">200</span>
+        }
+    }
+}</pre>
+<a name="the-datamodel"></a>
+<h4 >The DataModel</h4>
+<p>If you try to run this, you'll notice, that there is no method <code>modifyPlayer</code> in our <code>DataModel</code>. Let's create it now!</p>
+<pre class="cpp">function modifyPlayer(player) {
+    players<span class="operator">.</span>modifyPlayer(player)
+    localStorage<span class="operator">.</span>modifyPlayer(player)
+}</pre>
+<p>This method should look similar to you, it's almost exactly the same as the <code>removePlayer</code> method. That's different for the <code>ListModel</code>'s <code>modifyPlayer</code> method.</p>
+<pre class="cpp">function modifyPlayer(modifiedPlayer) {
+    <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> count; i<span class="operator">+</span><span class="operator">+</span>) {                       <span class="comment">//iterate through players</span>
+        var player <span class="operator">=</span> get(i)                                 <span class="comment">//get each player</span>
+        <span class="keyword">if</span> (player<span class="operator">.</span>playerId <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> modifiedPlayer<span class="operator">.</span>playerId) {  <span class="comment">//if the playerId matches the one we want to remove</span>
+            <span class="keyword">if</span> (player<span class="operator">.</span>role <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> modifiedPlayer<span class="operator">.</span>role)        <span class="comment">//and the role didn't change</span>
+                set(i<span class="operator">,</span> modifiedPlayer)                      <span class="comment">//replace the player at that position</span>
+            <span class="keyword">else</span> {                                          <span class="comment">//if the roles did change</span>
+                removePlayer(player<span class="operator">.</span>playerId)               <span class="comment">//first remove the old player</span>
+                addPlayer(modifiedPlayer)                   <span class="comment">//and add the modified player back in</span>
+            }
+        }
+    }
+}</pre>
+<p>The local storage's <code>modifyPlayer</code> method looks like this:</p>
+<pre class="cpp">function modifyPlayer(player) {
+    var players <span class="operator">=</span> getPlayers()                  <span class="comment">//get the current list of players</span>
+
+    players <span class="operator">=</span> players<span class="operator">.</span>map(function(p) {         <span class="comment">//replace every player in the list with,</span>
+        <span class="keyword">if</span> (p<span class="operator">.</span>playerId <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> player<span class="operator">.</span>playerId)     <span class="comment">//if the id matches the one given with the player,</span>
+            <span class="keyword">return</span> player                       <span class="comment">//the new player</span>
+        <span class="keyword">else</span>                                    <span class="comment">//else</span>
+            <span class="keyword">return</span> p                            <span class="comment">//with itself</span>
+    })
+
+    setValue(<span class="string">&quot;players&quot;</span><span class="operator">,</span> players)
+}</pre>
+<p>Everything should now be fully functional and your <code>DataModel</code> should look like this:</p>
+<pre class="cpp">pragma Singleton
+
+import VPlayApps <span class="number">1.0</span>
+import VPlay <span class="number">2.0</span>
+import <span class="type">QtQuick</span> <span class="number">2.0</span>
+
+Item {
+    id: dataModel
+
+    property alias playersListModel: players
+
+    Component<span class="operator">.</span>onCompleted: {
+        var initialPlayers <span class="operator">=</span> localStorage<span class="operator">.</span>getPlayers()
+        players<span class="operator">.</span>setPlayers(initialPlayers)
+    }
+
+    function addPlayer(player) {
+        player<span class="operator">.</span>playerId <span class="operator">=</span> getNextPlayerId()
+
+        players<span class="operator">.</span>addPlayer(player)
+        localStorage<span class="operator">.</span>addPlayer(player)
+    }
+
+    function removePlayer(playerId) {
+        players<span class="operator">.</span>removePlayer(playerId)
+        localStorage<span class="operator">.</span>removePlayer(playerId)
+    }
+
+    function modifyPlayer(player) {
+        players<span class="operator">.</span>modifyPlayer(player)
+        localStorage<span class="operator">.</span>modifyPlayer(player)
+    }
+
+    function getPlayerById(playerId) {
+        var players <span class="operator">=</span> localStorage<span class="operator">.</span>getPlayers()
+        <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> players<span class="operator">.</span>length; i<span class="operator">+</span><span class="operator">+</span>) {  <span class="comment">//iterate through all the players</span>
+            var player <span class="operator">=</span> players<span class="operator">[</span>i<span class="operator">]</span>                 <span class="comment">//load each player into a variable &quot;player&quot;</span>
+            <span class="keyword">if</span> (player<span class="operator">.</span>playerId <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> playerId)       <span class="comment">//compare their id</span>
+                <span class="keyword">return</span> player                       <span class="comment">//if it matches return the player</span>
+        }
+        <span class="keyword">return</span> null                                 <span class="comment">//if no id matches return null</span>
+    }
+
+    function getHighestId() {
+        var players <span class="operator">=</span> localStorage<span class="operator">.</span>getPlayers()                  <span class="comment">//get players</span>
+        var ids <span class="operator">=</span> players<span class="operator">.</span>map(function(player) {    <span class="comment">//get their ids</span>
+                    <span class="keyword">return</span> player<span class="operator">.</span>playerId
+                })
+        <span class="keyword">return</span> Math<span class="operator">.</span>max<span class="operator">.</span>apply(Math<span class="operator">,</span> ids);           <span class="comment">//return the highest id</span>
+    }
+
+    function getNextPlayerId() {
+        var players <span class="operator">=</span> localStorage<span class="operator">.</span>getPlayers()
+        var highestId <span class="operator">=</span> getHighestId()
+        <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span><span class="operator">=</span> highestId <span class="operator">+</span> <span class="number">1</span>; i<span class="operator">+</span><span class="operator">+</span>) {  <span class="comment">//iterate from zero to the highest id + 1 (so that if there's no gap highestId + 1 will be used)</span>
+            var player <span class="operator">=</span> getPlayerById(i)           <span class="comment">//get corresponding player</span>
+            <span class="keyword">if</span> (<span class="operator">!</span>player) {                          <span class="comment">//if the player not defined (the id is unassigned)</span>
+                <span class="keyword">return</span> i                            <span class="comment">//return the id</span>
+            }
+        }
+        <span class="keyword">return</span> <span class="number">0</span>
+    }
+
+    ListModel {
+        id: players
+
+        function addPlayer(newPlayer) {
+            var ownRoleIndex <span class="operator">=</span> roles<span class="operator">.</span>getIndexForRole(newPlayer<span class="operator">.</span>role) <span class="comment">//get own role index</span>
+            <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> count; i<span class="operator">+</span><span class="operator">+</span>) {                           <span class="comment">//iterate through players</span>
+                var player <span class="operator">=</span> get(i)                                     <span class="comment">//take each player</span>
+                var role <span class="operator">=</span> player<span class="operator">.</span>role                                  <span class="comment">//then their role</span>
+                var roleIndex <span class="operator">=</span> roles<span class="operator">.</span>getIndexForRole(role)          <span class="comment">//and get their index as well</span>
+
+                <span class="keyword">if</span> (roleIndex <span class="operator">&gt;</span> ownRoleIndex) {                         <span class="comment">//now compare the indexes, if the own index is bigger than the one at the current position</span>
+                    insert(i<span class="operator">,</span> newPlayer)                                <span class="comment">//then the item at this position has to be after the one we want to add so we add the player</span>
+                    <span class="keyword">return</span>                                              <span class="comment">//at that position</span>
+                }
+            }
+            append(newPlayer)               <span class="comment">//if no player with a higher role index is found append the player</span>
+        }
+
+        function removePlayer(playerId) {
+            <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> count; i<span class="operator">+</span><span class="operator">+</span>) {       <span class="comment">//iterate through players</span>
+                var player <span class="operator">=</span> get(i)                 <span class="comment">//get each player</span>
+                <span class="keyword">if</span> (player<span class="operator">.</span>playerId <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> playerId) { <span class="comment">//if the playerId matches the one we want to remove</span>
+                    remove(i)                       <span class="comment">//remove the player at that position</span>
+                    <span class="keyword">break</span>;                          <span class="comment">//stop looking for other players</span>
+                }
+            }
+        }
+
+        function modifyPlayer(modifiedPlayer) {
+            <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> count; i<span class="operator">+</span><span class="operator">+</span>) {                       <span class="comment">//iterate through players</span>
+                var player <span class="operator">=</span> get(i)                                 <span class="comment">//get each player</span>
+                <span class="keyword">if</span> (player<span class="operator">.</span>playerId <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> modifiedPlayer<span class="operator">.</span>playerId) {  <span class="comment">//if the playerId matches the one we want to remove</span>
+                    <span class="keyword">if</span> (player<span class="operator">.</span>role <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> modifiedPlayer<span class="operator">.</span>role)        <span class="comment">//and the role didn't change</span>
+                        set(i<span class="operator">,</span> modifiedPlayer)                      <span class="comment">//replace the player at that position</span>
+                    <span class="keyword">else</span> {                                          <span class="comment">//if the roles did change</span>
+                        removePlayer(player<span class="operator">.</span>playerId)               <span class="comment">//first remove the old player</span>
+                        addPlayer(modifiedPlayer)                   <span class="comment">//and add the modified player back in</span>
+                    }
+                }
+            }
+        }
+
+        function setPlayers(players) {
+            clear()                     <span class="comment">//clears list</span>
+            players<span class="operator">.</span>forEach(addPlayer)  <span class="comment">//adds every player in the players list</span>
+        }
+    }
+
+    Storage {
+        id: localStorage
+
+        property var players: <span class="operator">[</span><span class="operator">]</span>
+
+        Component<span class="operator">.</span>onCompleted: {
+            <span class="keyword">if</span> (<span class="operator">!</span>getPlayers()) setValue(<span class="string">&quot;players&quot;</span><span class="operator">,</span> <span class="operator">[</span><span class="operator">]</span>)  <span class="comment">//if players is not defined, add it to the storage</span>
+        }
+
+        function addPlayer(newPlayer) {
+            var players <span class="operator">=</span> getPlayers()
+            players<span class="operator">.</span>push(newPlayer)
+
+            players<span class="operator">.</span>sort(function(p1<span class="operator">,</span> p2) {             <span class="comment">//sorts players by roles</span>
+                <span class="keyword">return</span> roles<span class="operator">.</span>compareRoles(p1<span class="operator">.</span>role<span class="operator">,</span> p2<span class="operator">.</span>role)
+            })
+
+            setValue(<span class="string">&quot;players&quot;</span><span class="operator">,</span> players)
+        }
+
+        function removePlayer(playerId) {
+            var players <span class="operator">=</span> getPlayers()              <span class="comment">//get the current players</span>
+
+            players <span class="operator">=</span> players<span class="operator">.</span>filter(function(p) {  <span class="comment">//keep players if their playerId isn't the one to be removed</span>
+                <span class="keyword">return</span> p<span class="operator">.</span>playerId <span class="operator">!</span><span class="operator">=</span><span class="operator">=</span> playerId
+            })
+
+            setValue(<span class="string">&quot;players&quot;</span><span class="operator">,</span> players)
+        }
+
+        function modifyPlayer(player) {
+            var players <span class="operator">=</span> getPlayers()                  <span class="comment">//get the current list of players</span>
+
+            players <span class="operator">=</span> players<span class="operator">.</span>map(function(p) {         <span class="comment">//replace every player in the list with,</span>
+                <span class="keyword">if</span> (p<span class="operator">.</span>playerId <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> player<span class="operator">.</span>playerId)     <span class="comment">//if the id matches the one given with the player,</span>
+                    <span class="keyword">return</span> player                       <span class="comment">//the new player</span>
+                <span class="keyword">else</span>                                    <span class="comment">//else</span>
+                    <span class="keyword">return</span> p                            <span class="comment">//with itself</span>
+            })
+
+            setValue(<span class="string">&quot;players&quot;</span><span class="operator">,</span> players)
+        }
+
+        function getPlayers() {
+            <span class="keyword">return</span> getValue(<span class="string">&quot;players&quot;</span>)
+        }
+    }
+
+    ListModel {
+        id: roles
+
+        function getIndexForRole(role) {
+            <span class="keyword">return</span> getRoleObject(role)<span class="operator">.</span>index
+        }
+
+        function getRoleObject(role) {
+            <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> count; i<span class="operator">+</span><span class="operator">+</span>) {           <span class="comment">//iterate through roles</span>
+                var entry <span class="operator">=</span> get(i)
+                <span class="keyword">if</span> (role <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> entry<span class="operator">.</span>name) <span class="keyword">return</span> entry   <span class="comment">//if the names match return the role object</span>
+            }
+            <span class="keyword">return</span> null
+        }
+
+        function compareRoles(role1<span class="operator">,</span> role2) {
+            <span class="keyword">return</span> getIndexForRole(role1) <span class="operator">-</span> getIndexForRole(role2)
+        }
+
+        ListElement { name: <span class="string">&quot;Werewolf&quot;</span>; index: <span class="number">0</span>}
+        ListElement { name: <span class="string">&quot;Villager&quot;</span>; index: <span class="number">3</span>}
+        ListElement { name: <span class="string">&quot;Seer&quot;</span>; index:<span class="number">2</span>}
+        ListElement { name: <span class="string">&quot;Witch&quot;</span>; index: <span class="number">1</span>}
+    }
+}</pre>
+<a name="extras"></a>
+<h2 id="extras">Extras</h2>
+<a name="list-sections"></a>
+<h2 id="list-sections">List Sections</h2>
+<p>Currently the only way to find out which role a player has is by clicking or tabbing on it. But wouldn't it be way more convenient to just have a <code>ListSection</code> for every role? Indeed, and that's what we're going to do now!</p>
+<a name="werewolfmainpage"></a>
+<h3 >WerewolfMainPage</h3>
+<p>Adding sections to our list couldn't be easier actually. You just need to specify a property, based on which the sections will be created. We want to group our players by role.</p>
+<pre class="qml"></pre>
+<p>section.property: &quot;role&quot;</p>
+<p>Now we need to define a delegate for our section:</p>
+<pre class="qml"></pre>
+<p>section.delegate: SimpleSection { }</p>
+<p>As you can see it's working already!</p>
+<p class="centerAlign"><img src="images/simpleSectionsNoStyle.png" alt="" /></p><p>Those sections look good already, but let's add some custom style to them.</p>
+<pre class="cpp">section<span class="operator">.</span>delegate: SimpleSection {
+    style<span class="operator">.</span>showDividers: <span class="keyword">true</span>
+    style<span class="operator">.</span>dividerHeight: <span class="number">3</span>
+    style<span class="operator">.</span>totalHeight: <span class="number">42</span>
+    style<span class="operator">.</span>textBottomMargin: style<span class="operator">.</span>dividerHeight <span class="operator">+</span> <span class="number">8</span>
+
+    style<span class="operator">.</span>dividerColor: Theme<span class="operator">.</span>tintColor
+
+    textItem<span class="operator">.</span>font<span class="operator">.</span>pixelSize: <span class="number">20</span>
+    textItem<span class="operator">.</span>font<span class="operator">.</span>bold: <span class="keyword">false</span>
+}</pre>
+<p class="centerAlign"><img src="images/simpleSections.png" alt="" /></p><p>Awesome! The only thing that bothers me is that it says &quot;Werewolf&quot; and &quot;Villager&quot;, even though there can, and in the most cases will, be more than one player in each of those categories. Let's change the section property and handle that problem somewhere else.</p>
+<pre class="qml"></pre>
+<p>section.property: &quot;sectionName&quot;</p>
+<a name="datamodel"></a>
+<h3 >DataModel</h3>
+<p>We don't need to change a lot here, just add the property <code>pluralName</code> to the roles that can be assigned to multiple players.</p>
+<pre class="cpp">ListElement { name: <span class="string">&quot;Werewolf&quot;</span>; pluralName: <span class="string">&quot;Werewolves&quot;</span>; index: <span class="number">0</span>}
+ListElement { name: <span class="string">&quot;Villager&quot;</span>; pluralName: <span class="string">&quot;Villagers&quot;</span>; index: <span class="number">3</span>}
+ListElement { name: <span class="string">&quot;Seer&quot;</span>; index:<span class="number">2</span>}
+ListElement { name: <span class="string">&quot;Witch&quot;</span>; index: <span class="number">1</span>}</pre>
+<p>Then make roles visible to the outside.</p>
+<pre class="qml"></pre>
+<p>property alias roles: roles</p>
+<a name="playerpage"></a>
+<h3 >PlayerPage</h3>
+<p>Now we just need to add a sectionName property to our players before they're submitted. We also need to check whether the role has the property <code>pluralNames</code>. Don't forget to import <code>DataModel</code>!</p>
+<pre class="cpp">var roleObject <span class="operator">=</span> DataModel<span class="operator">.</span>roles<span class="operator">.</span>getRoleObject(player<span class="operator">.</span>role) <span class="comment">//get the roles object representation</span>
+player<span class="operator">.</span>sectionName <span class="operator">=</span> (roleObject<span class="operator">.</span>pluralName) <span class="operator">?</span>              <span class="comment">//if  there is a plural name for that role</span>
+            roleObject<span class="operator">.</span>pluralName :                         <span class="comment">//use it as the sectionName</span>
+            roleObject<span class="operator">.</span>name                                 <span class="comment">//if not use the role name</span></pre>
+<p>Our finished page should now look like this:</p>
+<p class="centerAlign"><img src="images/pluralNames.png" alt="" /></p><a name="maximal-count-of-players-for-roles"></a>
+<h2 id="maximal-count-of-players-for-roles">Maximal Count of Players for Roles</h2>
+<p>In the Werewolf game certain roles (e.g&#x2e; Seer, Witch) can only be assigned to one player at a time. In our app we can currently add more than one Seer and more than one witch, though. Let's change that!</p>
+<a name="datamodel"></a>
+<h3 >DataModel</h3>
+<p>Let's add a method for finding players their role first and call it <code>getPlayersByRole</code>.</p>
+<pre class="cpp">function getPlayersByRole(role) {
+    var players <span class="operator">=</span> localStorage<span class="operator">.</span>getPlayers()
+    <span class="keyword">return</span> players<span class="operator">.</span>filter(function(player) {
+        <span class="keyword">return</span> player<span class="operator">.</span>role <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> role
+    })
+}</pre>
+<p>Now create the method <code>isAvailable</code> in the roles' <code>ListModel</code>.</p>
+<pre class="cpp">function isAvailable(role) {
+    var playersWithRole <span class="operator">=</span> getPlayersByRole(role)<span class="operator">.</span>length <span class="comment">//get the number of players with the given role</span>
+    var maxCount <span class="operator">=</span> getRoleObject(role)<span class="operator">.</span>maxPlayers       <span class="comment">//get the highest possible numbers of players for that role</span>
+
+    <span class="keyword">if</span> (maxCount)                                       <span class="comment">//if there is an upper limit</span>
+        <span class="keyword">return</span> maxCount <span class="operator">&gt;</span> playersWithRole               <span class="comment">//return whether there is room for more players</span>
+    <span class="keyword">return</span> <span class="keyword">true</span>                                         <span class="comment">//always return true if there is no limit</span>
+}</pre>
+<p>This code accesses a property of our roles that we haven't added yet. Let's do that too!</p>
+<pre class="cpp">ListElement { name: <span class="string">&quot;Werewolf&quot;</span>; pluralName: <span class="string">&quot;Werewolves&quot;</span>; index: <span class="number">0</span>}
+ListElement { name: <span class="string">&quot;Villager&quot;</span>; pluralName: <span class="string">&quot;Villagers&quot;</span>; index: <span class="number">3</span>}
+ListElement { name: <span class="string">&quot;Seer&quot;</span>; maxPlayers: <span class="number">1</span>; index:<span class="number">2</span>}
+ListElement { name: <span class="string">&quot;Witch&quot;</span>; maxPlayers: <span class="number">1</span>; index: <span class="number">1</span>}</pre>
+<p>Now we're able to find out whether a role is available or not. But how do we bring this information to the <code>RoleChooser</code>? Let's use a signal for that!</p>
+<pre class="qml"></pre>
+<p>signal availabilityUpdated(var availabilityInformation)</p>
+<p>We just need a method for constructing the object with the information about the roles' availability and for calling the <code>availabilityUpdated</code> signal.</p>
+<pre class="cpp">function shareAvailability() {
+    var state <span class="operator">=</span> {}
+
+    <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> count; i<span class="operator">+</span><span class="operator">+</span>) {               <span class="comment">//iterate through roles</span>
+        var role <span class="operator">=</span> get(i)
+        state<span class="operator">[</span>role<span class="operator">.</span>name<span class="operator">]</span> <span class="operator">=</span> isAvailable(role<span class="operator">.</span>name)   <span class="comment">//create a property for each role with their availability</span>
+    }
+
+    availabilityUpdated(state)                         <span class="comment">//publish the availability data</span>
+}</pre>
+<p>This code will produce a state object that looks like this:</p>
+<pre class="cpp">{
+    <span class="string">&quot;roleName&quot;</span>: isAvailable(<span class="string">&quot;roleName&quot;</span>)<span class="operator">,</span>
+    <span class="operator">.</span><span class="operator">.</span><span class="operator">.</span>
+}</pre>
+<p>Now we only need to call the method every time the players' configuration changes. I'd suggest extracting <code>setValue(&quot;players&quot;, players)</code> into its own function and call <code>shareAvailability</code> together with it.</p>
+<pre class="cpp">function handleChanges(players) {
+    setValue(<span class="string">&quot;players&quot;</span><span class="operator">,</span> players)    <span class="comment">//store the modified list</span>
+    roles<span class="operator">.</span>shareAvailability()    <span class="comment">//notify RoleChooser</span>
+}</pre>
+<p>We're now done with the <code>DataModel</code>.</p>
+<a name="rolechooser"></a>
+<h3 >RoleChooser</h3>
+<p>Now we need every grid item to listen for availability chances and react to them. Let's add a <code>Connections</code> component to each <code>AppButton</code> for that. Again, don't forget to import the <code>DataModel</code>.</p>
+<pre class="cpp">Connections {
+    target: DataModel
+    onAvailabilityUpdated: gridItem<span class="operator">.</span>enabled <span class="operator">=</span> availabilityInformation<span class="operator">[</span>name<span class="operator">]</span> <span class="comment">//disable role if it's not available anymore</span>
+}</pre>
+<p>When we now for example try to add the Witch twice it won't let us.</p>
+<p class="centerAlign"><img src="images/witchDisabled.png" alt="" /></p><a name="animations"></a>
+<h2 id="animations">Animations</h2>
+<p>Even though adding players to and removing players from our list works already nicely, it still looks a bit boring. We should bring some movement to it. Let's add animations!</p>
+<p>We actually don't need to change too much for that. Just add the following lines of code to your <code>AppListView</code> and the component will do the rest for you.</p>
+<pre class="cpp">add: Transition {
+  ParallelAnimation {
+    NumberAnimation { property: <span class="string">&quot;opacity&quot;</span>; from: <span class="number">0</span>; to: <span class="number">1</span>; duration: <span class="number">200</span> }
+    NumberAnimation { properties: <span class="string">&quot;scale&quot;</span>; from: <span class="number">0</span>; to: <span class="number">1</span>; duration: <span class="number">200</span>; easing<span class="operator">.</span>type: Easing<span class="operator">.</span>OutCubic }
+  }
+}
+
+remove: Transition {
+  ParallelAnimation {
+    NumberAnimation { property: <span class="string">&quot;opacity&quot;</span>; to: <span class="number">0</span>; duration: <span class="number">400</span> }
+    NumberAnimation { property: <span class="string">&quot;x&quot;</span>; to: <span class="operator">-</span>width ; duration: <span class="number">200</span> }
+  }
+}</pre>
+<p>When you now add and remove players you should be able to see those beautiful animations we just added.</p>
+<a name="source-code"></a>
+<h2 id="source-code">Source Code</h2>
+<p>Here you have the finished files of the entire app.</p>
+<a name="main-qml"></a>
+<h2 id="main-qml">Main.qml</h2>
+<pre class="cpp">import VPlayApps <span class="number">1.0</span>
+import <span class="type">QtQuick</span> <span class="number">2.0</span>
+
+App {
+    <span class="comment">// You get free licenseKeys from https://v-play.net/licenseKey</span>
+    <span class="comment">// With a licenseKey you can:</span>
+    <span class="comment">//  * Publish your games &amp; apps for the app stores</span>
+    <span class="comment">//  * Remove the V-Play Splash Screen or set a custom one (available with the Pro Licenses)</span>
+    <span class="comment">//  * Add plugins to monetize, analyze &amp; improve your apps (available with the Pro Licenses)</span>
+    <span class="comment">//licenseKey: &quot;&lt;generate one from https://v-play.net/licenseKey&gt;&quot;</span>
+
+    onInitTheme: {
+        Theme<span class="operator">.</span>colors<span class="operator">.</span>tintColor <span class="operator">=</span> <span class="string">&quot;#FFB90D&quot;</span> <span class="comment">//yellow</span>
+    }
+
+    WerewolfMainPage { }
+}</pre>
+<a name="werewolfmainpage-qml"></a>
+<h2 id="werewolfmainpage-qml">WerewolfMainPage.qml</h2>
+<pre class="cpp">import VPlayApps <span class="number">1.0</span>
+import <span class="type">QtQuick</span> <span class="number">2.0</span>
+
+import <span class="string">&quot;model&quot;</span>
+import <span class="string">&quot;pages&quot;</span>
+
+Page {
+    AppListView {
+
+        emptyText<span class="operator">.</span>text: <span class="string">&quot;No Players in Session&quot;</span>
+
+        model: DataModel<span class="operator">.</span>playersListModel
+
+        section<span class="operator">.</span>property: <span class="string">&quot;sectionName&quot;</span>
+        section<span class="operator">.</span>delegate: SimpleSection {
+            style<span class="operator">.</span>showDividers: <span class="keyword">true</span>
+            style<span class="operator">.</span>dividerHeight: <span class="number">3</span>
+            style<span class="operator">.</span>totalHeight: <span class="number">42</span>
+            style<span class="operator">.</span>textBottomMargin: style<span class="operator">.</span>dividerHeight <span class="operator">+</span> <span class="number">8</span>
+
+            style<span class="operator">.</span>dividerColor: Theme<span class="operator">.</span>tintColor
+
+            textItem<span class="operator">.</span>font<span class="operator">.</span>pixelSize: <span class="number">20</span>
+            textItem<span class="operator">.</span>font<span class="operator">.</span>bold: <span class="keyword">false</span>
+        }
+
+        delegate: SwipeOptionsContainer {
+
+            height: listItem<span class="operator">.</span>height <span class="comment">//use item's height</span>
+
+            SimpleRow {
+                id: listItem
+
+                text: name
+                detailText: notes
+
+                textItem<span class="operator">.</span>font<span class="operator">.</span>bold: <span class="keyword">true</span>
+                detailTextItem<span class="operator">.</span>color: Theme<span class="operator">.</span>tintColor
+
+                onSelected: modifyPlayerPage<span class="operator">.</span>openWithPlayer(playerId)
+            }
+
+            rightOption: SwipeButton {
+                icon: IconType<span class="operator">.</span>trasho   <span class="comment">//trashcan icon</span>
+                height: parent<span class="operator">.</span>height   <span class="comment">//use parent's height</span>
+                onClicked: DataModel<span class="operator">.</span>removePlayer(playerId)
+            }
+        } <span class="comment">//SwipeOptionsContainer</span>
+
+        add: Transition {
+          ParallelAnimation {
+            NumberAnimation { property: <span class="string">&quot;opacity&quot;</span>; from: <span class="number">0</span>; to: <span class="number">1</span>; duration: <span class="number">200</span> }
+            NumberAnimation { properties: <span class="string">&quot;scale&quot;</span>; from: <span class="number">0</span>; to: <span class="number">1</span>; duration: <span class="number">200</span>; easing<span class="operator">.</span>type: Easing<span class="operator">.</span>OutCubic }
+          }
+        }
+
+        remove: Transition {
+          ParallelAnimation {
+            NumberAnimation { property: <span class="string">&quot;opacity&quot;</span>; to: <span class="number">0</span>; duration: <span class="number">400</span> }
+            NumberAnimation { property: <span class="string">&quot;x&quot;</span>; to: <span class="operator">-</span>width ; duration: <span class="number">200</span> }
+          }
+        }
+    }
+
+    ModifyPlayerPage {
+        id: modifyPlayerPage
+    }
+
+    AddPlayerPage {
+        id: addPlayerPage
+    }
+
+    FloatingActionButton {
+        icon: IconType<span class="operator">.</span>plus
+
+        visible: <span class="keyword">true</span>
+
+        iconItem<span class="operator">.</span>rotation: (addPlayerPage<span class="operator">.</span>expanded <span class="operator">|</span><span class="operator">|</span> modifyPlayerPage<span class="operator">.</span>expanded) <span class="operator">?</span> <span class="number">45</span> : <span class="number">0</span>
+        Behavior on iconItem<span class="operator">.</span>rotation {
+            NumberAnimation {
+                duration: <span class="number">200</span>
+            }
+        }
+
+        onClicked: {
+            <span class="keyword">if</span> (addPlayerPage<span class="operator">.</span>expanded <span class="operator">|</span><span class="operator">|</span> modifyPlayerPage<span class="operator">.</span>expanded) {
+                addPlayerPage<span class="operator">.</span>close()       <span class="comment">//closes player creation and resets it</span>
+                modifyPlayerPage<span class="operator">.</span>close()    <span class="comment">//closes player modification and resets it</span>
+            } <span class="keyword">else</span>
+                addPlayerPage<span class="operator">.</span>open() <span class="comment">//opens player creation</span>
+        }
+    }
+}</pre>
+<a name="model-datamodel-qml"></a>
+<h2 id="model-datamodel-qml">model/DataModel.qml</h2>
+<pre class="cpp">pragma Singleton
+
+import VPlayApps <span class="number">1.0</span>
+import VPlay <span class="number">2.0</span>
+import <span class="type">QtQuick</span> <span class="number">2.0</span>
+
+Item {
+    id: dataModel
+
+    signal availabilityUpdated(var availabilityInformation)
+
+    property alias playersListModel: players
+    property alias roles: roles
+
+    Component<span class="operator">.</span>onCompleted: {
+        var initialPlayers <span class="operator">=</span> localStorage<span class="operator">.</span>getPlayers()
+        players<span class="operator">.</span>setPlayers(initialPlayers)
+    }
+
+    function addPlayer(player) {
+        player<span class="operator">.</span>playerId <span class="operator">=</span> getNextPlayerId()
+
+        players<span class="operator">.</span>addPlayer(player)
+        localStorage<span class="operator">.</span>addPlayer(player)
+    }
+
+    function removePlayer(playerId) {
+        players<span class="operator">.</span>removePlayer(playerId)
+        localStorage<span class="operator">.</span>removePlayer(playerId)
+    }
+
+    function modifyPlayer(player) {
+        players<span class="operator">.</span>modifyPlayer(player)
+        localStorage<span class="operator">.</span>modifyPlayer(player)
+    }
+
+    function getPlayerById(playerId) {
+        var players <span class="operator">=</span> localStorage<span class="operator">.</span>getPlayers()
+        <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> players<span class="operator">.</span>length; i<span class="operator">+</span><span class="operator">+</span>) {  <span class="comment">//iterate through all the players</span>
+            var player <span class="operator">=</span> players<span class="operator">[</span>i<span class="operator">]</span>                 <span class="comment">//load each player into a variable &quot;player&quot;</span>
+            <span class="keyword">if</span> (player<span class="operator">.</span>playerId <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> playerId)       <span class="comment">//compare their id</span>
+                <span class="keyword">return</span> player                       <span class="comment">//if it matches return the player</span>
+        }
+        <span class="keyword">return</span> null                                 <span class="comment">//if no id matches return null</span>
+    }
+
+    function getPlayersByRole(role) {
+        var players <span class="operator">=</span> localStorage<span class="operator">.</span>getPlayers()
+        <span class="keyword">return</span> players<span class="operator">.</span>filter(function(player) {
+            <span class="keyword">return</span> player<span class="operator">.</span>role <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> role
+        })
+    }
+
+    function getHighestId() {
+        var players <span class="operator">=</span> localStorage<span class="operator">.</span>getPlayers()                  <span class="comment">//get players</span>
+        var ids <span class="operator">=</span> players<span class="operator">.</span>map(function(player) {    <span class="comment">//get their ids</span>
+                    <span class="keyword">return</span> player<span class="operator">.</span>playerId
+                })
+        <span class="keyword">return</span> Math<span class="operator">.</span>max<span class="operator">.</span>apply(Math<span class="operator">,</span> ids);           <span class="comment">//return the highest id</span>
+    }
+
+    function getNextPlayerId() {
+        var players <span class="operator">=</span> localStorage<span class="operator">.</span>getPlayers()
+        var highestId <span class="operator">=</span> getHighestId()
+        <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span><span class="operator">=</span> highestId <span class="operator">+</span> <span class="number">1</span>; i<span class="operator">+</span><span class="operator">+</span>) {  <span class="comment">//iterate from zero to the highest id + 1 (so that if there's no gap highestId + 1 will be used)</span>
+            var player <span class="operator">=</span> getPlayerById(i)           <span class="comment">//get corresponding player</span>
+            <span class="keyword">if</span> (<span class="operator">!</span>player) {                          <span class="comment">//if the player not defined (the id is unassigned)</span>
+                <span class="keyword">return</span> i                            <span class="comment">//return the id</span>
+            }
+        }
+        <span class="keyword">return</span> <span class="number">0</span>
+    }
+
+    ListModel {
+        id: players
+
+        function addPlayer(newPlayer) {
+            var ownRoleIndex <span class="operator">=</span> roles<span class="operator">.</span>getIndexForRole(newPlayer<span class="operator">.</span>role) <span class="comment">//get own role index</span>
+            <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> count; i<span class="operator">+</span><span class="operator">+</span>) {                           <span class="comment">//iterate through players</span>
+                var player <span class="operator">=</span> get(i)                                     <span class="comment">//take each player</span>
+                var role <span class="operator">=</span> player<span class="operator">.</span>role                                  <span class="comment">//then their role</span>
+                var roleIndex <span class="operator">=</span> roles<span class="operator">.</span>getIndexForRole(role)          <span class="comment">//and get their index as well</span>
+
+                <span class="keyword">if</span> (roleIndex <span class="operator">&gt;</span> ownRoleIndex) {                         <span class="comment">//now compare the indexes, if the own index is bigger than the one at the current position</span>
+                    insert(i<span class="operator">,</span> newPlayer)                                <span class="comment">//then the item at this position has to be after the one we want to add so we add the player</span>
+                    <span class="keyword">return</span>                                              <span class="comment">//at that position</span>
+                }
+            }
+            append(newPlayer)               <span class="comment">//if no player with a higher role index is found append the player</span>
+        }
+
+        function removePlayer(playerId) {
+            <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> count; i<span class="operator">+</span><span class="operator">+</span>) {       <span class="comment">//iterate through players</span>
+                var player <span class="operator">=</span> get(i)                 <span class="comment">//get each player</span>
+                <span class="keyword">if</span> (player<span class="operator">.</span>playerId <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> playerId) { <span class="comment">//if the playerId matches the one we want to remove</span>
+                    remove(i)                       <span class="comment">//remove the player at that position</span>
+                    <span class="keyword">break</span>;                          <span class="comment">//stop looking for other players</span>
+                }
+            }
+        }
+
+        function modifyPlayer(modifiedPlayer) {
+            <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> count; i<span class="operator">+</span><span class="operator">+</span>) {                       <span class="comment">//iterate through players</span>
+                var player <span class="operator">=</span> get(i)                                 <span class="comment">//get each player</span>
+                <span class="keyword">if</span> (player<span class="operator">.</span>playerId <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> modifiedPlayer<span class="operator">.</span>playerId) {  <span class="comment">//if the playerId matches the one we want to remove</span>
+                    <span class="keyword">if</span> (player<span class="operator">.</span>role <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> modifiedPlayer<span class="operator">.</span>role)        <span class="comment">//and the role didn't change</span>
+                        set(i<span class="operator">,</span> modifiedPlayer)                      <span class="comment">//replace the player at that position</span>
+                    <span class="keyword">else</span> {                                          <span class="comment">//if the roles did change</span>
+                        removePlayer(player<span class="operator">.</span>playerId)               <span class="comment">//first remove the old player</span>
+                        addPlayer(modifiedPlayer)                   <span class="comment">//and add the modified player back in</span>
+                    }
+                }
+            }
+        }
+
+        function setPlayers(players) {
+            clear()                     <span class="comment">//clears list</span>
+            players<span class="operator">.</span>forEach(addPlayer)  <span class="comment">//adds every player in the players list</span>
+        }
+    }
+
+    Storage {
+        id: localStorage
+
+        property var players: <span class="operator">[</span><span class="operator">]</span>
+
+        Component<span class="operator">.</span>onCompleted: {
+            <span class="keyword">if</span> (<span class="operator">!</span>getPlayers()) setValue(<span class="string">&quot;players&quot;</span><span class="operator">,</span> <span class="operator">[</span><span class="operator">]</span>)  <span class="comment">//if players is not defined, add it to the storage</span>
+        }
+
+        function addPlayer(newPlayer) {
+            var players <span class="operator">=</span> getPlayers()
+            players<span class="operator">.</span>push(newPlayer)
+
+            players<span class="operator">.</span>sort(function(p1<span class="operator">,</span> p2) {             <span class="comment">//sorts players by roles</span>
+                <span class="keyword">return</span> roles<span class="operator">.</span>compareRoles(p1<span class="operator">.</span>role<span class="operator">,</span> p2<span class="operator">.</span>role)
+            })
+
+            handleChanges(players)
+        }
+
+        function removePlayer(playerId) {
+            var players <span class="operator">=</span> getPlayers()              <span class="comment">//get the current players</span>
+
+            players <span class="operator">=</span> players<span class="operator">.</span>filter(function(p) {  <span class="comment">//keep players if their playerId isn't the one to be removed</span>
+                <span class="keyword">return</span> p<span class="operator">.</span>playerId <span class="operator">!</span><span class="operator">=</span><span class="operator">=</span> playerId
+            })
+
+            handleChanges(players)
+        }
+
+        function modifyPlayer(player) {
+            var players <span class="operator">=</span> getPlayers()                  <span class="comment">//get the current list of players</span>
+
+            players <span class="operator">=</span> players<span class="operator">.</span>map(function(p) {         <span class="comment">//replace every player in the list with,</span>
+                <span class="keyword">if</span> (p<span class="operator">.</span>playerId <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> player<span class="operator">.</span>playerId)     <span class="comment">//if the id matches the one given with the player,</span>
+                    <span class="keyword">return</span> player                       <span class="comment">//the new player</span>
+                <span class="keyword">else</span>                                    <span class="comment">//else</span>
+                    <span class="keyword">return</span> p                            <span class="comment">//with itself</span>
+            })
+
+            handleChanges(players)
+        }
+
+        function handleChanges(players) {
+            setValue(<span class="string">&quot;players&quot;</span><span class="operator">,</span> players)    <span class="comment">//store the modified list</span>
+            roles<span class="operator">.</span>shareAvailability()    <span class="comment">//notify RoleChooser</span>
+        }
+
+        function getPlayers() {
+            <span class="keyword">return</span> getValue(<span class="string">&quot;players&quot;</span>)
+        }
+    }
+
+    ListModel {
+        id: roles
+
+        function getIndexForRole(role) {
+            <span class="keyword">return</span> getRoleObject(role)<span class="operator">.</span>index
+        }
+
+        function getRoleObject(role) {
+            <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> count; i<span class="operator">+</span><span class="operator">+</span>) {           <span class="comment">//iterate through roles</span>
+                var entry <span class="operator">=</span> get(i)
+                <span class="keyword">if</span> (role <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> entry<span class="operator">.</span>name) <span class="keyword">return</span> entry   <span class="comment">//if the names match return the role object</span>
+            }
+            <span class="keyword">return</span> null
+        }
+
+        function isAvailable(role) {
+            var playersWithRole <span class="operator">=</span> getPlayersByRole(role)<span class="operator">.</span>length <span class="comment">//get the number of players with the given role</span>
+            var maxCount <span class="operator">=</span> getRoleObject(role)<span class="operator">.</span>maxPlayers       <span class="comment">//get the highest possible numbers of players for that role</span>
+
+            <span class="keyword">if</span> (maxCount)                                       <span class="comment">//if there is an upper limit</span>
+                <span class="keyword">return</span> maxCount <span class="operator">&gt;</span> playersWithRole               <span class="comment">//return whether there is room for more players</span>
+            <span class="keyword">return</span> <span class="keyword">true</span>                                         <span class="comment">//always return true if there is no limit</span>
+        }
+
+        function shareAvailability() {
+            var state <span class="operator">=</span> {}
+
+            <span class="keyword">for</span> (var i <span class="operator">=</span> <span class="number">0</span>; i <span class="operator">&lt;</span> count; i<span class="operator">+</span><span class="operator">+</span>) {               <span class="comment">//iterate through roles</span>
+                var role <span class="operator">=</span> get(i)
+                state<span class="operator">[</span>role<span class="operator">.</span>name<span class="operator">]</span> <span class="operator">=</span> isAvailable(role<span class="operator">.</span>name)   <span class="comment">//create a property for each role with their availability</span>
+            }
+
+            availabilityUpdated(state)                         <span class="comment">//publish the availability data</span>
+        }
+
+        function compareRoles(role1<span class="operator">,</span> role2) {
+            <span class="keyword">return</span> getIndexForRole(role1) <span class="operator">-</span> getIndexForRole(role2)
+        }
+
+        ListElement { name: <span class="string">&quot;Werewolf&quot;</span>; pluralName: <span class="string">&quot;Werewolves&quot;</span>; index: <span class="number">0</span>}
+        ListElement { name: <span class="string">&quot;Villager&quot;</span>; pluralName: <span class="string">&quot;Villagers&quot;</span>; index: <span class="number">3</span>}
+        ListElement { name: <span class="string">&quot;Seer&quot;</span>; maxPlayers: <span class="number">1</span>; index:<span class="number">2</span>}
+        ListElement { name: <span class="string">&quot;Witch&quot;</span>; maxPlayers: <span class="number">1</span>; index: <span class="number">1</span>}
+    }
+}</pre>
+<a name="pages"></a>
+<h2 id="pages">pages</h2>
+<a name="addplayerpage-qml"></a>
+<h3 >AddPlayerPage.qml</h3>
+<pre class="cpp">import VPlayApps <span class="number">1.0</span>
+import <span class="type">QtQuick</span> <span class="number">2.0</span>
+
+import <span class="string">&quot;../model&quot;</span>
+
+PlayerPage {
+    id: addPlayerPage
+
+    function open() {
+        expanded <span class="operator">=</span> <span class="keyword">true</span>
+    }
+
+    function close() {
+        expanded <span class="operator">=</span> <span class="keyword">false</span>
+        reset()
+    }
+
+    onSubmit: {
+        DataModel<span class="operator">.</span>addPlayer(player)
+        close()
+    }
+
+    title: <span class="string">&quot;Create&quot;</span>
+
+    opacity: expanded <span class="operator">?</span> <span class="number">1</span> : <span class="number">0</span> <span class="comment">//only opaque when expanded</span>
+    Behavior on opacity {
+        <span class="comment">//smooth transition from transparent to opaque</span>
+        NumberAnimation {
+            easing<span class="operator">.</span>type: Easing<span class="operator">.</span>InOutSine
+            duration: <span class="number">200</span>
+        }
+    }
+
+    y: expanded <span class="operator">?</span> <span class="number">0</span> : parent<span class="operator">.</span>height <span class="comment">//lets player creation fly in and out</span>
+    Behavior on y {
+        <span class="comment">//again, smooth transitions</span>
+        NumberAnimation {
+            easing<span class="operator">.</span>type: Easing<span class="operator">.</span>OutExpo
+            duration: <span class="number">200</span>
+        }
+    }
+}</pre>
+<a name="modifyplayerpage-qml"></a>
+<h3 >ModifyPlayerPage.qml</h3>
+<pre class="cpp">import VPlayApps <span class="number">1.0</span>
+import <span class="type">QtQuick</span> <span class="number">2.0</span>
+
+import <span class="string">&quot;../model&quot;</span>
+
+PlayerPage {
+    id: addPlayerPage
+
+    property var player: null
+
+    function openWithPlayer(playerId) {
+        player <span class="operator">=</span> DataModel<span class="operator">.</span>getPlayerById(playerId)
+        prepare()
+        expanded <span class="operator">=</span> <span class="keyword">true</span>
+    }
+
+    function close() {
+        expanded <span class="operator">=</span> <span class="keyword">false</span>
+        reset()
+    }
+
+    function prepare() {
+        name <span class="operator">=</span> player<span class="operator">.</span>name
+        notes <span class="operator">=</span> player<span class="operator">.</span>notes
+        role <span class="operator">=</span> player<span class="operator">.</span>role
+        roleText <span class="operator">=</span> player<span class="operator">.</span>role
+    }
+
+    onSubmit: {
+        player<span class="operator">.</span>playerId <span class="operator">=</span> modifyPlayerPage<span class="operator">.</span>player<span class="operator">.</span>playerId  <span class="comment">//assign oldPlayer's id to new player object</span>
+        DataModel<span class="operator">.</span>modifyPlayer(player)
+        close()
+    }
+
+    title: <span class="string">&quot;Modify Player&quot;</span>
+
+    opacity: expanded <span class="operator">?</span> <span class="number">1</span> : <span class="number">0</span> <span class="comment">//only opaque when expanded</span>
+    Behavior on opacity {
+        <span class="comment">//smooth transition from transparent to opaque</span>
+        NumberAnimation {
+            easing<span class="operator">.</span>type: Easing<span class="operator">.</span>InOutSine
+            duration: <span class="number">200</span>
+        }
+    }
+
+    y: expanded <span class="operator">?</span> <span class="number">0</span> : parent<span class="operator">.</span>height <span class="comment">//lets player creation fly in and out</span>
+    Behavior on y {
+        <span class="comment">//again, smooth transitions</span>
+        NumberAnimation {
+            easing<span class="operator">.</span>type: Easing<span class="operator">.</span>OutExpo
+            duration: <span class="number">200</span>
+        }
+    }
+}</pre>
+<a name="playerpage-qml"></a>
+<h3 >PlayerPage.qml</h3>
+<pre class="cpp">import VPlayApps <span class="number">1.0</span>
+import <span class="type">QtQuick</span> <span class="number">2.0</span>
+import <span class="type">QtQuick</span><span class="operator">.</span>Layouts <span class="number">1.1</span>
+
+import <span class="string">&quot;../model&quot;</span>
+
+
+Page {
+
+    signal submit(var player)
+
+    property string title
+
+    property bool expanded
+
+    property alias name: nameField<span class="operator">.</span>text
+    property alias notes: notes<span class="operator">.</span>text
+    property alias role: roleChooser<span class="operator">.</span>selectedRole
+    property alias roleText: roleButton<span class="operator">.</span>text
+
+    function reset() {
+        nameField<span class="operator">.</span>text <span class="operator">=</span> <span class="string">&quot;&quot;</span>                 <span class="comment">//resets nameField</span>
+        notes<span class="operator">.</span>text <span class="operator">=</span> <span class="string">&quot;&quot;</span>                     <span class="comment">//resets notes</span>
+        roleButton<span class="operator">.</span>text <span class="operator">=</span> <span class="string">&quot;Choose Role&quot;</span>     <span class="comment">//resets roleButton</span>
+        roleChooser<span class="operator">.</span>selectedRole <span class="operator">=</span> <span class="string">&quot;&quot;</span>       <span class="comment">//resets selectedRole</span>
+        errorField<span class="operator">.</span>hide()                   <span class="comment">//hides error notifcation</span>
+        roleChooser<span class="operator">.</span>hide()                  <span class="comment">//hides roleChooser PopUp (only necessary when the user exited without closing the roleChooser)</span>
+        roleChooser<span class="operator">.</span>reset()                 <span class="comment">//resets roleChooser</span>
+    }
+
+    backgroundColor: <span class="string">&quot;transparent&quot;</span>
+
+    Rectangle {
+        color: Theme<span class="operator">.</span>tintColor
+        opacity: <span class="number">0.5</span>
+        anchors<span class="operator">.</span>fill: parent
+    }
+
+    Rectangle {
+        id: contentBackground   <span class="comment">//actual background of the dialogue</span>
+
+        color: <span class="string">&quot;white&quot;</span>
+        border<span class="operator">.</span>color: Theme<span class="operator">.</span>colors<span class="operator">.</span>tintColor
+
+        width: content<span class="operator">.</span>width <span class="operator">+</span> <span class="number">20</span>       <span class="comment">//add some padding on all sides</span>
+        height: content<span class="operator">.</span>height <span class="operator">+</span> <span class="number">20</span>
+        radius: <span class="number">4</span>                       <span class="comment">//round off the corners</span>
+
+        anchors<span class="operator">.</span>centerIn: parent
+    }
+
+    GridLayout {
+        id: content
+
+        columns: <span class="number">1</span>
+        rowSpacing: <span class="number">10</span>
+
+        anchors<span class="operator">.</span>centerIn: contentBackground
+
+        AppTextField {
+            id: nameField
+
+            borderWidth: <span class="number">1</span>
+            Layout<span class="operator">.</span>preferredWidth: <span class="number">300</span>
+
+            onTextChanged: {        <span class="comment">//displays error message if nameField is empty</span>
+                <span class="keyword">if</span> (text <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> <span class="string">&quot;&quot;</span>)
+                    errorField<span class="operator">.</span>show()
+                <span class="keyword">else</span>
+                    errorField<span class="operator">.</span>hide()
+            }
+
+            placeholderText: <span class="string">&quot;Name&quot;</span>
+        }
+
+        AppTextEdit {
+            id: notes
+
+            Layout<span class="operator">.</span>preferredWidth: <span class="number">250</span>
+            Layout<span class="operator">.</span>alignment: <span class="type">Qt</span><span class="operator">.</span>AlignHCenter   <span class="comment">//center the element</span>
+            wrapMode: TextEdit<span class="operator">.</span>Wrap             <span class="comment">//start a new line before the text flows out of the parent container</span>
+
+
+            placeholderText: <span class="string">&quot;Add Notes&quot;</span>
+
+            font<span class="operator">.</span>pixelSize: focus <span class="operator">?</span> <span class="number">20</span> : <span class="number">15</span>     <span class="comment">//scale text up when focussed</span>
+            Behavior on font<span class="operator">.</span>pixelSize {        <span class="comment">//do it smoothly</span>
+                NumberAnimation {
+                    duration: <span class="number">200</span>
+                }
+            }
+
+            anchors<span class="operator">.</span>top: nameField<span class="operator">.</span>bottom
+            anchors<span class="operator">.</span>topMargin: focus <span class="operator">?</span> <span class="number">15</span> : <span class="number">10</span>  <span class="comment">//increase the distance between the text and the nameField when focussed</span>
+            Behavior on anchors<span class="operator">.</span>topMargin {     <span class="comment">//do that smoothly as well</span>
+                NumberAnimation {
+                    duration: <span class="number">200</span>
+                }
+            }
+        }
+        AppButton {
+            id: roleButton  <span class="comment">//displays roleChooser</span>
+
+            borderColor: Theme<span class="operator">.</span>colors<span class="operator">.</span>tintColor
+            backgroundColor: <span class="string">&quot;white&quot;</span>
+
+            text: <span class="string">&quot;Choose Role&quot;</span>
+            fontBold: <span class="keyword">false</span> <span class="comment">//would be bold on Android</span>
+            textColor: Theme<span class="operator">.</span>colors<span class="operator">.</span>tintColor
+            textSize: <span class="number">20</span>
+
+            onClicked: roleChooser<span class="operator">.</span>show()
+
+            Layout<span class="operator">.</span>alignment: <span class="type">Qt</span><span class="operator">.</span>AlignHCenter   <span class="comment">//center the button</span>
+        }
+        Item {
+            id: errorWrapper
+
+            width: errorField<span class="operator">.</span>width  <span class="comment">//use the error text's width</span>
+            height: <span class="number">20</span>
+
+            visible: opacity <span class="operator">&gt;</span> <span class="number">0</span>    <span class="comment">//only visible if opacity is greater than 0</span>
+
+            opacity: errorField<span class="operator">.</span>opacity  <span class="comment">//use the error text's opacity</span>
+            Behavior on opacity {   <span class="comment">//smooth transition</span>
+                NumberAnimation {
+                    duration: <span class="number">200</span>
+                }
+            }
+
+            Layout<span class="operator">.</span>alignment: <span class="type">Qt</span><span class="operator">.</span>AlignHCenter <span class="comment">//center the error box</span>
+
+            AppText {
+                id: errorField   <span class="comment">//displays error message</span>
+
+                function show() {
+                    opacity <span class="operator">=</span> <span class="number">1</span>
+                }
+
+                function hide() {
+                    opacity <span class="operator">=</span> <span class="number">0</span>
+                }
+
+                opacity: <span class="number">0</span>              <span class="comment">//initially not visible</span>
+                Behavior on opacity {   <span class="comment">//smooth transition</span>
+                    NumberAnimation {
+                        duration: <span class="number">200</span>
+                    }
+                }
+
+                color: Theme<span class="operator">.</span>colors<span class="operator">.</span>tintColor
+
+                text: <span class="string">&quot;Please enter a name!&quot;</span>
+
+                anchors<span class="operator">.</span>centerIn: parent
+            }   <span class="comment">//error</span>
+        } <span class="comment">//errorWrapper</span>
+
+        AppButton {
+            id: submitButton
+
+            text: title
+            fontBold: <span class="keyword">false</span>
+            textColor: <span class="string">&quot;white&quot;</span>
+            textSize: <span class="number">25</span>
+
+            onClicked: {
+                <span class="keyword">if</span> (nameField<span class="operator">.</span>text <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> <span class="string">&quot;&quot;</span> <span class="operator">|</span><span class="operator">|</span> roleChooser<span class="operator">.</span>selectedRole <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> <span class="string">&quot;&quot;</span>)
+                    <span class="keyword">return</span>
+
+                var player <span class="operator">=</span> {
+                    name: nameField<span class="operator">.</span>text<span class="operator">,</span>
+                    role: roleChooser<span class="operator">.</span>selectedRole<span class="operator">,</span>
+                    notes: notes<span class="operator">.</span>text
+                }
+
+                var roleObject <span class="operator">=</span> DataModel<span class="operator">.</span>roles<span class="operator">.</span>getRoleObject(player<span class="operator">.</span>role) <span class="comment">//get the roles object representation</span>
+                player<span class="operator">.</span>sectionName <span class="operator">=</span> (roleObject<span class="operator">.</span>pluralName) <span class="operator">?</span>              <span class="comment">//if  there is a plural name for that role</span>
+                            roleObject<span class="operator">.</span>pluralName :                         <span class="comment">//use it as the sectionName</span>
+                            roleObject<span class="operator">.</span>name                                 <span class="comment">//if not use the role name</span>
+
+                submit(player)
+            }
+
+            horizontalMargin: <span class="number">0</span>
+            verticalMargin: <span class="number">0</span>
+            Layout<span class="operator">.</span>alignment: <span class="type">Qt</span><span class="operator">.</span>AlignHCenter
+
+            Rectangle {
+                z: <span class="operator">-</span><span class="number">1</span>
+                color: Theme<span class="operator">.</span>tintColor
+                anchors<span class="operator">.</span>fill: parent
+            }
+        }
+    }
+
+    RoleChooser {
+        id: roleChooser
+
+        function show() {
+            opacity <span class="operator">=</span> <span class="number">1</span>
+        }
+
+        function hide() {
+            opacity <span class="operator">=</span> <span class="number">0</span>
+        }
+
+        onRoleSelected: {
+            hide()
+            roleButton<span class="operator">.</span>text <span class="operator">=</span> selectedRole
+        }
+
+        visible: opacity <span class="operator">&gt;</span> <span class="number">0</span>    <span class="comment">//only visible when the opacity is greater than 0</span>
+        scale: opacity          <span class="comment">//makes it grow when it pops  up</span>
+
+        opacity: <span class="number">0</span>              <span class="comment">//initially not visible</span>
+        Behavior on opacity {   <span class="comment">//a smooth transition</span>
+            NumberAnimation {
+                easing<span class="operator">.</span>type: Easing<span class="operator">.</span>OutQuart
+                duration: <span class="number">200</span>
+            }
+        }
+    }
+}</pre>
+<a name="rolechooser-qml"></a>
+<h3 >RoleChooser.qml</h3>
+<pre class="cpp">import VPlayApps <span class="number">1.0</span>
+import <span class="type">QtQuick</span> <span class="number">2.0</span>
+import <span class="type">QtQuick</span><span class="operator">.</span>Layouts <span class="number">1.1</span>
+
+import <span class="string">&quot;../model&quot;</span>
+
+Page {
+
+    backgroundColor: <span class="string">&quot;transparent&quot;</span>
+
+    signal roleSelected()
+
+    property string selectedRole: <span class="string">&quot;&quot;</span>
+
+    function reset() {
+        selectedRole <span class="operator">=</span> <span class="string">&quot;&quot;</span>               <span class="comment">//reset selected role</span>
+        title<span class="operator">.</span>text <span class="operator">=</span> <span class="string">&quot;Choose a Role&quot;</span>    <span class="comment">//resets title text</span>
+    }
+
+    GridLayout {
+        id: roleList
+
+        width: <span class="number">400</span>
+        height: <span class="number">400</span>
+
+        rowSpacing: <span class="number">0</span>   <span class="comment">//no spaces between role cards</span>
+        columnSpacing: <span class="number">0</span>
+
+        columns: <span class="number">2</span>  <span class="comment">//2 cards in one row</span>
+
+        anchors<span class="operator">.</span>centerIn: parent
+
+        Repeater {
+            model: ListModel {
+                ListElement { name: <span class="string">&quot;Werewolf&quot;</span>}
+                ListElement { name: <span class="string">&quot;Villager&quot;</span>}
+                ListElement { name: <span class="string">&quot;Seer&quot;</span>}
+                ListElement { name: <span class="string">&quot;Witch&quot;</span>}
+            }
+
+            delegate: AppButton {
+                id: gridItem
+
+                Connections {
+                    target: DataModel
+                    onAvailabilityUpdated: gridItem<span class="operator">.</span>enabled <span class="operator">=</span> availabilityInformation<span class="operator">[</span>name<span class="operator">]</span> <span class="comment">//disable role if it's not available anymore</span>
+                }
+
+                minimumWidth: <span class="number">200</span>
+                minimumHeight: <span class="number">200</span>
+
+                verticalMargin: <span class="number">0</span>       <span class="comment">//no spaces between role cards</span>
+                horizontalMargin: <span class="number">0</span>
+
+                text: name          <span class="comment">//display the role's name</span>
+                textSize: <span class="number">20</span>
+                fontBold: <span class="keyword">false</span>     <span class="comment">//would be bold on Android</span>
+                textColor: isSelected() <span class="operator">?</span> Theme<span class="operator">.</span>tintColor : <span class="string">&quot;black&quot;</span>
+
+                borderColor: Theme<span class="operator">.</span>colors<span class="operator">.</span>tintColor
+                backgroundColor: <span class="string">&quot;white&quot;</span>
+
+                onClicked: {
+                    <span class="keyword">if</span> (isSelected())
+                                            <span class="comment">//if the role is selected already</span>
+                        roleSelected()      <span class="comment">//submit it</span>
+                    <span class="keyword">else</span>
+                                            <span class="comment">//if not</span>
+                        selectedRole <span class="operator">=</span> name <span class="comment">//select it</span>
+                }
+
+                function isSelected() {
+                    <span class="keyword">return</span> selectedRole <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> name
+                }
+
+                Rectangle {
+                    z: <span class="operator">-</span><span class="number">1</span>           <span class="comment">//white background for ios</span>
+                    color: <span class="string">&quot;white&quot;</span>
+                    anchors<span class="operator">.</span>fill: parent
+                }
+            }
+        }
+    }
+
+    Rectangle {
+        id: titleWrapper
+
+        color: Theme<span class="operator">.</span>colors<span class="operator">.</span>tintColor
+
+        width: roleList<span class="operator">.</span>width   <span class="comment">//adjusts width to the list's width</span>
+        height: <span class="number">100</span>
+
+        anchors<span class="operator">.</span>bottom: roleList<span class="operator">.</span>top                        <span class="comment">//sits on top of the list's box</span>
+        anchors<span class="operator">.</span>horizontalCenter: roleList<span class="operator">.</span>horizontalCenter <span class="comment">//horizontally aligned with the list</span>
+
+        Text {
+            id: title
+
+            text: (selectedRole <span class="operator">=</span><span class="operator">=</span> <span class="string">&quot;&quot;</span>) <span class="operator">?</span> <span class="string">&quot;Choose a Role&quot;</span> : selectedRole
+            font<span class="operator">.</span>pixelSize: <span class="number">40</span>
+
+            color: <span class="string">&quot;white&quot;</span>
+
+            anchors<span class="operator">.</span>centerIn: parent
+        }
+    }
+
+    Rectangle {
+        id: hintWrapper
+
+        color: Theme<span class="operator">.</span>colors<span class="operator">.</span>tintColor
+
+        width: roleList<span class="operator">.</span>width   <span class="comment">//adjusts width to the list's width</span>
+
+        height: (selectedRole <span class="operator">=</span><span class="operator">=</span><span class="operator">=</span> <span class="string">&quot;&quot;</span>) <span class="operator">?</span> <span class="number">0</span> : <span class="number">50</span> <span class="comment">//expand box if a role is selected</span>
+        Behavior on height {
+            NumberAnimation {
+                duration: <span class="number">200</span>
+            }
+        }
+
+        opacity: (height <span class="operator">&gt;</span> <span class="number">0</span>) <span class="operator">?</span> <span class="number">1</span> : <span class="number">0</span> <span class="comment">//visible as soon as the height is greater than zero</span>
+
+        anchors<span class="operator">.</span>top: roleList<span class="operator">.</span>bottom        <span class="comment">//attaches it to the bottom of the list</span>
+        anchors<span class="operator">.</span>horizontalCenter: roleList<span class="operator">.</span>horizontalCenter <span class="comment">//centers it</span>
+
+        Text {
+            id: hint
+
+            text: <span class="string">&quot;tab again to confirm selection&quot;</span>
+            font<span class="operator">.</span>pixelSize: <span class="number">20</span>
+
+            color: <span class="string">&quot;white&quot;</span>
+
+            anchors<span class="operator">.</span>centerIn: parent
+        }
+    }
+}</pre>
 </div>
 <!-- @@@tutorial.html -->
 </body>
