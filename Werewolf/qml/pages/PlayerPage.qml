@@ -246,9 +246,9 @@ Page {
                 }
 
                 var roleObject = DataModel.roles.getRoleObject(player.role) //get the roles object representation
-                player.sectionName = (roleObject.pluralName) ?              //if  there is a plural name for that role,
+                player.sectionName = (roleObject.pluralName) ?              //if  there is a plural name for that role
                             roleObject.pluralName :                         //use it as the sectionName
-                            roleObject.name                                 //otherwise use the role name
+                            roleObject.name                                 //if not use the role name
 
                 if (DataModel.isValidPlayerModel(player))   //additionally check whether the DataModel would accept our player
                     submit(player)                   //hand the newly created player object to the parents signalHandler

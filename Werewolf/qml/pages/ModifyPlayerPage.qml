@@ -58,12 +58,12 @@ PlayerPage {
         name = player.name
         notes = player.notes
         role = player.role
-        roleText = player.role  //a workaround because the property bindings were acting weird
+        roleText = player.role
     }
 
     onSubmit: {
-        player.playerId = modifyPlayerPage.player.playerId
-        DataModel.modifyPlayer(player) //add player to the data model
+        player.playerId = modifyPlayerPage.player.playerId  //assign oldPlayer's id to new player object
+        DataModel.modifyPlayer(player)
         close()
     }
 
