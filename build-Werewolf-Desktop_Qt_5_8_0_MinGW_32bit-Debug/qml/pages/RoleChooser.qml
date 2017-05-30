@@ -9,14 +9,16 @@ Page {
 
     backgroundColor: "transparent" //makes the background transparent
 
-    signal roleSelected(string role)
+    signal roleSelected()
+
+    property string selectedRole: ""
 
     function reset() {
-        roleList.selected = "" //reset selected role
+        selectedRole = "" //reset selected role
         title.text = "Choose a Role" //resets title text
     }
 
-    Item {
+    Rectangle {
         id: content
 
         anchors.centerIn: parent
@@ -26,16 +28,16 @@ Page {
 
             color: Theme.colors.tintColor
 
-            width: roleList.width //adjusts width to the lists width
+            width: roleList.width //adjusts width to the list's width
             height: 100
 
-            anchors.bottom: roleList.top //sits on top of the list's box
+            anchors.bottom: roleList.top                        //sits on top of the list's box
             anchors.horizontalCenter: roleList.horizontalCenter //horizontally aligned with the list
 
             Text {
                 id: title
 
-                text: "Choose a Role"
+                text: (selectedRole == "") ? "Choose a Role" : selectedRole
                 font.pixelSize: 40
 
                 color: "white"
@@ -53,10 +55,8 @@ Page {
                 than just 4 roles to choose from
             */
 
-            property string selected: "" //selected role
-
             width: 400
-            height: 400
+            height: 400 //200 * Math.ceil(DataModel.roles.count)
 
             rowSpacing: 0 //no spaces between role cards
             columnSpacing: 0
@@ -65,17 +65,17 @@ Page {
 
             anchors.centerIn: parent
 
-            function select(role) {
-                //selects role and changes the title
-                roleList.selected = role
-                title.text = role
-            }
-
             Repeater {
-                model: RoleList {
-                }
+                model: DataModel.roles
 
                 delegate: AppButton {
+                    id: gridItem
+
+                    Connections {
+                        target: DataModel
+                        onAvailabilityUpdated: gridItem.enabled = availabilityInformation[name] //disable role if it's not available anymore
+                    }
+
                     minimumWidth: 200
                     minimumHeight: 200
 
@@ -84,8 +84,8 @@ Page {
 
                     text: name //display the role's name, might be replaced by images
                     textSize: 20
-                    textColor: isSelected(
-                                   ) ? Theme.colors.tintColor : "black" //changes the text's color if role is selected
+                    fontBold: false //would be bold on Android
+                    textColor: isSelected() ? Theme.colors.tintColor : "black" //changes the text's color if role is selected
 
                     borderColor: Theme.colors.tintColor
                     backgroundColor: "white"
@@ -93,14 +93,14 @@ Page {
                     onClicked: {
                         if (isSelected())
                             //if the role is selected already
-                            roleSelected(name) //submit it
+                            roleSelected() //submit it
                         else
                             //if not
-                            roleList.select(name) //select it
+                            selectedRole = name //select it
                     }
 
                     function isSelected() {
-                        return roleList.selected === name
+                        return selectedRole === name
                     }
 
                     Rectangle {
@@ -118,7 +118,7 @@ Page {
 
             width: roleList.width //adjusts width to the list's width
 
-            height: (roleList.selected === "") ? 0 : 50 //expand box if a role is selected
+            height: (selectedRole === "") ? 0 : 50 //expand box if a role is selected
             Behavior on height {
                 //smooth transitions <3
                 NumberAnimation {

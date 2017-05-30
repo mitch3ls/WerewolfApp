@@ -1,0 +1,11 @@
+project = WerewolfApp
+description = A challenge by V-Play
+
+sourcedirs  = .
+exampledirs = .
+imagedirs   = ../assets
+
+sources.fileextensions = "*.cpp *.qdoc *.mm *.qml"
+
+outputdir = ../doc/html
+outputformats = HTML

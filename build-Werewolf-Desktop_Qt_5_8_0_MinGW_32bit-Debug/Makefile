@@ -180,7 +180,6 @@ Makefile: ../Werewolf/Werewolf.pro C:/V-PlaySDK/5.8/mingw53_32/mkspecs/win32-g++
 		C:/V-PlaySDK/5.8/mingw53_32/mkspecs/features/qt_config.prf \
 		C:/V-PlaySDK/5.8/mingw53_32/mkspecs/win32-g++/qmake.conf \
 		C:/V-PlaySDK/5.8/mingw53_32/mkspecs/features/spec_post.prf \
-		.qmake.stash \
 		C:/V-PlaySDK/5.8/mingw53_32/mkspecs/features/exclusive_builds.prf \
 		C:/V-PlaySDK/5.8/mingw53_32/mkspecs/features/toolchain.prf \
 		C:/V-PlaySDK/5.8/mingw53_32/mkspecs/features/default_pre.prf \
@@ -339,7 +338,6 @@ C:/V-PlaySDK/5.8/mingw53_32/mkspecs/features/qt_functions.prf:
 C:/V-PlaySDK/5.8/mingw53_32/mkspecs/features/qt_config.prf:
 C:/V-PlaySDK/5.8/mingw53_32/mkspecs/win32-g++/qmake.conf:
 C:/V-PlaySDK/5.8/mingw53_32/mkspecs/features/spec_post.prf:
-.qmake.stash:
 C:/V-PlaySDK/5.8/mingw53_32/mkspecs/features/exclusive_builds.prf:
 C:/V-PlaySDK/5.8/mingw53_32/mkspecs/features/toolchain.prf:
 C:/V-PlaySDK/5.8/mingw53_32/mkspecs/features/default_pre.prf:
