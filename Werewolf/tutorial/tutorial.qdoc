@@ -1,0 +1,3944 @@
+/*!
+    \page tutorial.html tutorial
+    \title Tutorial
+
+    \part Introduction
+
+        \chapter  Foreword
+
+            In this tutorial I will guide you through the process of writing the
+            Werewolf app yourself, step by step. I will assume that you already
+            have V-Play installed and know how to work with Qt Creator, at least
+            a little bit.
+
+        \endchapter
+
+        \chapter What is Werewolf?
+
+            Note: You can skip this chapter if you know the game already.
+
+            \section1 Preperation
+
+                Werewolf is a game that is played in a group of at least 5 players
+                (my recommendation) plus the moderator. Every player randomly chooses
+                a card, which then tells him his role. It's important that nobody,
+                but the moderator, knows about the other players' roles.
+
+            \endsection1
+
+            \section1 Gameplay
+
+                In the most basic form of the game there are two "parties".
+
+                \list
+
+                    \li The werewolves
+                        Their goal is to get an equal number of werewolves and
+                        villagers. They don't have to kill every villager, because
+                        as soon as their number is equal there's no chance for the
+                        villagers to win anymore. Every werewolf knows every other
+                        werewolf in the game.
+
+                    \li The villagers
+                        Their goal is to get rid of all the werewolves. The name
+                        might be a bit misleading because everyone, who is not
+                        a werewolf, hence is working against the werewolves, can be
+                        counted as a villager.
+
+                \endlist
+
+                Every night the werewolves awake and choose a victim (a player that's
+                supposed to get killed). When they've agreed on a player they fall
+                asleep again and the witch wakes up. The moderator shows her the
+                victim and asks her what she wants to do. There are two potions she
+                can use, both of them can only be used once in a game, though. One
+                of those potions has the ability to heal the werewolves' victim, the
+                other one kills another player. She can use both potions in one night.
+                After that the seer awakes and points to a player, who's role he
+                wants to know. The moderator shows him a thumbs up if that
+                player is a werewolf of a thumbs down if not. The entire village
+                awakes.
+
+                At the  beginning of each day the moderator announces the player(s)
+                who died in that night. After that a wild discussion starts on who
+                should be killed on that day. Everyone can nominate everyone else,
+                at the end of the day, though, there have to be two players to choose
+                from. Now everyone in the round has to either put their thumbs up or
+                down, depending on who they want to die. Before that the moderator
+                has to make clear who thumbs up and down stands for of course.
+                Finally the player with the most votes is lynched and has to leave
+                the round.
+
+            \endsection1
+        \endchapter
+   \endpart
+
+    \part The Basic Layout
+
+        \chapter Setup
+
+            Start off with an \c{Empty Application} and find the \c Main.qml file in the
+            \c qml folder. Now add a new page and call it \c WerewolfMainPage. It doesn't
+            actually matter too much what you call it but I'll refer to it by that name
+            for the rest of this tutorial. Now delete the \c NavigationStack in
+            \c Main.qml and replace it by your newly created \c WerewolfMainPage. Add
+            a \c Text component with the Text "Hello Werewolf" to your
+            \c WerewolfMainPage and center it to verify that everything is working
+            properly.
+
+            You can also change the tint color in that step, I chose a yellowish color.
+
+            This is what your project should look like now:
+
+            \c Main.qml
+
+            \code
+                import VPlayApps 1.0
+                import QtQuick 2.0
+
+                App {
+                    // You get free licenseKeys from https://v-play.net/licenseKey
+                    // With a licenseKey you can:
+                    //  * Publish your games & apps for the app stores
+                    //  * Remove the V-Play Splash Screen or set a custom one (available with the Pro Licenses)
+                    //  * Add plugins to monetize, analyze & improve your apps (available with the Pro Licenses)
+                    //licenseKey: "<generate one from https://v-play.net/licenseKey>"
+
+                    onInitTheme: {
+                        Theme.colors.tintColor = "#FFB90D" //~yellow
+                    }
+
+                    WerewolfMainPage { }
+                }
+            \endcode
+
+            \c WerewolfMainPage.qml
+
+            \code
+                import VPlayApps 1.0
+                import QtQuick 2.0
+
+                Page {
+
+                    title: "New Page"
+
+                    Text {
+                        text: "Hello Werewolf"
+
+                        anchors.centerIn: parent
+                    }
+
+                }
+            \endcode
+
+            Your app should look like this:
+
+            \image HelloWerewolf.png
+
+        \endchapter
+
+        \chapter The List
+
+            You can now delete the title and that \c Text component and add an
+            \c AppListView. As the delegate we will use a \c SimpleRow.
+
+            \code delegate: SimpleRow { } \endcode
+
+            When you now start the App you'll see a blank page. That's because the
+            \c AppListView has nothing to display. To avoid confusion amongst our users
+            we will add a message that gets displayed in case the list is empty. We
+            do that by assigning a message to the \c emptyText.text property of the
+            \c AppListView.
+
+            \code emptyText.text: "No Players in Session" \endcode
+
+            Finally we add a dummy model with some dummy players that we'll later
+            replace with our data model.
+
+            \code
+                model: [
+                    { text: "Player1", detailText: "Werewolf" },
+                    { text: "Player2", detailText: "Villager" }
+                ]
+            \endcode
+
+            Our AppListView should now look like this:
+
+            \code
+                AppListView {
+
+                    emptyText.text: "No Players in Session"
+
+                    delegate: SimpleRow { }
+
+                    model: [
+                        { text: "Player1", detailText: "Werewolf" },
+                        { text: "Player2", detailText: "Villager" }
+                    ]
+                }
+            \endcode
+
+            For now we'll leave the list like that, we will change a few things later
+            on, though.
+
+        \endchapter
+
+        \chapter The Add-Button
+
+            Our list looks really nice already, there just isn't a lot of functionality
+            yet. We should at least make it look like it could do something by adding a
+            button for adding users.
+
+            Since I'm an Android user and I love Google's \c FloatingActionButtons we
+            will go for exactly that. A round button floating in the bottom right corner
+            of the screen with a big fat plus icon on it. Luckily for us V-Play has a
+            component for that already, yay! Now let's add this \c FloatingActionButton
+            component to our \c WerewolfMainPage.
+
+            \code
+                FloatingActionButton {
+                    icon: IconType.plus
+
+                    visible: true
+                }
+            \endcode
+
+            Note: \c{visible: true} is important because by default it is only visible
+            on Android.
+
+            Now we have a really nice looking action button, but it doesn't do a lot. In
+            our app it's supposed to open the page that let's us create players, but we
+            don't have that page yet. I think it's the right time to do that now.
+
+        \endchapter
+
+        \chapter Player Creation
+
+            First of all, let's add a folder called "pages" in the qml directory that
+            will contain our, you guessed it, pages. The first page we'll add is again
+            an empty page, this time called "AddPlayerPage". Again, add the
+            "Hello Werewolf" text so we can see whether it worked or not.
+
+            Now go to your \c WerewolfMainPage and add the \c AddPlayerPage. Before you
+            do that you must import the pages folder first by adding \c{import "pages"}
+            at the top of the file.
+
+            You file should now look like this:
+
+            \code
+                import VPlayApps 1.0
+                import QtQuick 2.0
+
+                import "pages"
+
+                Page {
+
+                    //other components...
+
+                    AddPlayerPage {
+
+                    }
+
+                }
+            \endcode
+
+            When you now start the app you'll see that it looks exactly like
+            \c WerewolfMainPage at the beginning. That is because the \c AddPlayerPage
+            now covers our list. To make the background of the page transparent add
+            \c{backgroundColor: "transparent"} to the root page of \c AddPlayerPage.
+
+            Your app should now look like this:
+
+            \image PlayerCreationHelloWerewolf.png
+
+            \section1 The Background
+
+                Let's get to the design work now. I want the background to have the tint
+                color and be slightly transparent. To achieve this we'll add a
+                \c Rectangle with that color and fill the page with that. (You can now
+                delete that \c Text component again btw)
+
+                \code
+                    Rectangle {
+                        color: Theme.tintColor
+                        opacity: 0.5
+                        anchors.fill: parent
+                    }
+                \endcode
+
+                When you restart the app now you can see that the \c FloatingActionButton
+                is behind the background of the \c AddPlayerPage. We want it to stay on
+                top of it though. The solution is to move the button to the very bottom
+                of our \c WerewolfMainPage.
+
+                Your WerewolfMainPage should now be structured like this:
+
+                \code
+                    Page {
+                        AppListView {
+                            ...
+                        }
+
+                        AddPlayerPage { }
+
+                        FloatingActionButton {
+                            ...
+                        }
+                    }
+                \endcode
+            \endsection1
+
+            \section1 The Content
+
+                Let's add the content of the page now. We'll have a simple Box with a
+                \c Rectangle as the background and a \c GridLayout as the container for
+                our input fields. Let's now add those components and give them ids.
+
+                \code
+                    import VPlayApps 1.0
+                    import QtQuick 2.0
+                    import QtQuick.Layouts 1.1
+
+
+                    Page {
+
+                        backgroundColor: "transparent"
+
+                        Rectangle {
+                            color: Theme.tintColor
+                            opacity: 0.5
+                            anchors.fill: parent
+                        }
+
+                        Rectangle {
+                            id: contentBackground
+                        }
+
+                        GridLayout {
+                            id: content
+                        }
+                    }
+                \endcode
+
+                \section2 The Content's Background
+
+                    The content's background should be a box with rounded corners and a
+                    white background color. We also the border color to be our tint
+                    color and have the whole box centered in our page. The width and
+                    height should match the content's width and height plus some
+                    additional padding.
+
+                    \code
+                        Rectangle {
+                            id: contentBackground
+
+                            color: "white"
+                            border.color: Theme.colors.tintColor
+
+                            width: content.width + 20
+                            height: content.height + 20
+                            radius: 4
+
+                            anchors.centerIn: parent
+                        }
+                    \endcode
+                \endsection2
+
+                \section2 The Content Itself
+
+                    We don't need change a whole lot about our GridLayout, but there
+                    are a few things that need to be specified. For that we only need
+                    three extra lines of code:
+
+                    \code
+                        columns: 1
+                        rowSpacing: 10
+                        anchors.centerIn: contentBackground
+                    \endcode
+
+                    For our content we need the following elements:
+
+                    \list
+                        \li An \c AppTextField for the name
+                        \li An \c AppTextEdit for the notes
+                        \li An \c AppButton for opening the RoleChooser (we'll get to
+                            that later)
+                        \li An \c AppText wrapped into an \c Item for the error
+                            message
+                        \li An \c AppButton for submitting players.
+                    \endlist
+
+                    \section3 The NameField
+
+                        The text field should look like this:
+
+                        \code
+                            AppTextField {
+                                id: nameField
+
+                                borderWidth: 1
+                                Layout.preferredWidth: 300
+
+                                onTextChanged: {        //displays error message if nameField is empty
+                                    if (text === "")
+                                        errorField.show()
+                                    else
+                                        errorField.hide()
+                                }
+
+                                placeholderText: "Name"
+                            }
+                        \endcode
+
+                        If you try to run this now it will give you an error when
+                        you enter text. That's because there is no component with the
+                        id "errorField". We'll add the error field in the course of
+                        this chapter.
+
+                        The reason why we don't use property bindings with the error
+                        field is that it would also show an error message when the
+                        use hasn't done anything wrong yet and simply hasn't entered
+                        a name. We don't want error labels to be visible when nothing
+                        actually is wrong so we manually show and hide it only when
+                        the text was changed.
+
+                        The \c placeholderText specifies what should be displayed
+                        when the text field is empty. In our case that's "Name".
+
+                    \endsection3
+
+                    \section3 The Notes
+
+                        Initially we want a simple \c AppTextEdit with no logic at
+                        all for our notes.
+
+                        \code
+                            AppTextEdit {
+                                id: notes
+
+                                Layout.preferredWidth: 250
+                                Layout.alignment: Qt.AlignHCenter
+
+                                placeholderText: "Add Notes"
+
+                                font.pixelSize: 20
+
+                                anchors.top: nameField.bottom
+                                anchors.topMargin: 15
+                            }
+                        \endcode
+
+                        That looks ok, but I have a two things to criticize:
+
+                        \list
+                            \li It's way too big
+                            \li There is no word wrapping, we can keep writing
+                                forever and it would just flow out of the borders
+                        \endlist
+
+                        Let's take care of the first problem first. We want our
+                        text to become smaller and closer to the name field when
+                        we aren't editing it right now. Here we can use property
+                        binding and the handy focus property of \c AppTextEdit.
+
+                        \code
+                            font.pixelSize: focus ? 20 : 15     //scale text up when focussed
+                            Behavior on font.pixelSize {        //do it smoothly
+                                NumberAnimation {
+                                    duration: 200
+                                }
+                            }
+
+                            anchors.top: nameField.bottom
+                            anchors.topMargin: focus ? 15 : 10  //increase the distance between the text and the nameField when focussed
+                            Behavior on anchors.topMargin {     //do that smoothly as well
+                                NumberAnimation {
+                                    duration: 200
+                                }
+                            }
+                        \endcode
+
+                        Way better! Now we just have to fix the other problem and
+                        we're done with this component. That fairly easy, we just
+                        need to add \c{wrapMode: TextEdit.Wrap} and we're done.
+
+                        Our completed note \c AppTextEdit should now look like this:
+
+                        \code
+                            AppTextEdit {
+                                id: notes
+
+                                Layout.preferredWidth: 250
+                                Layout.alignment: Qt.AlignHCenter
+                                wrapMode: TextEdit.Wrap
+
+                                placeholderText: "Add Notes"
+
+                                font.pixelSize: focus ? 20 : 15
+                                Behavior on font.pixelSize {
+                                    NumberAnimation {
+                                        duration: 200
+                                    }
+                                }
+
+                                anchors.top: nameField.bottom
+                                anchors.topMargin: focus ? 15 : 10
+                                Behavior on anchors.topMargin {
+                                    NumberAnimation {
+                                        duration: 200
+                                    }
+                                }
+                            }
+                        \endcode
+                    \endsection3
+
+                    \section3 The Role Button
+
+                        This button's job is to display the \c RoleChooser. Since
+                        we don't have that yet, we'll have to make it a dummy for
+                        now.
+
+                        \code
+                            AppButton {
+                                id: roleButton  //displays roleChooser
+
+                                borderColor: Theme.colors.tintColor
+                                backgroundColor: "white"
+
+                                text: "Choose Role"
+                                fontBold: false //would be bold on Android
+                                textColor: Theme.colors.tintColor
+                                textSize: 20
+
+                                onClicked: roleChooser.show()   //this won't work for now
+
+                                Layout.alignment: Qt.AlignHCenter   //center the button
+                            }
+                        \endcode
+                    \endsection3
+
+                    \section3 The Error Message
+
+                        The error message is just an \c AppText wrapped into an
+                        \c Item so it's easier to align it.
+
+                        \code
+                            Item {
+                                id: errorWrapper
+
+                                width: errorField.width  //use the error text's width
+                                height: 20
+
+                                Layout.alignment: Qt.AlignHCenter //center the error box
+                                AppText {
+                                    id: errorField   //displays error message
+
+                                    color: Theme.colors.tintColor
+
+                                    text: "Please enter a name!"
+
+                                    anchors.centerIn: parent
+                                }
+                            }
+                        \endcode
+
+                        That's a really nice looking error field. But it doesn't
+                        always need to be visible, in fact it shouldn't be.
+
+                        Remember the name field when we wrote errorField.show()?
+                        It's now finally time to implement that function and we'll do
+                        it like this:
+
+                        \code
+                            Item {
+                                visible: opacity > 0    //only visible if opacity is greater than 0
+
+                                opacity: errorField.opacity  //use the error text's opacity
+                                Behavior on opacity {   //smooth transition
+                                    NumberAnimation {
+                                        duration: 200
+                                    }
+                                }
+
+                                AppText {
+                                    id: errorField
+
+                                    function show() {
+                                        opacity = 1
+                                    }
+
+                                    function hide() {
+                                        opacity = 0
+                                    }
+
+                                    opacity: 0              //initially not visible
+                                    Behavior on opacity {   //smooth transition
+                                        NumberAnimation {
+                                            duration: 200
+                                        }
+                                    }
+                                }
+                            }
+                        \endcode
+
+                        Note: I only kept the properties that have been added.
+
+                        All we do is just changing the opacity and in doing that we
+                        change the wrapper's visibility, that is bound to it's
+                        opacity, that is bound to the \c{errorField}'s opacity.
+                        Property binding!
+
+                        We should now have a nice looking error message with smooth
+                        transitions and can go on to the next component.
+
+                        The code for the error message should look like this:
+
+                        \code
+                            Item {
+                                id: errorWrapper
+
+                                width: errorField.width  //use the error text's width
+                                height: 20
+
+                                visible: opacity > 0    //only visible if opacity is greater than 0
+
+                                opacity: errorField.opacity  //use the error text's opacity
+                                Behavior on opacity {   //smooth transition
+                                    NumberAnimation {
+                                        duration: 200
+                                    }
+                                }
+
+                                Layout.alignment: Qt.AlignHCenter //center the error box
+
+                                AppText {
+                                    id: errorField   //displays error message
+
+                                    function show() {
+                                        opacity = 1
+                                    }
+
+                                    function hide() {
+                                        opacity = 0
+                                    }
+
+                                    opacity: 0              //initially not visible
+                                    Behavior on opacity {   //smooth transition
+                                        NumberAnimation {
+                                            duration: 200
+                                        }
+                                    }
+
+                                    color: Theme.colors.tintColor
+
+                                    text: "Please enter a name!"
+
+                                    anchors.centerIn: parent
+                                }   //error
+                            } //errorWrapper
+                        \endcode
+                   \endsection3
+
+                   \section3 The Submit Button
+
+                        This is the button that will actually create the player.
+                        I called it "submit button" and not "add button", because
+                        we will reuse this layout for the \c ModifyPlayerPage later
+                        on.
+
+                        The button itself is a pretty simple \c AppButton.
+
+                        \code
+                            AppButton {
+                                id: submitButton
+
+                                text: "Create"
+                                fontBold: false     //would be bold on Android
+                                textColor: "white"
+                                textSize: 25
+
+                                horizontalMargin: 0
+                                verticalMargin: 0
+                                Layout.alignment: Qt.AlignHCenter   //center button
+                            }
+                        \endcode
+
+                        On iOS buttons don't have a background. We want our button
+                        to have a background, though. Let's add a \c Rectangle to
+                        fix that.
+
+                        \code
+                            Rectangle {
+                                z: -1
+                                color: Theme.tintColor
+                                anchors.fill: parent
+                            }
+                        \endcode
+
+                        There's nothing special about that code. Let's take care of
+                        the functionality instead, it gets more exciting there.
+
+                        Before we do anything with the data, let's check whether it's
+                        there. To do that we simply write an if with a return
+                        statement.
+
+                        \code
+                            if (nameField.text === "" || roleChooser.selectedRole === "")
+                                return
+                        \endcode
+
+                        Note: this will output an error for now, because we haven't take care
+                              of the roleChooser yet.
+
+                        Then let's create a player object from the data in the input
+                        fields.
+
+                        \code
+                            var player = {
+                                name: nameField.text,
+                                role: roleChooser.selectedRole,
+                                notes: notes.text
+                            }
+                        \endcode
+
+                        Mhmm, we now have a player, but what do we do with it? We need to
+                        create a signal that we can use to pass the player to the signal
+                        handler.
+
+                        \codeline signal submit(var player)
+
+                        Now we can call this signal from our onClicked method.
+
+                        \codeline submit(player)
+
+                        The onClicked method should now look like this:
+
+                        \code
+                            onClicked: {
+                                if (nameField.text === "" || roleChooser.selectedRole === "")
+                                    return
+
+                                var player = {
+                                    name: nameField.text,
+                                    role: roleChooser.selectedRole,
+                                    notes: notes.text
+                                }
+
+                                submit(player)
+                            }
+                        \endcode
+
+                        The completed button should now look like this:
+
+                        \code
+                            AppButton {
+                                id: submitButton
+
+                                text: "Create"
+                                fontBold: false
+                                textColor: "white"
+                                textSize: 25
+
+                                onClicked: {
+                                    if (nameField.text === "" || roleChooser.selectedRole === "")
+                                        return
+
+                                    var player = {
+                                        name: nameField.text,
+                                        role: roleChooser.selectedRole,
+                                        notes: notes.text
+                                    }
+
+                                    submit(player)
+                                }
+
+                                horizontalMargin: 0
+                                verticalMargin: 0
+                                Layout.alignment: Qt.AlignHCenter
+
+                                Rectangle {
+                                    z: -1
+                                    color: Theme.tintColor
+                                    anchors.fill: parent
+                                }
+                            }
+                        \endcode
+                    \endsection3
+                \endsection2
+            \endsection1
+
+            We have finished our \c AddPlayerPage for now, we'll come back later,
+            though, and change a few things.
+
+            This is what the app should look like when you start it:
+
+            \image finishedAddPlayerPage.png
+
+            And here is the source code:
+
+            \code
+                import VPlayApps 1.0
+                import QtQuick 2.0
+                import QtQuick.Layouts 1.1
+
+
+                Page {
+
+                    signal submit(var player)
+
+                    backgroundColor: "transparent"
+
+                    Rectangle {
+                        color: Theme.tintColor
+                        opacity: 0.5
+                        anchors.fill: parent
+                    }
+
+                    Rectangle {
+                        id: contentBackground   //actual background of the dialogue
+
+                        color: "white"
+                        border.color: Theme.colors.tintColor
+
+                        width: content.width + 20       //add some padding on all sides
+                        height: content.height + 20
+                        radius: 4                       //round off the corners
+
+                        anchors.centerIn: parent
+                    }
+
+                    GridLayout {
+                        id: content
+
+                        columns: 1
+                        rowSpacing: 10
+
+                        anchors.centerIn: contentBackground
+
+                        AppTextField {
+                            id: nameField
+
+                            borderWidth: 1
+                            Layout.preferredWidth: 300
+
+                            onTextChanged: {        //displays error message if nameField is empty
+                                if (text === "")
+                                    errorField.show()
+                                else
+                                    errorField.hide()
+                            }
+
+                            placeholderText: "Name"
+                        }
+
+                        AppTextEdit {
+                            id: notes
+
+                            Layout.preferredWidth: 250
+                            Layout.alignment: Qt.AlignHCenter   //center the element
+                            wrapMode: TextEdit.Wrap             //start a new line before the text flows out of the parent container
+
+
+                            placeholderText: "Add Notes"
+
+                            font.pixelSize: focus ? 20 : 15     //scale text up when focussed
+                            Behavior on font.pixelSize {        //do it smoothly
+                                NumberAnimation {
+                                    duration: 200
+                                }
+                            }
+
+                            anchors.top: nameField.bottom
+                            anchors.topMargin: focus ? 15 : 10  //increase the distance between the text and the nameField when focussed
+                            Behavior on anchors.topMargin {     //do that smoothly as well
+                                NumberAnimation {
+                                    duration: 200
+                                }
+                            }
+                        }
+                        AppButton {
+                            id: roleButton  //displays roleChooser
+
+                            borderColor: Theme.colors.tintColor
+                            backgroundColor: "white"
+
+                            text: "Choose Role"
+                            fontBold: false //would be bold on Android
+                            textColor: Theme.colors.tintColor
+                            textSize: 20
+
+                            onClicked: roleChooser.show()
+
+                            Layout.alignment: Qt.AlignHCenter   //center the button
+                        }
+                        Item {
+                            id: errorWrapper
+
+                            width: errorField.width  //use the error text's width
+                            height: 20
+
+                            visible: opacity > 0    //only visible if opacity is greater than 0
+
+                            opacity: errorField.opacity  //use the error text's opacity
+                            Behavior on opacity {   //smooth transition
+                                NumberAnimation {
+                                    duration: 200
+                                }
+                            }
+
+                            Layout.alignment: Qt.AlignHCenter //center the error box
+
+                            AppText {
+                                id: errorField   //displays error message
+
+                                function show() {
+                                    opacity = 1
+                                }
+
+                                function hide() {
+                                    opacity = 0
+                                }
+
+                                opacity: 0              //initially not visible
+                                Behavior on opacity {   //smooth transition
+                                    NumberAnimation {
+                                        duration: 200
+                                    }
+                                }
+
+                                color: Theme.colors.tintColor
+
+                                text: "Please enter a name!"
+
+                                anchors.centerIn: parent
+                            }   //error
+                        } //errorWrapper
+
+                        AppButton {
+                            id: submitButton
+
+                            text: "Create"
+                            fontBold: false
+                            textColor: "white"
+                            textSize: 25
+
+                            onClicked: {
+                                if (nameField.text === "" || roleChooser.selectedRole === "")
+                                    return
+
+                                var player = {
+                                    name: nameField.text,
+                                    role: roleChooser.selectedRole,
+                                    notes: notes.text
+                                }
+
+                                submit(player)
+                            }
+
+                            horizontalMargin: 0
+                            verticalMargin: 0
+                            Layout.alignment: Qt.AlignHCenter
+
+                            Rectangle {
+                                z: -1
+                                color: Theme.tintColor
+                                anchors.fill: parent
+                            }
+                        }
+                    }
+                }
+            \endcode
+        \endchapter
+
+        \chapter Role Chooser
+
+            Our \c AddPlayerPage still isn't complete because the \c RoleChooser is
+            missing. This component deserves an own file because of its complexity.
+            So let's create that file!
+
+            Add \c RoleChooser.qml to your pages folder. As with the other two pages
+            we've added, add a centered \c Text component with the text "Hello
+            Werewolf". Don't forget to make the background transparent! Then add the
+            \c RoleChooser to the bottom of the \c AddPlayerPage (beneath the GridView).
+
+            If it says "Hello Werewolf" above "Choose Role" when you start the app
+            we're ready to start building the menu where the use can shoose a player's
+            role.
+
+            \section1 The Layout
+
+                Again we start with the layout. I want it to be a GridView for the
+                roles with a title above and a hint box beneath.
+
+                \section2 The GridLayout
+
+                    We start by adding a simple GridLayout that looks like this:
+
+                    \code
+                        GridLayout {
+                            id: roleList
+
+                            width: 400
+                            height: 400
+
+                            rowSpacing: 0   //no spaces between role cards
+                            columnSpacing: 0
+
+                            columns: 2  //2 cards in one row
+
+                            anchors.centerIn: parent
+                        }
+                    \endcode
+
+                    Now we have to find a way to add the roles to the GridView. Qt
+                    offers a really handy component for that, called the \c Repeater.
+                    you just give it a ListModel and it repeats the provided delegate
+                    for every item in that ListModel. As a model we again use a dummy
+                    ListModel.
+
+                    \code
+                        Repeater {
+                            model: ListModel {
+                                ListElement { name: "Werewolf"}
+                                ListElement { name: "Villager"}
+                                ListElement { name: "Seer"}
+                                ListElement { name: "Witch"}
+                            }
+
+                            delegate: AppButton {
+                                id: gridItem
+
+                                minimumWidth: 200
+                                minimumHeight: 200
+
+                                verticalMargin: 0       //no spaces between role cards
+                                horizontalMargin: 0
+
+                                text: name          //display the role's name
+                                textSize: 20
+                                fontBold: false     //would be bold on Android
+                                textColor: "black"
+
+                                borderColor: Theme.colors.tintColor
+                                backgroundColor: "white"
+
+                                Rectangle {
+                                    z: -1           //white background for ios
+                                    color: "white"
+                                    anchors.fill: parent
+                                }
+                            }
+                        }
+                    \endcode
+
+                    Add that code as a child of your GridView.
+
+              \endsection2
+
+              \section2 The Title
+
+                We need a way to let our users know what they're supposed to do.
+                The easiest way to do this is to simply add a title with an easy
+                instruction like "Choose Role".
+
+                For the basic shape of the title bar we'll simply use a \c Rectangle.
+
+                \code
+                    Rectangle {
+                        id: titleWrapper
+
+                        color: Theme.colors.tintColor
+
+                        width: roleList.width   //adjusts width to the list's width
+                        height: 100
+
+                        anchors.bottom: roleList.top                        //sits on top of the list's box
+                        anchors.horizontalCenter: roleList.horizontalCenter //horizontally aligned with the list
+                    }
+                \endcode
+
+                When you start the app you should now see the title bar already, it's
+                just the title that's missing. To fix that we simply add a \c Text
+                component to our Rectangle.
+
+                \code
+                    Text {
+                        id: title
+
+                        text: "Choose a Role"
+                        font.pixelSize: 40
+
+                        color: "white"
+
+                        anchors.centerIn: parent
+                    }
+                \endcode
+            \endsection2
+
+            When we now start our app it should look like this:
+
+            \image RoleChooserBasicLayout.png
+
+        \endsection1
+
+        \section1 The Functionality
+
+            Our app RoleChooser is really pretty now. That doesn't help us a lot,
+            though, if it doesn't let the use choose a role. Let's take care of that.
+
+            First we need to define a property \c selectedRole at the top.
+
+            \codeline property string selectedRole: ""
+
+            When now the user clicks on a button we want the button's role to become
+            the selected Role. The easiest way to do it is this.
+
+            \codeline onClicked: selectedRole = name
+
+            And we're done. Or are we? Because we still want the user to confirm his
+            selection right? We need some extra logic.
+
+            First of all let's change the title. Let's show the user which role he has
+            selected.
+
+            \codeline text: (selectedRole == "") ? "Choose a Role" : selectedRole
+
+            We could also change the color of that button's text.
+
+            \codeline textColor: (selectedRole === name) ? Theme.tintColor : "black"
+
+            If the user now presses the button again, we want the signal handler to
+            be notified, so we need a signel.
+
+            \codeline signal roleSelected()
+
+            I also added a \c is selected method to the \c AppButton for convenience.
+
+            \code
+                function isSelected() {
+                    return selectedRole === name
+                }
+            \endcode
+
+            Note: we can now also replace the condition in our text property.
+
+            Let's now add some logic to make that confirmation happen.
+
+            \code
+                onClicked: {
+                    if (isSelected())
+                                            //if the role is selected already
+                        roleSelected()  //submit it
+                    else
+                                            //if not
+                        selectedRole = name //select it
+                }
+            \endcode
+
+            Now our component technically works. It just isn't really user friendly
+            because they probably don't know that they need to tab a role twice.
+            We need something to tell them what they're supposed to do. Something
+            similar to the title component will do a good job for that purpose.
+
+            \code
+                Rectangle {
+                    id: hintWrapper
+
+                    color: Theme.colors.tintColor
+
+                    width: roleList.width   //adjusts width to the list's width
+
+                    height: (selectedRole === "") ? 0 : 50 //expand box if a role is selected
+                    Behavior on height {
+                        NumberAnimation {
+                            duration: 200
+                        }
+                    }
+
+                    opacity: (height > 0) ? 1 : 0 //visible as soon as the height is greater than zero
+
+                    anchors.top: roleList.bottom        //attaches it to the bottom of the list
+                    anchors.horizontalCenter: roleList.horizontalCenter //centers it
+
+                    Text {
+                        id: hint
+
+                        text: "tab again to confirm selection"
+                        font.pixelSize: 20
+
+                        color: "white"
+
+                        anchors.centerIn: parent
+                    }
+                }
+            \endcode
+
+
+            Nothing about that code should be new. Hurray, we just finished our RoleChooser!
+
+        \endsection1
+
+        Our app should now look like this:
+
+        \image finishedRoleChooser
+
+        And the source code looks like this:
+
+        \code
+            import VPlayApps 1.0
+            import QtQuick 2.0
+            import QtQuick.Layouts 1.1
+
+            Page {
+
+                backgroundColor: "transparent"
+
+                signal roleSelected()
+
+                property string selectedRole: ""
+
+                GridLayout {
+                    id: roleList
+
+                    width: 400
+                    height: 400
+
+                    rowSpacing: 0   //no spaces between role cards
+                    columnSpacing: 0
+
+                    columns: 2  //2 cards in one row
+
+                    anchors.centerIn: parent
+
+                    Repeater {
+                        model: ListModel {
+                            ListElement { name: "Werewolf"}
+                            ListElement { name: "Villager"}
+                            ListElement { name: "Seer"}
+                            ListElement { name: "Witch"}
+                        }
+
+                        delegate: AppButton {
+                            id: gridItem
+
+                            minimumWidth: 200
+                            minimumHeight: 200
+
+                            verticalMargin: 0       //no spaces between role cards
+                            horizontalMargin: 0
+
+                            text: name          //display the role's name
+                            textSize: 20
+                            fontBold: false     //would be bold on Android
+                            textColor: isSelected() ? Theme.tintColor : "black"
+
+                            borderColor: Theme.colors.tintColor
+                            backgroundColor: "white"
+
+                            onClicked: {
+                                if (isSelected())
+                                                        //if the role is selected already
+                                    roleSelected()  //submit it
+                                else
+                                                        //if not
+                                    selectedRole = name //select it
+                            }
+
+                            function isSelected() {
+                                return selectedRole === name
+                            }
+
+                            Rectangle {
+                                z: -1           //white background for ios
+                                color: "white"
+                                anchors.fill: parent
+                            }
+                        }
+                    }
+                }
+
+                Rectangle {
+                    id: titleWrapper
+
+                    color: Theme.colors.tintColor
+
+                    width: roleList.width   //adjusts width to the list's width
+                    height: 100
+
+                    anchors.bottom: roleList.top                        //sits on top of the list's box
+                    anchors.horizontalCenter: roleList.horizontalCenter //horizontally aligned with the list
+
+                    Text {
+                        id: title
+
+                        text: (selectedRole == "") ? "Choose a Role" : selectedRole
+                        font.pixelSize: 40
+
+                        color: "white"
+
+                        anchors.centerIn: parent
+                    }
+                }
+
+                Rectangle {
+                    id: hintWrapper
+
+                    color: Theme.colors.tintColor
+
+                    width: roleList.width   //adjusts width to the list's width
+
+                    height: (selectedRole === "") ? 0 : 50 //expand box if a role is selected
+                    Behavior on height {
+                        NumberAnimation {
+                            duration: 200
+                        }
+                    }
+
+                    opacity: (height > 0) ? 1 : 0 //visible as soon as the height is greater than zero
+
+                    anchors.top: roleList.bottom        //attaches it to the bottom of the list
+                    anchors.horizontalCenter: roleList.horizontalCenter //centers it
+
+                    Text {
+                        id: hint
+
+                        text: "tab again to confirm selection"
+                        font.pixelSize: 20
+
+                        color: "white"
+
+                        anchors.centerIn: parent
+                    }
+                }
+            }
+        \endcode
+     \endchapter
+
+     \chapter Integration
+
+        Having all those pages ready is nice, but they need to work together well. So
+        let's start bringing them together.
+
+        \section1 RoleChooser
+
+            Let's start by actually binding our RoleChooser to the "Chooser Role" button
+            in the \c AddPlayerPage.
+
+            Add the following code to your \c RoleChooser in \c AddPlayerPage:
+
+            \code
+                id: roleChooser
+
+                function show() {
+                    opacity = 1
+                }
+
+                function hide() {
+                    opacity = 0
+                }
+
+                onRoleSelected: {
+                    hide()
+                    roleButton.text = selectedRole
+                }
+
+                visible: opacity > 0    //only visible when the opacity is greater than 0
+                scale: opacity          //makes it grow when it pops up
+
+                opacity: 0              //initially not visible
+                Behavior on opacity {   //a smooth transition
+                    NumberAnimation {
+                        easing.type: Easing.OutQuart
+                        duration: 200
+                    }
+                }
+            \endcode
+
+            The code should be pretty straight forward. When the \c roleButton is
+            clicked it calls the \c show function of the \c roleChooser. When the
+            user now has selected a role the \c roleChooser hides itself again and
+            sets the \c{roleButton}'s text to the selected role.
+
+        \endsection1
+
+        \section1 AddPlayerPage
+
+            Now it's time to properly integrate our \c AddPlayerPage into our
+            \c WerewolfMainPage in a similar manner.
+
+            Before we do that add the property \c expanded (\c{bool}) to
+            \c AddPlayerPage.
+
+            \codeline property bool expanded
+
+            Now add the function open and close to the \c addPlayerPage in
+            \c WerewolfMainPage.
+
+            \code
+                function open() {
+                    expanded = true
+                }
+
+                function close() {
+                    expanded = false
+                    reset()
+                }
+            \endcode
+
+            As you might have noticed already, there is no method \c reset in our
+            \c AddPlayerPage. We'll add it now in \c AddPlayerPage.qml.
+
+            \code
+                function reset() {
+                    nameField.text = ""                 //resets nameField
+                    notes.text = ""                     //resets notes
+                    roleButton.text = "Choose Role"     //resets roleButton
+                    roleChooser.selectedRole = ""       //resets selectedRole
+                    errorField.hide()                   //hides error notifcation
+                    roleChooser.hide()                  //hides roleChooser PopUp (only necessary when the user exited without closing the roleChooser)
+                    roleChooser.reset()                 //resets roleChooser
+                }
+            \endcode
+
+            Again we have the problem, that there is no \c reset method in
+            \c RoleChooser either. Let's add that as well.
+
+            \code
+                function reset() {
+                    selectedRole = ""               //reset selected role
+                    title.text = "Choose a Role"    //resets title text
+                }
+            \endcode
+
+            Let's now get back to the \c addPlayerPage in \c WerewolfMainPage.
+
+            We want it to look cool when it appears on the screen and not just pop up.
+            We'll do it by adding animations and property bindings.
+
+            \code
+                opacity: expanded ? 1 : 0 //only opaque when expanded
+                Behavior on opacity {
+                    //smooth transition from transparent to opaque
+                    NumberAnimation {
+                        easing.type: Easing.InOutSine
+                        duration: 200
+                    }
+                }
+
+                y: expanded ? 0 : parent.height //lets player creation fly in and out
+                Behavior on y {
+                    //again, smooth transitions
+                    NumberAnimation {
+                        easing.type: Easing.OutExpo
+                        duration: 200
+                    }
+                }
+            \endcode
+
+            Now we just have to add a signalHandler for \c submit.
+
+            \code
+                onSubmit: {
+                    close()
+                }
+            \endcode
+
+            For now we just close the window, we'll take care of the DataModel later on.
+
+            When you now start the app you'll notice that our \c AddPlayerPage isn't
+            visible anymore. We still haven't implemented a way to open it.
+            Let's do that now.
+
+            Add that to the \c FloatingActionButton in \c WerewolfMainPage.
+
+            \code
+                onClicked: {
+                    if (addPlayerPage.expanded) {
+                        addPlayerPage.close() //closes player creation and resets it
+                    } else
+                        addPlayerPage.open() //opens player creation
+                }
+            \endcode
+
+            For that code to work we need to assign our \c AddPlayerPage an id.
+
+            \codeline id: addPlayerPage
+
+            As a nice little detail, let's turn our open button by 45° when it the
+            \c addPlayerPage is expanded and turn it into a closing button. Add this
+            to the \c FloatingActionButton
+
+            \code
+                iconItem.rotation: (addPlayerPage.expanded) ? 45 : 0
+                Behavior on iconItem.rotation {
+                    NumberAnimation {
+                        duration: 200
+                    }
+                }
+            \endcode
+        \endsection1
+
+        \section1 ModifyPlayerPage
+
+            We of course also want to be able to modify our players. For that we need
+            another page, the \c ModifyPlayerPage. Luckily we have the layout already
+            in our \c AddPlayerPage, we just need to remove the "add" from it and make
+            it a more general \c PlayerPage.
+
+            \section2 Preperation
+
+                First of all, rename your \c AddPlayerPage to \c PlayerPage.
+
+                Then add a property \c title.
+
+                \codeline property string title
+
+                Find the submit button and bind its \c text attribute to the title.
+
+                \codeline text: title
+
+                Now add the following properties so we can access them from the outside.
+
+                \code
+                    property alias name: nameField.text
+                    property alias notes: notes.text
+                    property alias role: roleChooser.selectedRole
+                    property alias roleText: roleButton.text
+                \endcode
+
+                Now add the file \c AddPlayerPage.qml to the pages folder. Cut and paste
+                the contents from \c addPlayerPage in  \c WerewolfMainPage into
+                \c AddPlayerPage.qml.
+
+                Now add the id for the \c AddPlayerPage back in in \c WerewolfMainPage
+                and add the title to \c AddPlayerPage.qml.
+
+                \c AddPlayerPage.qml should now look like this:
+
+                \code
+                    import VPlayApps 1.0
+                    import QtQuick 2.0
+
+                    PlayerPage {
+                        id: addPlayerPage
+
+                        function open() {
+                            expanded = true
+                        }
+
+                        function close() {
+                            expanded = false
+                            reset()
+                        }
+
+                        onSubmit: {
+                            close()
+                        }
+
+                        title: "Create"
+
+                        opacity: expanded ? 1 : 0 //only opaque when expanded
+                        Behavior on opacity {
+                            //smooth transition from transparent to opaque
+                            NumberAnimation {
+                                easing.type: Easing.InOutSine
+                                duration: 200
+                            }
+                        }
+
+                        y: expanded ? 0 : parent.height //lets player creation fly in and out
+                        Behavior on y {
+                            //again, smooth transitions
+                            NumberAnimation {
+                                easing.type: Easing.OutExpo
+                                duration: 200
+                            }
+                        }
+                    }
+                \endcode
+
+                And \c WerewolfMainPage like this:
+
+                \code
+                    import VPlayApps 1.0
+                    import QtQuick 2.0
+
+                    import "pages"
+
+                    Page {
+                        AppListView {
+
+                            emptyText.text: "No Players in Session"
+
+                            delegate: SimpleRow { }
+
+                            model: [
+                                { text: "Player1", detailText: "Werewolf" },
+                                { text: "Player2", detailText: "Villager" }
+                            ]
+                        }
+
+                        AddPlayerPage {
+                            id: addPlayerPage
+                        }
+
+                        FloatingActionButton {
+                            icon: IconType.plus
+
+                            visible: true
+
+                            iconItem.rotation: (addPlayerPage.expanded) ? 45 : 0
+                            Behavior on iconItem.rotation {
+                                NumberAnimation {
+                                    duration: 200
+                                }
+                            }
+
+                            onClicked: {
+                                if (addPlayerPage.expanded) {
+                                    addPlayerPage.close() //closes player creation and resets it
+                                } else
+                                    addPlayerPage.open() //opens player creation
+                            }
+                        }
+                    }
+                \endcode
+
+                Now add a new file to the pages folder called \c ModifyPlayerPage.qml and
+                copy the content of \c AddPlayerPage.qml into it as a base to start working
+                from.
+
+            \endsection2
+
+            \section2 Changes
+
+                First of all add a property player to the \c ModifyPlayerPage and set it
+                to \c null as its default value.
+
+                \codeline property var player: null
+
+                Then rename the \c open method to \c openWithPlayerId(playerId). Our
+                players don't have any ids yet, but that will change as soon as we start
+                working on our \c DataModel. For now just implement it like this.
+
+                \code
+                    function openWithPlayer(playerId) {
+                        //later we'll set the player property to the player with the given playerId here
+                        prepare()
+                        expanded = true
+                    }
+                \endcode
+
+                We call a function \c prepare there that doesn't exist yet. Let's add
+                it to our component.
+
+                \code
+                    function prepare() {
+                        name = player.name
+                        notes = player.notes
+                        role = player.role
+                        roleText = player.role
+                    }
+                \endcode
+
+                Here we fill our \c PlayerPage with the player's details before it gets
+                visible.
+
+                Finally set the title to "Modify Player"!
+
+                \codeline title: "Modify Player"
+
+                For now that's all the changes we need, we will get back to it later,
+                though.
+
+            \endsection2
+
+            \section2 Integration with \c WerewolfMainPage
+
+                When we press the \c FloatingActionButton our \c AddPlayerPage gets
+                expanded. We need a similar behaviour for our \c ModifyPlayerPage when
+                an item in the players' list is clicked.
+
+                First of all, let's add the \c ModifyPlayerPage to the
+                \c WerewolfMainPage.
+
+                \code
+                    ModifyPlayerPage {
+                        id: modifyPlayerPage
+                    }
+                \endcode
+
+                Let's add that functionality to our \c SimpleRow delegate in
+                \c WerewolfMainPage and let's change the style a bit too since we're
+                already there.
+
+                \code
+                    id: listItem
+
+                    text: name
+                    detailText: notes
+                    textItem.font.bold: true
+                    detailTextItem.color: Theme.tintColor
+
+                    onSelected: modifyPlayerPage.openWithPlayer() //later we'll call it with an argument
+                \endcode
+
+                Let's also change our model a bit.
+
+                \code
+                    model: ListModel {
+                        ListElement { name: "Player1"; role: "Werewolf"; notes: "" }
+                        ListElement { name: "Player2"; role: "Villager"; notes: "" }
+                    }
+                \endcode
+
+                Now we just need a way to close the \c ModifyPlayerPage again. I'd
+                suggest just using the \c FloatingActionButton again. In order to be
+                able to do that we need to change it a bit.
+
+                First of all, we need to change the onClick method so that it also
+                closes the \c ModifyPlayerPage.
+
+                \code
+                    onClicked: {
+                        if (addPlayerPage.expanded || modifyPlayerPage.expanded) {
+                            addPlayerPage.close()       //closes player creation and resets it
+                            modifyPlayerPage.close()    //closes player modification and resets it
+                        } else
+                            addPlayerPage.open() //opens player creation
+                    }
+                \endcode
+
+                Of course we also want the icon to spin again so we implement that as
+                well.
+
+                \codeline iconItem.rotation: (addPlayerPage.expanded || modifyPlayerPage.expanded) ? 45 : 0
+
+                Now our \c ModifyPlayerPage is nicely inegrated into the
+                \c WerewolfMainPage.
+
+            \endsection2
+        \endsection1
+    \endchapter
+
+    \chapter Data Management
+
+        Now that were pretty much done with the visual part of the app let's take care
+        of the data management.
+
+        \section1 DataModel
+
+            Create a folder "model" and add the empty singleton \c Item DataModel.qml
+            to it. If you forgot to tick that tiny check box "add as singleton", just
+            add a \c{pragma singleton} to the first line in \c DataModel.qml.
+
+            Make sure your \c DataModel.qml looks like this:
+
+            \code
+                pragma Singleton
+                import VPlayApps 1.0
+                import QtQuick 2.0
+
+                Item {
+                    id: dataModel
+                }
+            \endcode
+
+            Now we need to add a \c ListModel for our players to our ListModel.
+
+            \code
+                ListModel {
+                    id: players
+                }
+            \endcode
+
+            Let's now add an alias property to our DataModel so that we can access
+            \c ListModel from the outside too.
+
+            \codeline property alias playersListModel: players
+
+            Now let's replace our dummy ListModel in the \c WerewolfMainPage with a
+            reference to this one. Don't forget to import "model" first!
+
+            \codeline model: DataModel.playersListModel
+
+            \section2 Add Players
+
+                Let's add a method in the \c DataModel, that lets us add players, now!
+
+                \code
+                    function addPlayer(player) {
+                        players.append(player)
+                    }
+                \endcode
+
+                We can now go to \c AddPlayersPage.qml and add the following line before
+                the \c close statement in \c onSubmit. Again, don't forget to import
+                "../model" first!
+
+                \code
+                    onSubmit: {
+                        DataModel.addPlayer(player)
+                        close()
+                    }
+                \endcode
+
+                If you now try to start the app chances are that you get the following
+                error message:
+
+                \codeline ReferenceError: DataModel is not defined
+
+                If that happens add a file called "qmldir" with the following content
+                to the "model" folder.
+
+                \codeline singleton DataModel 1.0 DataModel.qml
+
+                Now your players should simply be appended to list. We don't want that
+                behaviour though. We want them to appear ordered by their role. In order
+                to do that we first need to add a model for our roles to our \c DataModel
+                where we will also store their order attributes (\c{index}).
+
+                \code
+                    ListModel {
+                        id: roles
+
+                        ListElement { name: "Werewolf"; index: 0}
+                        ListElement { name: "Villager"; index: 3}
+                        ListElement { name: "Seer"; index:2}
+                        ListElement { name: "Witch"; index: 1}
+                    }
+                \endcode
+
+                Now we need to get the object representation of the role by its name.
+                For that we write a new method \c getRoleObject(role).
+
+                \code
+                    function getRoleObject(role) {
+                        for (var i = 0; i < count; i++) {           //iterate through roles
+                            var entry = get(i)
+                            if (role === entry.name) return entry   //if the names match return the role object
+                        }
+                        return null
+                    }
+                \endcode
+
+                Then we can acces the index property and return it in the
+                \c getIndexForRole(role) method.
+
+                \code
+                    function getIndexForRole(role) {
+                        return getRoleObject(role).index
+                    }
+                \endcode
+
+                Now we can add a method \c addPlayer(newPlayer) to our player \c ListModel
+                that inserts the \a newPlayer according to his role.
+
+                \code
+                    function addPlayer(newPlayer) {
+                        var ownRoleIndex = roles.getIndexForRole(newPlayer.role) //get own role index
+                        for (var i = 0; i < count; i++) {                           //iterate through players
+                            var player = get(i)                                     //take each player
+                            var role = player.role                                  //then their role
+                            var roleIndex = roles.getIndexForRole(role)          //and get their index as well
+
+                            if (roleIndex > ownRoleIndex) {                         //now compare the indexes, if the own index is bigger than the one at the current position
+                                insert(i, newPlayer)                                //then the item at this position has to be after the one we want to add so we add the player
+                                return                                              //at that position
+                            }
+                        }
+                        append(newPlayer)               //if no player with a higher role index is found append the player
+                    }                                   //that also happens when the list is empty of course
+                \endcode
+
+                Here's the tl;dr version of the comments:
+
+                \image sortingAlgorithm.png
+
+                The red line represents the own role index. If it finds an index that's
+                greater than that (green line) it inserts it before that element, if not
+                it get's appended at the end (blue line).
+
+                Now we just need to change our \c{DataModel}'s \c addPlayer methode so
+                that it calls this \c addPlayer method.
+
+                \code
+                    function addPlayer(player) {
+                        players.addPlayer(player)
+                    }
+                \endcode
+
+                If you now restart the app you should see that the players are added
+                nicely ordered by role.
+
+            \endsection2
+
+            \section2 Local Storage
+
+                Let's now make our data persistent. For that we need to add a \c Storage
+                element.
+
+                \code
+                    Storage {
+                        id: localStorage
+                    }
+                \endcode
+
+                We also need a property for our players.
+
+                \codeline property var players: []
+
+                When the app gets started for the first time and the lists isn't in the
+                actual local storage we would get error messages because players wouldn't
+                be recognised as an array. Let's fix that by the following lines of code:
+
+                \code
+                    Component.onCompleted: {
+                        if (!getPlayers()) setValue("players", [])  //if players is not defined, add it to the storage
+                    }
+                \endcode
+
+                Before we add the \c addPlayer method let's add \c getPlayers method
+                first, because we'll need them often and it we can avoid making mistakes
+                by writing it only once.
+
+                \code
+                    function getPlayers() {
+                        return getValue("players")
+                    }
+                \endcode
+
+                Let's now get to the \c addPlayer method.
+
+                \code
+                    function addPlayer(newPlayer) {
+                        var players = getPlayers()
+                        players.push(newPlayer)
+                        setValue("players", players)
+                    }
+                \endcode
+
+                We again have the problem with the unsorted list, though. Luckily for us,
+                JavaScript offers the \c sort method for arrays that let's us sort it.
+                For the sake of readability, let's add a \c compareRoles method to our
+                \c roles \c ListModel first.
+
+                \code
+                    function compareRoles(role1, role2) {
+                        return getIndexForRole(role1) - getIndexForRole(role2)
+                    }
+                \endcode
+
+
+                Now we can insert the following statement in \c addPlayer before we update
+                the \c players value.
+
+                \code
+                    players.sort(function(p1, p2) {
+                        return roles.compareRoles(p1.role, p2.role)
+                    })
+                \endcode
+
+                That now sorts the players by their roles before it adds them back to
+                the local storage. Now we just need to call that method in our global
+                \c addPlayer method.
+
+                \code
+                    function addPlayer(player) {
+                        players.addPlayer(player)
+                        localStorage.addPlayer(player)
+                    }
+                \endcode
+
+                When you now add players to the app they'll be gone after a restart.
+                That's because we never add the data from our local storage to our
+                \c ListModel. Let's do that on startup.
+
+                Add the following lines of code to your \c DataModel:
+
+                \code
+                    Component.onCompleted: {
+                        var initialPlayers = localStorage.getPlayers()
+                        players.setPlayers(initialPlayers)
+                    }
+                \endcode
+
+                Try to start the app now and you'll get an error. That's because our
+                players' model doesn't have a \c setPlayers method yet. Let's add it
+                quickly.
+
+                \code
+                    function setPlayers(players) {
+                        clear()                     //clears list
+                        players.forEach(addPlayer)  //adds every player in the players list
+                    }
+                \endcode
+
+                If you now close your app and restart it, the players that were there
+                when you closed the app should still be in the list.
+
+                \c DataModel.qml should now look like this:
+
+                \code
+                    pragma Singleton
+
+                    import VPlayApps 1.0
+                    import VPlay 2.0
+                    import QtQuick 2.0
+
+                    Item {
+                        id: dataModel
+
+                        property alias playersListModel: players
+
+                        Component.onCompleted: {
+                            var initialPlayers = localStorage.getPlayers()
+                            players.setPlayers(initialPlayers)
+                        }
+
+                        function addPlayer(player) {
+                            players.addPlayer(player)
+                            localStorage.addPlayer(player)
+                        }
+
+                        ListModel {
+                            id: players
+
+                            function addPlayer(newPlayer) {
+                                var ownRoleIndex = roles.getIndexForRole(newPlayer.role) //get own role index
+                                for (var i = 0; i < count; i++) {                           //iterate through players
+                                    var player = get(i)                                     //take each player
+                                    var role = player.role                                  //then their role
+                                    var roleIndex = roles.getIndexForRole(role)          //and get their index as well
+
+                                    if (roleIndex > ownRoleIndex) {                         //now compare the indexes, if the own index is bigger than the one at the current position
+                                        insert(i, newPlayer)                                //then the item at this position has to be after the one we want to add so we add the player
+                                        return                                              //at that position
+                                    }
+                                }
+                                append(newPlayer)               //if no player with a higher role index is found append the player
+                            }
+
+                            function setPlayers(players) {
+                                clear()                     //clears list
+                                players.forEach(addPlayer)  //adds every player in the players list
+                            }
+                        }
+
+                        Storage {
+                            id: localStorage
+
+                            property var players: []
+
+                            Component.onCompleted: {
+                                if (!getPlayers()) setValue("players", [])  //if players is not defined, add it to the storage
+                            }
+
+                            function addPlayer(newPlayer) {
+                                var players = getPlayers()
+                                players.push(newPlayer)
+
+                                players.sort(function(p1, p2) {             //sorts players by roles
+                                    return roles.compareRoles(p1.role, p2.role)
+                                })
+
+                                setValue("players", players)
+                            }
+
+                            function getPlayers() {
+                                return getValue("players")
+                            }
+                        }
+
+                        ListModel {
+                            id: roles
+
+                            function getIndexForRole(role) {
+                                return getRoleObject(role).index
+                            }
+
+                            function getRoleObject(role) {
+                                for (var i = 0; i < count; i++) {           //iterate through roles
+                                    var entry = get(i)
+                                    if (role === entry.name) return entry   //if the names match return the role object
+                                }
+                                return null
+                            }
+
+                            function compareRoles(role1, role2) {
+                                return getIndexForRole(role1) - getIndexForRole(role2)
+                            }
+
+                            ListElement { name: "Werewolf"; index: 0}
+                            ListElement { name: "Villager"; index: 3}
+                            ListElement { name: "Seer"; index:2}
+                            ListElement { name: "Witch"; index: 1}
+                        }
+                    }
+                \endcode
+
+            \endsection2
+
+            \section2 Remove Players
+
+                \section3 The Controls
+
+                    Before we implement the logic for removing players, let's add the
+                    controls for that first. This brings us back to our players' list,
+                    where our \c SimpleRow delegate is a bit too simple now. Wrap a
+                    \c SwipeOptionsContainer around it!
+
+                    Our delegate should now look like this:
+
+                    \code
+                        SwipeOptionsContainer {
+
+                            height: listItem.height //use item's height
+
+                            SimpleRow {
+                                id: listItem
+
+                                text: name
+                                detailText: notes
+
+                                textItem.font.bold: true
+                                detailTextItem.color: Theme.tintColor
+
+                                onSelected: modifyPlayerPage.openWithPlayer(playerId)
+                            }
+                        }
+                    \endcode
+
+                    If you'd now restart the app you wouldn't see any difference to what
+                    it looked like before. That's because we haven't added the
+                    interesting part.
+
+                    \code
+                        rightOption: SwipeButton {
+                            icon: IconType.trasho   //trashcan icon
+                            height: parent.height   //use parent's height
+                            onClicked: DataModel.removePlayer(playerId)
+                        }
+                    \endcode
+
+                    Add this to the \c SwipeOptionsContainer! Also, notice that we now
+                    call \c removePlayer with the argument \a playerId. Don't let that
+                    distract you, we'll get to it right away.
+
+                    When you now restart the app and swipe a player to the left it
+                    should look like this:
+
+                    \image swipeLeftForDeleteIcon.png
+
+                \endsection3
+
+                \section3 PlayerID
+
+                    Let's now take care of the players' ids. We could now simply
+                    implement a counter variable in the local storage and increment
+                    it every time we add a player. The ids would become really big,
+                    though, really fast. A cleverer way to assign ids is to take the
+                    highest id and look for gaps in the room from 0 to that id. If we
+                    don't find any we can still assign highestId + 1.
+
+                    First things first, let's write a method that gets us the highest
+                    ids. (in \c DataModel.qml)
+
+                    \code
+                        function getHighestId() {
+                            var players = localStorage.getPlayers()                  //get players
+                            var ids = players.map(function(player) {    //get their ids
+                                        return player.playerId
+                                    })
+                            return Math.max.apply(Math, ids);           //return the highest id
+                        }
+                    \endcode
+
+                    First of all, we get the players and turn them into a list of
+                    ids. Then we use Math.max to find the highest one of them.
+
+                    Note: We have to call it in such a weird way, because it would
+                          return \c NaN otherwise. That's probably because of some
+                          \c this issues, but let's not worry about what happens inside
+                          of that function.
+
+
+                    Now that we have found the highest id we need to find out whether
+                    there's a player with that id. We could of course go for a boolean
+                    method, but we'll need a method for finding players by their id
+                    anyway, so why not just write that once and check whether the
+                    returned object is \c null.
+
+                    \code
+                        function getPlayerById(playerId) {
+                            var players = localStorage.getPlayers()
+                            for (var i = 0; i < players.length; i++) {  //iterate through all the players
+                                var player = players[i]                 //load each player into a variable "player"
+                                if (player.playerId === playerId)       //compare their id
+                                    return player                       //if it matches return the player
+                            }
+                            return null                                 //if no id matches return null
+                        }
+                    \endcode
+
+                    We can now finally write our method for getting the next player id
+                    to assign!
+
+                    \code
+                        function getNextPlayerId() {
+                            var players = localStorage.getPlayers()
+                            var highestId = getHighestId()
+                            for (var i = 0; i <= highestId + 1; i++) {  //iterate from zero to the highest id + 1 (so that if there's no gap highestId + 1 will be used)
+                                var player = getPlayerById(i)           //get corresponding player
+                                if (!player) {                          //if the player not defined (the id is unassigned)
+                                    return i                            //return the id
+                                }
+                            }
+                            return 0
+                        }
+                    \endcode
+
+                    Everything we have to do now is assign every player that gets added
+                    a new id in our \c addPlayer method.
+
+                    \code
+                        function addPlayer(player) {
+                            player.playerId = getNextPlayerId()
+
+                            players.addPlayer(player)
+                            localStorage.addPlayer(player)
+                        }
+                    \endcode
+
+                    Let's debug it by writing the newly created playerId to the console.
+
+                    Note: Don't forget to delete your old player data with some
+                          temporary code in the local storage's \c onCompleted
+                          handler. You can remove the \c {|| true} after starting
+                          your app once.
+
+                          \codeline if (!getPlayers() || true) setValue("players", [])
+
+                    \codeline console.log("new player's id:", player.playerId)
+
+                    \image playersIds.png
+
+                    Great! Now that that works we can finally get to the real stuff,
+                    actually removing players.
+
+                \endsection3
+
+                \section3 The Logic
+
+                    When you now try to remove a player you'll get an error
+                    message similar to that:
+
+                    \codeline TypeError: Property 'removePlayer' of object DataModel_QMLTYPE_27(0x3531e978) is not a function
+
+                    The message is clear, we need to add the \c removePlayer method to
+                    our \c DataModel. The method couldn't be easier, we just forward the
+                    call to our \c ListModel and the local storage.
+
+                    \code
+                        function removePlayer(playerId) {
+                            players.removePlayer(playerId)
+                            localStorage.removePlayer(playerId)
+                        }
+                    \endcode
+
+                    The implementation in our \c ListModel looks like this:
+
+                    \code
+                        function removePlayer(playerId) {
+                            for (var i = 0; i < count; i++) {       //iterate through players
+                                var player = get(i)                 //get each player
+                                if (player.playerId === playerId) { //if the playerId matches the one we want to remove
+                                    remove(i)                       //remove the player at that position
+                                    break;                          //stop looking for other players
+                                }
+                            }
+                        }
+                    \endcode
+
+                    In the local storage we do it like this:
+
+                    \code
+                        function removePlayer(playerId) {
+                            var players = getPlayers()              //get the current players
+
+                            players = players.filter(function(p) {  //keep players if their playerId isn't the one to be removed
+
+                                return p.playerId !== playerId
+                            })
+
+                            setValue("players", players)
+                        }
+                    \endcode
+
+                    Now you should be able to delete all the players you've created so
+                    far! If you can't delete a few players, they might haven't got an
+                    id, because they were created before we started assigning them.
+                    Just clear the list by modifying the local storage's onCompleted
+                    handler and then starting the app once. Don't forget to revert your
+                    chances afterwards!
+
+                    \codeline if (!getPlayers() || true) setValue("players", [])
+
+                \endsection3
+
+                \c WerewolfMainPage.qml and \c DataModel.qml should now look like this.
+
+                \c WerewolfMainPage.qml
+
+                \code
+                    import VPlayApps 1.0
+                    import QtQuick 2.0
+
+                    import "model"
+                    import "pages"
+
+                    Page {
+                        AppListView {
+
+                            emptyText.text: "No Players in Session"
+
+                            model: DataModel.playersListModel
+
+                            delegate: SwipeOptionsContainer {
+
+                                height: listItem.height //use item's height
+
+                                SimpleRow {
+                                    id: listItem
+
+                                    text: name
+                                    detailText: notes
+
+                                    textItem.font.bold: true
+                                    detailTextItem.color: Theme.tintColor
+
+                                    onSelected: modifyPlayerPage.openWithPlayer(playerId)
+                                }
+
+                                rightOption: SwipeButton {
+                                    icon: IconType.trasho   //trashcan icon
+                                    height: parent.height   //use parent's height
+                                    onClicked: DataModel.removePlayer(playerId)
+                                }
+                            } //SwipeOptionsContainer
+                        }
+
+                        ModifyPlayerPage {
+                            id: modifyPlayerPage
+                        }
+
+                        AddPlayerPage {
+                            id: addPlayerPage
+                        }
+
+                        FloatingActionButton {
+                            icon: IconType.plus
+
+                            visible: true
+
+                            iconItem.rotation: (addPlayerPage.expanded || modifyPlayerPage.expanded) ? 45 : 0
+                            Behavior on iconItem.rotation {
+                                NumberAnimation {
+                                    duration: 200
+                                }
+                            }
+
+                            onClicked: {
+                                if (addPlayerPage.expanded || modifyPlayerPage.expanded) {
+                                    addPlayerPage.close()       //closes player creation and resets it
+                                    modifyPlayerPage.close()    //closes player modification and resets it
+                                } else
+                                    addPlayerPage.open() //opens player creation
+                            }
+                        } //FloatingActionButton
+                    }
+                \endcode
+
+                \c DataModel.qml
+
+                \code
+                    pragma Singleton
+
+                    import VPlayApps 1.0
+                    import VPlay 2.0
+                    import QtQuick 2.0
+
+                    Item {
+                        id: dataModel
+
+                        property alias playersListModel: players
+
+                        Component.onCompleted: {
+                            var initialPlayers = localStorage.getPlayers()
+                            players.setPlayers(initialPlayers)
+                        }
+
+                        function addPlayer(player) {
+                            player.playerId = getNextPlayerId()
+
+                            console.log("new player's id:", player.playerId)
+
+                            players.addPlayer(player)
+                            localStorage.addPlayer(player)
+                        }
+
+                        function removePlayer(playerId) {
+                            players.removePlayer(playerId)
+                            localStorage.removePlayer(playerId)
+                        }
+
+                        function getPlayerById(playerId) {
+                            var players = localStorage.getPlayers()
+                            for (var i = 0; i < players.length; i++) {  //iterate through all the players
+                                var player = players[i]                 //load each player into a variable "player"
+                                if (player.playerId === playerId)       //compare their id
+                                    return player                       //if it matches return the player
+                            }
+                            return null                                 //if no id matches return null
+                        }
+
+                        function getHighestId() {
+                            var players = localStorage.getPlayers()                  //get players
+                            var ids = players.map(function(player) {    //get their ids
+                                        return player.playerId
+                                    })
+                            return Math.max.apply(Math, ids);           //return the highest id
+                        }
+
+                        function getNextPlayerId() {
+                            var players = localStorage.getPlayers()
+                            var highestId = getHighestId()
+                            for (var i = 0; i <= highestId + 1; i++) {  //iterate from zero to the highest id + 1 (so that if there's no gap highestId + 1 will be used)
+                                var player = getPlayerById(i)           //get corresponding player
+                                if (!player) {                          //if the player not defined (the id is unassigned)
+                                    return i                            //return the id
+                                }
+                            }
+                            return 0
+                        }
+
+                        ListModel {
+                            id: players
+
+                            function addPlayer(newPlayer) {
+                                var ownRoleIndex = roles.getIndexForRole(newPlayer.role) //get own role index
+                                for (var i = 0; i < count; i++) {                           //iterate through players
+                                    var player = get(i)                                     //take each player
+                                    var role = player.role                                  //then their role
+                                    var roleIndex = roles.getIndexForRole(role)          //and get their index as well
+
+                                    if (roleIndex > ownRoleIndex) {                         //now compare the indexes, if the own index is bigger than the one at the current position
+                                        insert(i, newPlayer)                                //then the item at this position has to be after the one we want to add so we add the player
+                                        return                                              //at that position
+                                    }
+                                }
+                                append(newPlayer)               //if no player with a higher role index is found append the player
+                            }
+
+                            function removePlayer(playerId) {
+                                for (var i = 0; i < count; i++) {       //iterate through players
+                                    var player = get(i)                 //get each player
+                                    if (player.playerId === playerId) { //if the playerId matches the one we want to remove
+                                        remove(i)                       //remove the player at that position
+                                        break;                          //stop looking for other players
+                                    }
+                                }
+                            }
+
+                            function setPlayers(players) {
+                                clear()                     //clears list
+                                players.forEach(addPlayer)  //adds every player in the players list
+                            }
+                        }
+
+                        Storage {
+                            id: localStorage
+
+                            property var players: []
+
+                            Component.onCompleted: {
+                                if (!getPlayers()) setValue("players", [])  //if players is not defined, add it to the storage
+                            }
+
+                            function addPlayer(newPlayer) {
+                                var players = getPlayers()
+                                players.push(newPlayer)
+
+                                players.sort(function(p1, p2) {             //sorts players by roles
+                                    return roles.compareRoles(p1.role, p2.role)
+                                })
+
+                                setValue("players", players)
+                            }
+
+                            function removePlayer(playerId) {
+                                var players = getPlayers()              //get the current players
+
+                                players = players.filter(function(p) {  //keep players if their playerId isn't the one to be removed
+                                    return p.playerId !== playerId
+                                })
+
+                                setValue("players", players)
+                            }
+
+                            function getPlayers() {
+                                return getValue("players")
+                            }
+                        }
+
+                        ListModel {
+                            id: roles
+
+                            function getIndexForRole(role) {
+                                return getRoleObject(role).index
+                            }
+
+                            function getRoleObject(role) {
+                                for (var i = 0; i < count; i++) {           //iterate through roles
+                                    var entry = get(i)
+                                    if (role === entry.name) return entry   //if the names match return the role object
+                                }
+                                return null
+                            }
+
+                            function compareRoles(role1, role2) {
+                                return getIndexForRole(role1) - getIndexForRole(role2)
+                            }
+
+                            ListElement { name: "Werewolf"; index: 0}
+                            ListElement { name: "Villager"; index: 3}
+                            ListElement { name: "Seer"; index:2}
+                            ListElement { name: "Witch"; index: 1}
+                        }
+                    }
+                \endcode
+            \endsection2
+
+            \section2 Modify Players
+
+                \section3 Changes in ModifyPlayerPage
+
+                    Let's now give the users the ability to modify the players they've
+                    created. Open the \c ModifyPlayerPage for that!
+
+                    First of all, don't forget to import "..\\model"! Then add a
+                    property \c player, we'll need it in the next step.
+
+                    \codeline property var player: null
+
+                    Let's now have a look at our \c openWithPlayer method. Since we now
+                    have our data management up and running, we'll change it a bit.
+
+                    \code
+                        function openWithPlayer(playerId) {
+                            player = DataModel.getPlayerById(playerId)
+                            prepare()
+                            expanded = true
+                        }
+                    \endcode
+
+                    When we now open the app we load the player with the given id into
+                    our player variable. Don't get confused about the \c prepare method,
+                    we'll add it right away.
+
+                    \code
+                        function prepare() {
+                            name = player.name
+                            notes = player.notes
+                            role = player.role
+                            roleText = player.role
+                        }
+                    \endcode
+
+                    Remember when we declared a ton of alias properties in \c PlayerPage
+                    and I said we'd need them later? Later is now. We use them to load
+                    our players details into the \c ModifyPlayerPage before it gets
+                    displayed.
+
+                    \image modifyPlayerPageDetailsLoaded.png
+
+                    Let's take care of the onSubmit handler now. We need to make a few
+                    changes there too.
+
+                    \code
+                        onSubmit: {
+                            player.playerId = modifyPlayerPage.player.playerId  //assign oldPlayer's id to new player object
+                            DataModel.modifyPlayer(player)
+                            close()
+                        }
+                    \endcode
+
+                    Your \c ModifyPlayerPage should now look like this:
+
+                    \code
+                        import VPlayApps 1.0
+                        import QtQuick 2.0
+
+                        import "../model"
+
+                        PlayerPage {
+                            id: addPlayerPage
+
+                            property var player: null
+
+                            function openWithPlayer(playerId) {
+                                player = DataModel.getPlayerById(playerId)
+                                prepare()
+                                expanded = true
+                            }
+
+                            function close() {
+                                expanded = false
+                                reset()
+                            }
+
+                            function prepare() {
+                                name = player.name
+                                notes = player.notes
+                                role = player.role
+                                roleText = player.role
+                            }
+
+                            onSubmit: {
+                                player.playerId = modifyPlayerPage.player.playerId  //assign oldPlayer's id to new player object
+                                DataModel.modifyPlayer(player)
+                                close()
+                            }
+
+                            title: "Modify Player"
+
+                            opacity: expanded ? 1 : 0 //only opaque when expanded
+                            Behavior on opacity {
+                                //smooth transition from transparent to opaque
+                                NumberAnimation {
+                                    easing.type: Easing.InOutSine
+                                    duration: 200
+                                }
+                            }
+
+                            y: expanded ? 0 : parent.height //lets player creation fly in and out
+                            Behavior on y {
+                                //again, smooth transitions
+                                NumberAnimation {
+                                    easing.type: Easing.OutExpo
+                                    duration: 200
+                                }
+                            }
+                        }
+                    \endcode
+                \endsection3
+
+                \section3 The DataModel
+
+                    If you try to run this, you'll notice, that there is no method
+                    \c modifyPlayer in our \c DataModel. Let's create it now!
+
+                    \code
+                        function modifyPlayer(player) {
+                            players.modifyPlayer(player)
+                            localStorage.modifyPlayer(player)
+                        }
+                    \endcode
+
+                    This method should look similar to you, it's almost exactly the same
+                    as the \c removePlayer method. That's different for the
+                    \c {ListModel}'s \c modifyPlayer method.
+
+                    \code
+                        function modifyPlayer(modifiedPlayer) {
+                            for (var i = 0; i < count; i++) {                       //iterate through players
+                                var player = get(i)                                 //get each player
+                                if (player.playerId === modifiedPlayer.playerId) {  //if the playerId matches the one we want to remove
+                                    if (player.role === modifiedPlayer.role)        //and the role didn't change
+                                        set(i, modifiedPlayer)                      //replace the player at that position
+                                    else {                                          //if the roles did change
+                                        removePlayer(player.playerId)               //first remove the old player
+                                        addPlayer(modifiedPlayer)                   //and add the modified player back in
+                                    }
+                                }
+                            }
+                        }
+                    \endcode
+
+                    The local storage's \c modifyPlayer method looks like this:
+
+                    \code
+                        function modifyPlayer(player) {
+                            var players = getPlayers()                  //get the current list of players
+
+                            players = players.map(function(p) {         //replace every player in the list with,
+                                if (p.playerId === player.playerId)     //if the id matches the one given with the player,
+                                    return player                       //the new player
+                                else                                    //else
+                                    return p                            //with itself
+                            })
+
+                            setValue("players", players)
+                        }
+                    \endcode
+
+                    Everything should now be fully functional and your \c DataModel
+                    should look like this:
+
+                    \code
+                        pragma Singleton
+
+                        import VPlayApps 1.0
+                        import VPlay 2.0
+                        import QtQuick 2.0
+
+                        Item {
+                            id: dataModel
+
+                            property alias playersListModel: players
+
+                            Component.onCompleted: {
+                                var initialPlayers = localStorage.getPlayers()
+                                players.setPlayers(initialPlayers)
+                            }
+
+                            function addPlayer(player) {
+                                player.playerId = getNextPlayerId()
+
+                                players.addPlayer(player)
+                                localStorage.addPlayer(player)
+                            }
+
+                            function removePlayer(playerId) {
+                                players.removePlayer(playerId)
+                                localStorage.removePlayer(playerId)
+                            }
+
+                            function modifyPlayer(player) {
+                                players.modifyPlayer(player)
+                                localStorage.modifyPlayer(player)
+                            }
+
+                            function getPlayerById(playerId) {
+                                var players = localStorage.getPlayers()
+                                for (var i = 0; i < players.length; i++) {  //iterate through all the players
+                                    var player = players[i]                 //load each player into a variable "player"
+                                    if (player.playerId === playerId)       //compare their id
+                                        return player                       //if it matches return the player
+                                }
+                                return null                                 //if no id matches return null
+                            }
+
+                            function getHighestId() {
+                                var players = localStorage.getPlayers()                  //get players
+                                var ids = players.map(function(player) {    //get their ids
+                                            return player.playerId
+                                        })
+                                return Math.max.apply(Math, ids);           //return the highest id
+                            }
+
+                            function getNextPlayerId() {
+                                var players = localStorage.getPlayers()
+                                var highestId = getHighestId()
+                                for (var i = 0; i <= highestId + 1; i++) {  //iterate from zero to the highest id + 1 (so that if there's no gap highestId + 1 will be used)
+                                    var player = getPlayerById(i)           //get corresponding player
+                                    if (!player) {                          //if the player not defined (the id is unassigned)
+                                        return i                            //return the id
+                                    }
+                                }
+                                return 0
+                            }
+
+                            ListModel {
+                                id: players
+
+                                function addPlayer(newPlayer) {
+                                    var ownRoleIndex = roles.getIndexForRole(newPlayer.role) //get own role index
+                                    for (var i = 0; i < count; i++) {                           //iterate through players
+                                        var player = get(i)                                     //take each player
+                                        var role = player.role                                  //then their role
+                                        var roleIndex = roles.getIndexForRole(role)          //and get their index as well
+
+                                        if (roleIndex > ownRoleIndex) {                         //now compare the indexes, if the own index is bigger than the one at the current position
+                                            insert(i, newPlayer)                                //then the item at this position has to be after the one we want to add so we add the player
+                                            return                                              //at that position
+                                        }
+                                    }
+                                    append(newPlayer)               //if no player with a higher role index is found append the player
+                                }
+
+                                function removePlayer(playerId) {
+                                    for (var i = 0; i < count; i++) {       //iterate through players
+                                        var player = get(i)                 //get each player
+                                        if (player.playerId === playerId) { //if the playerId matches the one we want to remove
+                                            remove(i)                       //remove the player at that position
+                                            break;                          //stop looking for other players
+                                        }
+                                    }
+                                }
+
+                                function modifyPlayer(modifiedPlayer) {
+                                    for (var i = 0; i < count; i++) {                       //iterate through players
+                                        var player = get(i)                                 //get each player
+                                        if (player.playerId === modifiedPlayer.playerId) {  //if the playerId matches the one we want to remove
+                                            if (player.role === modifiedPlayer.role)        //and the role didn't change
+                                                set(i, modifiedPlayer)                      //replace the player at that position
+                                            else {                                          //if the roles did change
+                                                removePlayer(player.playerId)               //first remove the old player
+                                                addPlayer(modifiedPlayer)                   //and add the modified player back in
+                                            }
+                                        }
+                                    }
+                                }
+
+                                function setPlayers(players) {
+                                    clear()                     //clears list
+                                    players.forEach(addPlayer)  //adds every player in the players list
+                                }
+                            }
+
+                            Storage {
+                                id: localStorage
+
+                                property var players: []
+
+                                Component.onCompleted: {
+                                    if (!getPlayers()) setValue("players", [])  //if players is not defined, add it to the storage
+                                }
+
+                                function addPlayer(newPlayer) {
+                                    var players = getPlayers()
+                                    players.push(newPlayer)
+
+                                    players.sort(function(p1, p2) {             //sorts players by roles
+                                        return roles.compareRoles(p1.role, p2.role)
+                                    })
+
+                                    setValue("players", players)
+                                }
+
+                                function removePlayer(playerId) {
+                                    var players = getPlayers()              //get the current players
+
+                                    players = players.filter(function(p) {  //keep players if their playerId isn't the one to be removed
+                                        return p.playerId !== playerId
+                                    })
+
+                                    setValue("players", players)
+                                }
+
+                                function modifyPlayer(player) {
+                                    var players = getPlayers()                  //get the current list of players
+
+                                    players = players.map(function(p) {         //replace every player in the list with,
+                                        if (p.playerId === player.playerId)     //if the id matches the one given with the player,
+                                            return player                       //the new player
+                                        else                                    //else
+                                            return p                            //with itself
+                                    })
+
+                                    setValue("players", players)
+                                }
+
+                                function getPlayers() {
+                                    return getValue("players")
+                                }
+                            }
+
+                            ListModel {
+                                id: roles
+
+                                function getIndexForRole(role) {
+                                    return getRoleObject(role).index
+                                }
+
+                                function getRoleObject(role) {
+                                    for (var i = 0; i < count; i++) {           //iterate through roles
+                                        var entry = get(i)
+                                        if (role === entry.name) return entry   //if the names match return the role object
+                                    }
+                                    return null
+                                }
+
+                                function compareRoles(role1, role2) {
+                                    return getIndexForRole(role1) - getIndexForRole(role2)
+                                }
+
+                                ListElement { name: "Werewolf"; index: 0}
+                                ListElement { name: "Villager"; index: 3}
+                                ListElement { name: "Seer"; index:2}
+                                ListElement { name: "Witch"; index: 1}
+                            }
+                        }
+                    \endcode
+                \endsection3
+            \endsection2
+        \endsection1
+    \endchapter
+
+    \chapter Extras
+
+        \section1 List Sections
+
+            Currently the only way to find out which role a player has is by clicking
+            or tabbing on it. But wouldn't it be way more convenient to just have a
+            \c ListSection for every role? Indeed, and that's what we're going to do
+            now!
+
+            \section2 WerewolfMainPage
+
+                Adding sections to our list couldn't be easier actually. You just need
+                to specify a property, based on which the sections will be created.
+                We want to group our players by role.
+
+                \codeline section.property: "role"
+
+                Now we need to define a delegate for our section:
+
+                \codeline section.delegate: SimpleSection { }
+
+                As you can see it's working already!
+
+                \image simpleSectionsNoStyle.png
+
+                Those sections look good already, but let's add some custom style to
+                them.
+
+                \code
+                    section.delegate: SimpleSection {
+                        style.showDividers: true
+                        style.dividerHeight: 3
+                        style.totalHeight: 42
+                        style.textBottomMargin: style.dividerHeight + 8
+
+                        style.dividerColor: Theme.tintColor
+
+                        textItem.font.pixelSize: 20
+                        textItem.font.bold: false
+                    }
+                \endcode
+
+                \image simpleSections.png
+
+                Awesome! The only thing that bothers me is that it says
+                "Werewolf" and "Villager", even though there can, and in the most
+                cases will, be more than one player in each of those categories.
+                Let's change the section property and handle that problem somewhere
+                else.
+
+                \codeline section.property: "sectionName"
+
+            \endsection2
+
+            \section2 DataModel
+
+                We don't need to change a lot here, just add the property \c pluralName
+                to the roles that can be assigned to multiple players.
+
+                \code
+                    ListElement { name: "Werewolf"; pluralName: "Werewolves"; index: 0}
+                    ListElement { name: "Villager"; pluralName: "Villagers"; index: 3}
+                    ListElement { name: "Seer"; index:2}
+                    ListElement { name: "Witch"; index: 1}
+                \endcode
+
+                Then make roles visible to the outside.
+
+                \codeline property alias roles: roles
+
+            \endsection2
+
+
+            \section2 PlayerPage
+
+                    Now we just need to add a sectionName property to our players before
+                    they're submitted. We also need to check whether the role has the
+                    property \c pluralNames. Don't forget to import \c DataModel!
+
+                    \code
+                        var roleObject = DataModel.roles.getRoleObject(player.role) //get the roles object representation
+                        player.sectionName = (roleObject.pluralName) ?              //if  there is a plural name for that role
+                                    roleObject.pluralName :                         //use it as the sectionName
+                                    roleObject.name                                 //if not use the role name
+                    \endcode
+            \endsection2
+
+            Our finished page should now look like this:
+
+            \image pluralNames.png
+
+        \endsection1
+
+        \section1 Maximal Count of Players for Roles
+
+            In the Werewolf game certain roles (e.g. Seer, Witch) can only be assigned
+            to one player at a time. In our app we can currently add more than one
+            Seer and more than one witch, though. Let's change that!
+
+            \section2 DataModel
+
+                Let's add a method for finding players their role first and call it
+                \c getPlayersByRole.
+
+                \code
+                    function getPlayersByRole(role) {
+                        var players = localStorage.getPlayers()
+                        return players.filter(function(player) {
+                            return player.role === role
+                        })
+                    }
+                \endcode
+
+                Now create the method \c isAvailable in the roles' \c ListModel.
+
+                \code
+                    function isAvailable(role) {
+                        var playersWithRole = getPlayersByRole(role).length //get the number of players with the given role
+                        var maxCount = getRoleObject(role).maxPlayers       //get the highest possible numbers of players for that role
+
+                        if (maxCount)                                       //if there is an upper limit
+                            return maxCount > playersWithRole               //return whether there is room for more players
+                        return true                                         //always return true if there is no limit
+                    }
+                \endcode
+
+                This code accesses a property of our roles that we haven't added yet.
+                Let's do that too!
+
+                \code
+                    ListElement { name: "Werewolf"; pluralName: "Werewolves"; index: 0}
+                    ListElement { name: "Villager"; pluralName: "Villagers"; index: 3}
+                    ListElement { name: "Seer"; maxPlayers: 1; index:2}
+                    ListElement { name: "Witch"; maxPlayers: 1; index: 1}
+                \endcode
+
+                Now we're able to find out whether a role is available or not. But how
+                do we bring this information to the \c RoleChooser? Let's use a signal
+                for that!
+
+                \codeline signal availabilityUpdated(var availabilityInformation)
+
+                We just need a method for constructing the object with the information
+                about the roles' availability and for calling the \c availabilityUpdated
+                signal.
+
+                \code
+                    function shareAvailability() {
+                        var state = {}
+
+                        for (var i = 0; i < count; i++) {               //iterate through roles
+                            var role = get(i)
+                            state[role.name] = isAvailable(role.name)   //create a property for each role with their availability
+                        }
+
+                        availabilityUpdated(state)                         //publish the availability data
+                    }
+                \endcode
+
+                This code will produce a state object that looks like this:
+
+                \code
+                    {
+                        "roleName": isAvailable("roleName"),
+                        ...
+                    }
+                \endcode
+
+                Now we only need to call the method every time the players'
+                configuration changes. I'd suggest extracting
+                \c{setValue("players", players)} into its own function and call
+                \c shareAvailability together with it.
+
+                \code
+                    function handleChanges(players) {
+                        setValue("players", players)    //store the modified list
+                        roles.shareAvailability()    //notify RoleChooser
+                    }
+               \endcode
+
+                We're now done with the \c DataModel.
+
+            \endsection2
+
+            \section2 RoleChooser
+
+                Now we need every grid item to listen for availability chances and react
+                to them. Let's add a \c Connections component to each \c AppButton for
+                that. Again, don't forget to import the \c DataModel.
+
+                \code
+                    Connections {
+                        target: DataModel
+                        onAvailabilityUpdated: gridItem.enabled = availabilityInformation[name] //disable role if it's not available anymore
+                    }
+                \endcode
+            \endsection2
+
+            When we now for example try to add the Witch twice it won't let us.
+
+            \image witchDisabled.png
+
+        \endsection1
+
+        \section1 Animations
+
+            Even though adding players to and removing players from our list works
+            already nicely, it still looks a bit boring. We should bring some
+            movement to it. Let's add animations!
+
+            We actually don't need to change too much for that. Just add the following
+            lines of code to your \c AppListView and the component will do the rest
+            for you.
+
+            \code
+                add: Transition {
+                  ParallelAnimation {
+                    NumberAnimation { property: "opacity"; from: 0; to: 1; duration: 200 }
+                    NumberAnimation { properties: "scale"; from: 0; to: 1; duration: 200; easing.type: Easing.OutCubic }
+                  }
+                }
+
+                remove: Transition {
+                  ParallelAnimation {
+                    NumberAnimation { property: "opacity"; to: 0; duration: 400 }
+                    NumberAnimation { property: "x"; to: -width ; duration: 200 }
+                  }
+                }
+            \endcode
+
+            When you now add and remove players you should be able to see those
+            beautiful animations we just added.
+        \endsection1
+    \endchapter
+
+    \chapter Source Code
+
+        Here you have the finished files of the entire app.
+
+        \section1 Main.qml
+            \code
+                import VPlayApps 1.0
+                import QtQuick 2.0
+
+                App {
+                    // You get free licenseKeys from https://v-play.net/licenseKey
+                    // With a licenseKey you can:
+                    //  * Publish your games & apps for the app stores
+                    //  * Remove the V-Play Splash Screen or set a custom one (available with the Pro Licenses)
+                    //  * Add plugins to monetize, analyze & improve your apps (available with the Pro Licenses)
+                    //licenseKey: "<generate one from https://v-play.net/licenseKey>"
+
+                    onInitTheme: {
+                        Theme.colors.tintColor = "#FFB90D" //yellow
+                    }
+
+                    WerewolfMainPage { }
+                }
+
+            \endcode
+        \endsection1
+
+        \section1 WerewolfMainPage.qml
+            \code
+                import VPlayApps 1.0
+                import QtQuick 2.0
+
+                import "model"
+                import "pages"
+
+                Page {
+                    AppListView {
+
+                        emptyText.text: "No Players in Session"
+
+                        model: DataModel.playersListModel
+
+                        section.property: "sectionName"
+                        section.delegate: SimpleSection {
+                            style.showDividers: true
+                            style.dividerHeight: 3
+                            style.totalHeight: 42
+                            style.textBottomMargin: style.dividerHeight + 8
+
+                            style.dividerColor: Theme.tintColor
+
+                            textItem.font.pixelSize: 20
+                            textItem.font.bold: false
+                        }
+
+                        delegate: SwipeOptionsContainer {
+
+                            height: listItem.height //use item's height
+
+                            SimpleRow {
+                                id: listItem
+
+                                text: name
+                                detailText: notes
+
+                                textItem.font.bold: true
+                                detailTextItem.color: Theme.tintColor
+
+                                onSelected: modifyPlayerPage.openWithPlayer(playerId)
+                            }
+
+                            rightOption: SwipeButton {
+                                icon: IconType.trasho   //trashcan icon
+                                height: parent.height   //use parent's height
+                                onClicked: DataModel.removePlayer(playerId)
+                            }
+                        } //SwipeOptionsContainer
+
+                        add: Transition {
+                          ParallelAnimation {
+                            NumberAnimation { property: "opacity"; from: 0; to: 1; duration: 200 }
+                            NumberAnimation { properties: "scale"; from: 0; to: 1; duration: 200; easing.type: Easing.OutCubic }
+                          }
+                        }
+
+                        remove: Transition {
+                          ParallelAnimation {
+                            NumberAnimation { property: "opacity"; to: 0; duration: 400 }
+                            NumberAnimation { property: "x"; to: -width ; duration: 200 }
+                          }
+                        }
+                    }
+
+                    ModifyPlayerPage {
+                        id: modifyPlayerPage
+                    }
+
+                    AddPlayerPage {
+                        id: addPlayerPage
+                    }
+
+                    FloatingActionButton {
+                        icon: IconType.plus
+
+                        visible: true
+
+                        iconItem.rotation: (addPlayerPage.expanded || modifyPlayerPage.expanded) ? 45 : 0
+                        Behavior on iconItem.rotation {
+                            NumberAnimation {
+                                duration: 200
+                            }
+                        }
+
+                        onClicked: {
+                            if (addPlayerPage.expanded || modifyPlayerPage.expanded) {
+                                addPlayerPage.close()       //closes player creation and resets it
+                                modifyPlayerPage.close()    //closes player modification and resets it
+                            } else
+                                addPlayerPage.open() //opens player creation
+                        }
+                    }
+                }
+            \endcode
+        \endsection1
+
+        \section1 model/DataModel.qml
+            \code
+                pragma Singleton
+
+                import VPlayApps 1.0
+                import VPlay 2.0
+                import QtQuick 2.0
+
+                Item {
+                    id: dataModel
+
+                    signal availabilityUpdated(var availabilityInformation)
+
+                    property alias playersListModel: players
+                    property alias roles: roles
+
+                    Component.onCompleted: {
+                        var initialPlayers = localStorage.getPlayers()
+                        players.setPlayers(initialPlayers)
+                    }
+
+                    function addPlayer(player) {
+                        player.playerId = getNextPlayerId()
+
+                        players.addPlayer(player)
+                        localStorage.addPlayer(player)
+                    }
+
+                    function removePlayer(playerId) {
+                        players.removePlayer(playerId)
+                        localStorage.removePlayer(playerId)
+                    }
+
+                    function modifyPlayer(player) {
+                        players.modifyPlayer(player)
+                        localStorage.modifyPlayer(player)
+                    }
+
+                    function getPlayerById(playerId) {
+                        var players = localStorage.getPlayers()
+                        for (var i = 0; i < players.length; i++) {  //iterate through all the players
+                            var player = players[i]                 //load each player into a variable "player"
+                            if (player.playerId === playerId)       //compare their id
+                                return player                       //if it matches return the player
+                        }
+                        return null                                 //if no id matches return null
+                    }
+
+                    function getPlayersByRole(role) {
+                        var players = localStorage.getPlayers()
+                        return players.filter(function(player) {
+                            return player.role === role
+                        })
+                    }
+
+                    function getHighestId() {
+                        var players = localStorage.getPlayers()                  //get players
+                        var ids = players.map(function(player) {    //get their ids
+                                    return player.playerId
+                                })
+                        return Math.max.apply(Math, ids);           //return the highest id
+                    }
+
+                    function getNextPlayerId() {
+                        var players = localStorage.getPlayers()
+                        var highestId = getHighestId()
+                        for (var i = 0; i <= highestId + 1; i++) {  //iterate from zero to the highest id + 1 (so that if there's no gap highestId + 1 will be used)
+                            var player = getPlayerById(i)           //get corresponding player
+                            if (!player) {                          //if the player not defined (the id is unassigned)
+                                return i                            //return the id
+                            }
+                        }
+                        return 0
+                    }
+
+                    ListModel {
+                        id: players
+
+                        function addPlayer(newPlayer) {
+                            var ownRoleIndex = roles.getIndexForRole(newPlayer.role) //get own role index
+                            for (var i = 0; i < count; i++) {                           //iterate through players
+                                var player = get(i)                                     //take each player
+                                var role = player.role                                  //then their role
+                                var roleIndex = roles.getIndexForRole(role)          //and get their index as well
+
+                                if (roleIndex > ownRoleIndex) {                         //now compare the indexes, if the own index is bigger than the one at the current position
+                                    insert(i, newPlayer)                                //then the item at this position has to be after the one we want to add so we add the player
+                                    return                                              //at that position
+                                }
+                            }
+                            append(newPlayer)               //if no player with a higher role index is found append the player
+                        }
+
+                        function removePlayer(playerId) {
+                            for (var i = 0; i < count; i++) {       //iterate through players
+                                var player = get(i)                 //get each player
+                                if (player.playerId === playerId) { //if the playerId matches the one we want to remove
+                                    remove(i)                       //remove the player at that position
+                                    break;                          //stop looking for other players
+                                }
+                            }
+                        }
+
+                        function modifyPlayer(modifiedPlayer) {
+                            for (var i = 0; i < count; i++) {                       //iterate through players
+                                var player = get(i)                                 //get each player
+                                if (player.playerId === modifiedPlayer.playerId) {  //if the playerId matches the one we want to remove
+                                    if (player.role === modifiedPlayer.role)        //and the role didn't change
+                                        set(i, modifiedPlayer)                      //replace the player at that position
+                                    else {                                          //if the roles did change
+                                        removePlayer(player.playerId)               //first remove the old player
+                                        addPlayer(modifiedPlayer)                   //and add the modified player back in
+                                    }
+                                }
+                            }
+                        }
+
+                        function setPlayers(players) {
+                            clear()                     //clears list
+                            players.forEach(addPlayer)  //adds every player in the players list
+                        }
+                    }
+
+                    Storage {
+                        id: localStorage
+
+                        property var players: []
+
+                        Component.onCompleted: {
+                            if (!getPlayers()) setValue("players", [])  //if players is not defined, add it to the storage
+                        }
+
+                        function addPlayer(newPlayer) {
+                            var players = getPlayers()
+                            players.push(newPlayer)
+
+                            players.sort(function(p1, p2) {             //sorts players by roles
+                                return roles.compareRoles(p1.role, p2.role)
+                            })
+
+                            handleChanges(players)
+                        }
+
+                        function removePlayer(playerId) {
+                            var players = getPlayers()              //get the current players
+
+                            players = players.filter(function(p) {  //keep players if their playerId isn't the one to be removed
+                                return p.playerId !== playerId
+                            })
+
+                            handleChanges(players)
+                        }
+
+                        function modifyPlayer(player) {
+                            var players = getPlayers()                  //get the current list of players
+
+                            players = players.map(function(p) {         //replace every player in the list with,
+                                if (p.playerId === player.playerId)     //if the id matches the one given with the player,
+                                    return player                       //the new player
+                                else                                    //else
+                                    return p                            //with itself
+                            })
+
+                            handleChanges(players)
+                        }
+
+                        function handleChanges(players) {
+                            setValue("players", players)    //store the modified list
+                            roles.shareAvailability()    //notify RoleChooser
+                        }
+
+                        function getPlayers() {
+                            return getValue("players")
+                        }
+                    }
+
+                    ListModel {
+                        id: roles
+
+                        function getIndexForRole(role) {
+                            return getRoleObject(role).index
+                        }
+
+                        function getRoleObject(role) {
+                            for (var i = 0; i < count; i++) {           //iterate through roles
+                                var entry = get(i)
+                                if (role === entry.name) return entry   //if the names match return the role object
+                            }
+                            return null
+                        }
+
+                        function isAvailable(role) {
+                            var playersWithRole = getPlayersByRole(role).length //get the number of players with the given role
+                            var maxCount = getRoleObject(role).maxPlayers       //get the highest possible numbers of players for that role
+
+                            if (maxCount)                                       //if there is an upper limit
+                                return maxCount > playersWithRole               //return whether there is room for more players
+                            return true                                         //always return true if there is no limit
+                        }
+
+                        function shareAvailability() {
+                            var state = {}
+
+                            for (var i = 0; i < count; i++) {               //iterate through roles
+                                var role = get(i)
+                                state[role.name] = isAvailable(role.name)   //create a property for each role with their availability
+                            }
+
+                            availabilityUpdated(state)                         //publish the availability data
+                        }
+
+                        function compareRoles(role1, role2) {
+                            return getIndexForRole(role1) - getIndexForRole(role2)
+                        }
+
+                        ListElement { name: "Werewolf"; pluralName: "Werewolves"; index: 0}
+                        ListElement { name: "Villager"; pluralName: "Villagers"; index: 3}
+                        ListElement { name: "Seer"; maxPlayers: 1; index:2}
+                        ListElement { name: "Witch"; maxPlayers: 1; index: 1}
+                    }
+                }
+            \endcode
+        \endsection1
+
+        \section1 pages
+
+            \section2 AddPlayerPage.qml
+                \code
+                    import VPlayApps 1.0
+                    import QtQuick 2.0
+
+                    import "../model"
+
+                    PlayerPage {
+                        id: addPlayerPage
+
+                        function open() {
+                            expanded = true
+                        }
+
+                        function close() {
+                            expanded = false
+                            reset()
+                        }
+
+                        onSubmit: {
+                            DataModel.addPlayer(player)
+                            close()
+                        }
+
+                        title: "Create"
+
+                        opacity: expanded ? 1 : 0 //only opaque when expanded
+                        Behavior on opacity {
+                            //smooth transition from transparent to opaque
+                            NumberAnimation {
+                                easing.type: Easing.InOutSine
+                                duration: 200
+                            }
+                        }
+
+                        y: expanded ? 0 : parent.height //lets player creation fly in and out
+                        Behavior on y {
+                            //again, smooth transitions
+                            NumberAnimation {
+                                easing.type: Easing.OutExpo
+                                duration: 200
+                            }
+                        }
+                    }
+                \endcode
+            \endsection2
+
+            \section2 ModifyPlayerPage.qml
+                \code
+                    import VPlayApps 1.0
+                    import QtQuick 2.0
+
+                    import "../model"
+
+                    PlayerPage {
+                        id: addPlayerPage
+
+                        property var player: null
+
+                        function openWithPlayer(playerId) {
+                            player = DataModel.getPlayerById(playerId)
+                            prepare()
+                            expanded = true
+                        }
+
+                        function close() {
+                            expanded = false
+                            reset()
+                        }
+
+                        function prepare() {
+                            name = player.name
+                            notes = player.notes
+                            role = player.role
+                            roleText = player.role
+                        }
+
+                        onSubmit: {
+                            player.playerId = modifyPlayerPage.player.playerId  //assign oldPlayer's id to new player object
+                            DataModel.modifyPlayer(player)
+                            close()
+                        }
+
+                        title: "Modify Player"
+
+                        opacity: expanded ? 1 : 0 //only opaque when expanded
+                        Behavior on opacity {
+                            //smooth transition from transparent to opaque
+                            NumberAnimation {
+                                easing.type: Easing.InOutSine
+                                duration: 200
+                            }
+                        }
+
+                        y: expanded ? 0 : parent.height //lets player creation fly in and out
+                        Behavior on y {
+                            //again, smooth transitions
+                            NumberAnimation {
+                                easing.type: Easing.OutExpo
+                                duration: 200
+                            }
+                        }
+                    }
+                \endcode
+            \endsection2
+
+            \section2 PlayerPage.qml
+                \code
+                    import VPlayApps 1.0
+                    import QtQuick 2.0
+                    import QtQuick.Layouts 1.1
+
+                    import "../model"
+
+
+                    Page {
+
+                        signal submit(var player)
+
+                        property string title
+
+                        property bool expanded
+
+                        property alias name: nameField.text
+                        property alias notes: notes.text
+                        property alias role: roleChooser.selectedRole
+                        property alias roleText: roleButton.text
+
+                        function reset() {
+                            nameField.text = ""                 //resets nameField
+                            notes.text = ""                     //resets notes
+                            roleButton.text = "Choose Role"     //resets roleButton
+                            roleChooser.selectedRole = ""       //resets selectedRole
+                            errorField.hide()                   //hides error notifcation
+                            roleChooser.hide()                  //hides roleChooser PopUp (only necessary when the user exited without closing the roleChooser)
+                            roleChooser.reset()                 //resets roleChooser
+                        }
+
+                        backgroundColor: "transparent"
+
+                        Rectangle {
+                            color: Theme.tintColor
+                            opacity: 0.5
+                            anchors.fill: parent
+                        }
+
+                        Rectangle {
+                            id: contentBackground   //actual background of the dialogue
+
+                            color: "white"
+                            border.color: Theme.colors.tintColor
+
+                            width: content.width + 20       //add some padding on all sides
+                            height: content.height + 20
+                            radius: 4                       //round off the corners
+
+                            anchors.centerIn: parent
+                        }
+
+                        GridLayout {
+                            id: content
+
+                            columns: 1
+                            rowSpacing: 10
+
+                            anchors.centerIn: contentBackground
+
+                            AppTextField {
+                                id: nameField
+
+                                borderWidth: 1
+                                Layout.preferredWidth: 300
+
+                                onTextChanged: {        //displays error message if nameField is empty
+                                    if (text === "")
+                                        errorField.show()
+                                    else
+                                        errorField.hide()
+                                }
+
+                                placeholderText: "Name"
+                            }
+
+                            AppTextEdit {
+                                id: notes
+
+                                Layout.preferredWidth: 250
+                                Layout.alignment: Qt.AlignHCenter   //center the element
+                                wrapMode: TextEdit.Wrap             //start a new line before the text flows out of the parent container
+
+
+                                placeholderText: "Add Notes"
+
+                                font.pixelSize: focus ? 20 : 15     //scale text up when focussed
+                                Behavior on font.pixelSize {        //do it smoothly
+                                    NumberAnimation {
+                                        duration: 200
+                                    }
+                                }
+
+                                anchors.top: nameField.bottom
+                                anchors.topMargin: focus ? 15 : 10  //increase the distance between the text and the nameField when focussed
+                                Behavior on anchors.topMargin {     //do that smoothly as well
+                                    NumberAnimation {
+                                        duration: 200
+                                    }
+                                }
+                            }
+                            AppButton {
+                                id: roleButton  //displays roleChooser
+
+                                borderColor: Theme.colors.tintColor
+                                backgroundColor: "white"
+
+                                text: "Choose Role"
+                                fontBold: false //would be bold on Android
+                                textColor: Theme.colors.tintColor
+                                textSize: 20
+
+                                onClicked: roleChooser.show()
+
+                                Layout.alignment: Qt.AlignHCenter   //center the button
+                            }
+                            Item {
+                                id: errorWrapper
+
+                                width: errorField.width  //use the error text's width
+                                height: 20
+
+                                visible: opacity > 0    //only visible if opacity is greater than 0
+
+                                opacity: errorField.opacity  //use the error text's opacity
+                                Behavior on opacity {   //smooth transition
+                                    NumberAnimation {
+                                        duration: 200
+                                    }
+                                }
+
+                                Layout.alignment: Qt.AlignHCenter //center the error box
+
+                                AppText {
+                                    id: errorField   //displays error message
+
+                                    function show() {
+                                        opacity = 1
+                                    }
+
+                                    function hide() {
+                                        opacity = 0
+                                    }
+
+                                    opacity: 0              //initially not visible
+                                    Behavior on opacity {   //smooth transition
+                                        NumberAnimation {
+                                            duration: 200
+                                        }
+                                    }
+
+                                    color: Theme.colors.tintColor
+
+                                    text: "Please enter a name!"
+
+                                    anchors.centerIn: parent
+                                }   //error
+                            } //errorWrapper
+
+                            AppButton {
+                                id: submitButton
+
+                                text: title
+                                fontBold: false
+                                textColor: "white"
+                                textSize: 25
+
+                                onClicked: {
+                                    if (nameField.text === "" || roleChooser.selectedRole === "")
+                                        return
+
+                                    var player = {
+                                        name: nameField.text,
+                                        role: roleChooser.selectedRole,
+                                        notes: notes.text
+                                    }
+
+                                    var roleObject = DataModel.roles.getRoleObject(player.role) //get the roles object representation
+                                    player.sectionName = (roleObject.pluralName) ?              //if  there is a plural name for that role
+                                                roleObject.pluralName :                         //use it as the sectionName
+                                                roleObject.name                                 //if not use the role name
+
+                                    submit(player)
+                                }
+
+                                horizontalMargin: 0
+                                verticalMargin: 0
+                                Layout.alignment: Qt.AlignHCenter
+
+                                Rectangle {
+                                    z: -1
+                                    color: Theme.tintColor
+                                    anchors.fill: parent
+                                }
+                            }
+                        }
+
+                        RoleChooser {
+                            id: roleChooser
+
+                            function show() {
+                                opacity = 1
+                            }
+
+                            function hide() {
+                                opacity = 0
+                            }
+
+                            onRoleSelected: {
+                                hide()
+                                roleButton.text = selectedRole
+                            }
+
+                            visible: opacity > 0    //only visible when the opacity is greater than 0
+                            scale: opacity          //makes it grow when it pops  up
+
+                            opacity: 0              //initially not visible
+                            Behavior on opacity {   //a smooth transition
+                                NumberAnimation {
+                                    easing.type: Easing.OutQuart
+                                    duration: 200
+                                }
+                            }
+                        }
+                    }
+                \endcode
+            \endsection2
+
+            \section2 RoleChooser.qml
+                \code
+                    import VPlayApps 1.0
+                    import QtQuick 2.0
+                    import QtQuick.Layouts 1.1
+
+                    import "../model"
+
+                    Page {
+
+                        backgroundColor: "transparent"
+
+                        signal roleSelected()
+
+                        property string selectedRole: ""
+
+                        function reset() {
+                            selectedRole = ""               //reset selected role
+                            title.text = "Choose a Role"    //resets title text
+                        }
+
+                        GridLayout {
+                            id: roleList
+
+                            width: 400
+                            height: 400
+
+                            rowSpacing: 0   //no spaces between role cards
+                            columnSpacing: 0
+
+                            columns: 2  //2 cards in one row
+
+                            anchors.centerIn: parent
+
+                            Repeater {
+                                model: ListModel {
+                                    ListElement { name: "Werewolf"}
+                                    ListElement { name: "Villager"}
+                                    ListElement { name: "Seer"}
+                                    ListElement { name: "Witch"}
+                                }
+
+                                delegate: AppButton {
+                                    id: gridItem
+
+                                    Connections {
+                                        target: DataModel
+                                        onAvailabilityUpdated: gridItem.enabled = availabilityInformation[name] //disable role if it's not available anymore
+                                    }
+
+                                    minimumWidth: 200
+                                    minimumHeight: 200
+
+                                    verticalMargin: 0       //no spaces between role cards
+                                    horizontalMargin: 0
+
+                                    text: name          //display the role's name
+                                    textSize: 20
+                                    fontBold: false     //would be bold on Android
+                                    textColor: isSelected() ? Theme.tintColor : "black"
+
+                                    borderColor: Theme.colors.tintColor
+                                    backgroundColor: "white"
+
+                                    onClicked: {
+                                        if (isSelected())
+                                                                //if the role is selected already
+                                            roleSelected()      //submit it
+                                        else
+                                                                //if not
+                                            selectedRole = name //select it
+                                    }
+
+                                    function isSelected() {
+                                        return selectedRole === name
+                                    }
+
+                                    Rectangle {
+                                        z: -1           //white background for ios
+                                        color: "white"
+                                        anchors.fill: parent
+                                    }
+                                }
+                            }
+                        }
+
+                        Rectangle {
+                            id: titleWrapper
+
+                            color: Theme.colors.tintColor
+
+                            width: roleList.width   //adjusts width to the list's width
+                            height: 100
+
+                            anchors.bottom: roleList.top                        //sits on top of the list's box
+                            anchors.horizontalCenter: roleList.horizontalCenter //horizontally aligned with the list
+
+                            Text {
+                                id: title
+
+                                text: (selectedRole == "") ? "Choose a Role" : selectedRole
+                                font.pixelSize: 40
+
+                                color: "white"
+
+                                anchors.centerIn: parent
+                            }
+                        }
+
+                        Rectangle {
+                            id: hintWrapper
+
+                            color: Theme.colors.tintColor
+
+                            width: roleList.width   //adjusts width to the list's width
+
+                            height: (selectedRole === "") ? 0 : 50 //expand box if a role is selected
+                            Behavior on height {
+                                NumberAnimation {
+                                    duration: 200
+                                }
+                            }
+
+                            opacity: (height > 0) ? 1 : 0 //visible as soon as the height is greater than zero
+
+                            anchors.top: roleList.bottom        //attaches it to the bottom of the list
+                            anchors.horizontalCenter: roleList.horizontalCenter //centers it
+
+                            Text {
+                                id: hint
+
+                                text: "tab again to confirm selection"
+                                font.pixelSize: 20
+
+                                color: "white"
+
+                                anchors.centerIn: parent
+                            }
+                        }
+                    }
+                \endcode
+            \endsection2
+        \endsection1
+    \endchapter
+*/
